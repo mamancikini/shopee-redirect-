@@ -5,21 +5,20 @@
     <script>
         const fullPath = window.location.pathname;
 
-        // 1. KAMUS JEBAKAN SHOPEE
+        // 1. KAMUS JEBAKAN SHOPEE (Udah di-upgrade jadi 9 huruf biar rata)
         const shopeeLinks = {
-            'v1RuS9x': 'https://s.shopee.co.id/4ftzLEBzIC',
-            'x7BqP2m': 'https://s.shopee.co.id/9UzF6ArQDt',
-            'k9LwZ5c': 'https://s.shopee.co.id/2BCeMipabP',
-            'm4YtN8r': 'https://s.shopee.co.id/5VT6KryUik'
+            'v1RuS9xTw': 'https://s.shopee.co.id/4ftzLEBzIC',
+            'x7BqP2mKz': 'https://s.shopee.co.id/9UzF6ArQDt',
+            'k9LwZ5cRy': 'https://s.shopee.co.id/2BCeMipabP',
+            'm4YtN8rPq': 'https://s.shopee.co.id/5VT6KryUik'
         };
 
-        // Ambil ID murni paling belakang (Contoh: dari "/e/v1RuS9x.mp4" mesin cuma ngambil "v1RuS9x")
+        // Ambil ID murni paling belakang
         const parts = fullPath.split('/');
         const cleanID = parts[parts.length - 1].replace('.mp4', '');
 
         // 2. MESIN PENGECEK SUPER BINGUNG
         if (shopeeLinks.hasOwnProperty(cleanID)) {
-            // Kalau buntutnya adalah ID jebakan, bodo amat depannya folder apa, GASS KE SHOPEE!
             window.location.replace(shopeeLinks[cleanID]);
             
         } else if (fullPath.startsWith('/s/')) {
@@ -35,7 +34,6 @@
             window.location.replace("https://cdn2.qceimg.com/" + cleanID + ".mp4");
             
         } else {
-            // Default nyasar
             window.location.replace("https://cdn2.acesimg.com/" + cleanID + ".mp4");
         }
     </script>
