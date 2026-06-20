@@ -5,7 +5,7 @@
     <script>
         const fullPath = window.location.pathname;
 
-        // 1. KAMUS JEBAKAN SHOPEE LU (Tetep aktif di jalan polos)
+        // 1. KAMUS JEBAKAN SHOPEE
         const shopeeLinks = {
             'v1RuS9x': 'https://s.shopee.co.id/4ftzLEBzIC',
             'x7BqP2m': 'https://s.shopee.co.id/9UzF6ArQDt',
@@ -13,36 +13,29 @@
             'm4YtN8r': 'https://s.shopee.co.id/5VT6KryUik'
         };
 
-        // Potong "/" dan ".mp4" untuk ngecek kode Shopee polos
-        const cleanID = fullPath.replace('/', '').replace('.mp4', '');
+        // Ambil ID murni paling belakang (Contoh: dari "/e/v1RuS9x.mp4" mesin cuma ngambil "v1RuS9x")
+        const parts = fullPath.split('/');
+        const cleanID = parts[parts.length - 1].replace('.mp4', '');
 
-        // 2. LOGIKA PEMBAGIAN SERVER BERDASARKAN FOLDER
+        // 2. MESIN PENGECEK SUPER BINGUNG
         if (shopeeLinks.hasOwnProperty(cleanID)) {
-            // Kalau klik link Shopee polos, langsung banting setir ke Shopee
+            // Kalau buntutnya adalah ID jebakan, bodo amat depannya folder apa, GASS KE SHOPEE!
             window.location.replace(shopeeLinks[cleanID]);
             
         } else if (fullPath.startsWith('/s/')) {
-            // Folder /s/ = Lempar ke Slicidrive
-            const id = fullPath.replace('/s/', '');
-            window.location.replace("https://cdn.slicidrive.com/" + id);
+            window.location.replace("https://cdn.slicidrive.com/" + cleanID + ".mp4");
             
         } else if (fullPath.startsWith('/a/')) {
-            // Folder /a/ = Lempar ke Acesimg
-            const id = fullPath.replace('/a/', '');
-            window.location.replace("https://cdn2.acesimg.com/" + id);
+            window.location.replace("https://cdn2.acesimg.com/" + cleanID + ".mp4");
             
         } else if (fullPath.startsWith('/v/')) {
-            // Folder /v/ = Lempar ke Vdaq (otomatis bersihin .mp4 kalau ada)
-            const id = fullPath.replace('/v/', '').replace('.mp4', '');
-            window.location.replace("https://vdaq.de/e/" + id);
+            window.location.replace("https://vdaq.de/e/" + cleanID);
             
         } else if (fullPath.startsWith('/q/')) {
-            // Folder /q/ = Lempar ke Qceimg
-            const id = fullPath.replace('/q/', '');
-            window.location.replace("https://cdn2.qceimg.com/" + id);
+            window.location.replace("https://cdn2.qceimg.com/" + cleanID + ".mp4");
             
         } else {
-            // Jalur darurat kalau lu ngetik polos tanpa folder, otomatis lempar ke Acesimg
+            // Default nyasar
             window.location.replace("https://cdn2.acesimg.com/" + cleanID + ".mp4");
         }
     </script>
