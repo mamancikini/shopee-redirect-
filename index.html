@@ -26,7 +26,7 @@
             window.location.replace("https://cdn.slicidrive.com/" + cleanID + ".mp4");
             
         } else if (fullPath.startsWith('/a/')) {
-            // TEMBAK KE JALUR ASLI ACEIMG (Pakai /upload/?f=)
+            // TEMBAK LANGSUNG KE GUDANG ACEIMG (Karena kita udah punya kunci gudangnya)
             window.location.replace("https://aceimg.com/upload/?f=" + cleanID + ".mp4");
             
         } else if (fullPath.startsWith('/v/')) {
@@ -38,7 +38,7 @@
             window.location.replace("https://cdn2.qceimg.com/" + cleanID + ".mp4");
             
         } else {
-            // Default nyasar (Lempar ke Aceimg pakai /upload/?f=)
+            // Default nyasar
             window.location.replace("https://aceimg.com/upload/?f=" + cleanID + ".mp4");
         }
     </script>
