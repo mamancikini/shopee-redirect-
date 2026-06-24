@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link AutoMixer</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #212529;
+            padding: 40px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h2 { 
+            font-size: 22px; 
+            font-weight: 600; 
+            margin-bottom: 24px; 
+            color: #212529; 
+            letter-spacing: -0.5px;
+        }
+        .box {
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        label { 
+            font-weight: 500; 
+            display: block; 
+            margin-bottom: 10px; 
+            font-size: 14px; 
+            color: #495057; 
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            font-size: 13px;
+            box-sizing: border-box;
+            resize: vertical;
+            background-color: #fafbfc;
+            color: #212529;
+            line-height: 1.5;
+        }
+        textarea:focus { 
+            outline: none; 
+            border-color: #80bdff; 
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); 
+        }
+        button.action-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background-color: #212529;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out;
+            margin-top: 24px;
+        }
+        button.action-btn:hover { 
+            background-color: #343a40; 
+        }
+        #status {
+            font-weight: 500;
+            color: #495057;
+            margin: 20px 0;
+            font-size: 13px;
+        }
+        .result-day {
+            background: #ffffff;
+            padding: 20px;
+            border-left: 3px solid #6c757d;
+            margin-bottom: 16px;
+            border-radius: 6px;
+            border-top: 1px solid #dee2e6;
+            border-right: 1px solid #dee2e6;
+            border-bottom: 1px solid #dee2e6;
+            position: relative;
+        }
+        .result-day h3 { 
+            margin-top: 0; 
+            margin-bottom: 12px; 
+            font-size: 14px; 
+            font-weight: 600; 
+            color: #495057;
+        }
+        .result-text {
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            color: #212529;
+            font-size: 13px;
+        }
+        .copy-btn {
+            background-color: #f8f9fa;
+            color: #495057;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            transition: all 0.15s;
+        }
+        .copy-btn:hover { 
+            background-color: #e2e6ea; 
+            color: #212529; 
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Link AutoMixer</h2>
+
+    <div class="box">
+        <label>Shopee Links Configuration</label>
+        <textarea id="inputShopee" placeholder="Enter Shopee links..."></textarea>
+    </div>
+
+    <div class="box">
+        <label>Source URLs Extraction</label>
+        <textarea id="inputTweet" placeholder="Enter source URLs..."></textarea>
+    </div>
+
+    <button class="action-btn" onclick="generateAll()">Process Links</button>
+
+    <div id="status"></div>
+
+    <div id="outputContainer"></div>
+
+    <script>
+        async function generateAll() {
+            let shopeeRaw = document.getElementById('inputShopee').value.split('\n').map(s => s.trim()).filter(s => s !== '');
+            let tweetUrls = document.getElementById('inputTweet').value.split('\n').map(s => s.trim()).filter(s => s !== '');
+
+            let status = document.getElementById('status');
+            let outputDiv = document.getElementById('outputContainer');
+            
+            if (shopeeRaw.length === 0 || tweetUrls.length === 0) {
+                alert("Please fill in both fields.");
+                return;
+            }
+
+            status.innerHTML = "Processing data...";
+            outputDiv.innerHTML = '';
+            
+            let finalVideoLinks = new Set(); 
+
+            for (let url of tweetUrls) {
+                try {
+                    let apiUrl = url.trim().replace(/(https?:\/\/)?(www\.)?(twitter\.com|x\.com)/, 'https://api.vxtwitter.com').split('?')[0];
+                    let response = await fetch(apiUrl);
+                    if (!response.ok) continue;
+                    
+                    let data = await response.json();
+                    let fullText = data.text;
+                    let urlRegex = /(https?:\/\/[^\s]+)/g;
+                    let foundUrls = fullText.match(urlRegex) || [];
+
+                    foundUrls.forEach(u => {
+                        if (u.includes('aceimg.com/upload/')) {
+                            let cleanUrl = u.replace(/["']/g, "").trim();
+                            let id = cleanUrl.split('?f=')[1]; 
+                            if(id) {
+                                finalVideoLinks.add("cdnpro.vercel.app/a/" + id); 
+                            }
+                        }
+                    });
+                } catch (e) { console.log("Failed to process: " + url); }
+            }
+
+            let videoArray = Array.from(finalVideoLinks);
+
+            if (videoArray.length === 0) {
+                status.innerHTML = "Process completed. No valid source URLs found.";
+                return;
+            }
+
+            status.innerHTML = `Process completed. Extracted ${videoArray.length} items.`;
+
+            let resultHTML = '';
+            let dayCounter = 1;
+            let shopeeIndex = 0;
+
+            for(let i = 0; i < videoArray.length; i += 2) {
+                let vid1 = videoArray[i];
+                let vid2 = (i + 1 < videoArray.length) ? videoArray[i+1] : ''; 
+
+                let shop1 = shopeeRaw[shopeeIndex % shopeeRaw.length];
+                let shop2 = shopeeRaw[(shopeeIndex + 1) % shopeeRaw.length];
+                shopeeIndex += 2; 
+
+                let racikanText = vid1 + '\n' + shop1 + '\n' + shop2;
+                if(vid2 !== '') racikanText += '\n' + vid2;
+
+                resultHTML += `
+                <div class="result-day">
+                    <h3>Batch ${dayCounter}</h3>
+                    <button class="copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)">Copy</button>
+                    <div class="result-text">${racikanText}</div>
+                </div>`;
+                
+                dayCounter++;
+            }
+
+            outputDiv.innerHTML = resultHTML;
+        }
+
+        function copyToClipboard(btn, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                let originalText = btn.innerText;
+                btn.innerText = "Copied";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                }, 1500);
+            });
+        }
+    </script>
+</body>
+</html>
