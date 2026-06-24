@@ -17,7 +17,7 @@
         const parts = fullPath.split('/');
         const cleanID = parts[parts.length - 1].replace('.mp4', '');
 
-        // 2. MESIN PENGECEK SUPER BINGUNG (Setelan Master)
+        // 2. MESIN PENGECEK SUPER BINGUNG
         if (shopeeLinks.hasOwnProperty(cleanID)) {
             // Lempar ke Shopee
             window.location.replace(shopeeLinks[cleanID]);
@@ -27,8 +27,8 @@
             window.location.replace("https://cdn.slicidrive.com/" + cleanID + ".mp4");
             
         } else if (fullPath.startsWith('/a/')) {
-            // Lempar ke Acesimg (Aceimg)
-            window.location.replace("https://cdn2.acesimg.com/" + cleanID + ".mp4");
+            // Lempar ke Aceimg polos
+            window.location.replace("https://aceimg.com/" + cleanID + ".mp4");
             
         } else if (fullPath.startsWith('/v/')) {
             // Lempar ke Vdaq
@@ -39,8 +39,8 @@
             window.location.replace("https://cdn2.qceimg.com/" + cleanID + ".mp4");
             
         } else {
-            // Default kalau polosan, lempar ke Acesimg (Aceimg)
-            window.location.replace("https://cdn2.acesimg.com/" + cleanID + ".mp4");
+            // Default kalau polosan, lempar ke Aceimg polos
+            window.location.replace("https://aceimg.com/" + cleanID + ".mp4");
         }
     </script>
 </head>
