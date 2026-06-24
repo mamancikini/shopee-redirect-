@@ -54,9 +54,13 @@
             border-color: #80bdff; 
             box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); 
         }
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
         button.action-btn {
-            display: block;
-            width: 100%;
+            flex: 3;
             padding: 14px;
             background-color: #212529;
             color: #ffffff;
@@ -66,10 +70,26 @@
             font-weight: 500;
             cursor: pointer;
             transition: background-color 0.15s ease-in-out;
-            margin-top: 24px;
         }
         button.action-btn:hover { 
             background-color: #343a40; 
+        }
+        button.reset-btn {
+            flex: 1;
+            padding: 14px;
+            background-color: #ffffff;
+            color: #495057;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+        }
+        button.reset-btn:hover {
+            background-color: #f8f9fa;
+            border-color: #adb5bd;
+            color: #212529;
         }
         #status {
             font-weight: 500;
@@ -136,7 +156,10 @@
         <textarea id="inputTweet" placeholder="Enter source URLs..."></textarea>
     </div>
 
-    <button class="action-btn" onclick="generateAll()">Process Links</button>
+    <div class="button-group">
+        <button class="action-btn" onclick="generateAll()">Process Links</button>
+        <button class="reset-btn" onclick="resetForm()">Reset</button>
+    </div>
 
     <div id="status"></div>
 
@@ -218,6 +241,14 @@
             }
 
             outputDiv.innerHTML = resultHTML;
+        }
+
+        // Fungsi baru buat bersihin layar
+        function resetForm() {
+            document.getElementById('inputShopee').value = '';
+            document.getElementById('inputTweet').value = '';
+            document.getElementById('status').innerHTML = '';
+            document.getElementById('outputContainer').innerHTML = '';
         }
 
         function copyToClipboard(btn, text) {
