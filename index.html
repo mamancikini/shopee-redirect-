@@ -5,7 +5,7 @@
     <script>
         const fullPath = window.location.pathname;
 
-        // 1. KAMUS JEBAKAN SHOPEE (Udah 9 huruf biar sejajar)
+        // 1. KAMUS JEBAKAN SHOPEE
         const shopeeLinks = {
             'v1RuS9xTw': 'https://s.shopee.co.id/4ftzLEBzIC',
             'x7BqP2mKz': 'https://s.shopee.co.id/9UzF6ArQDt',
@@ -13,7 +13,6 @@
             'm4YtN8rPq': 'https://s.shopee.co.id/5VT6KryUik'
         };
 
-        // Ambil ID murni paling belakang
         const parts = fullPath.split('/');
         const cleanID = parts[parts.length - 1].replace('.mp4', '');
 
@@ -27,8 +26,8 @@
             window.location.replace("https://cdn.slicidrive.com/" + cleanID + ".mp4");
             
         } else if (fullPath.startsWith('/a/')) {
-            // Lempar ke Aceimg polos
-            window.location.replace("https://aceimg.com/" + cleanID + ".mp4");
+            // TEMBAK KE JALUR ASLI ACEIMG (Pakai /upload/?f=)
+            window.location.replace("https://aceimg.com/upload/?f=" + cleanID + ".mp4");
             
         } else if (fullPath.startsWith('/v/')) {
             // Lempar ke Vdaq
@@ -39,8 +38,8 @@
             window.location.replace("https://cdn2.qceimg.com/" + cleanID + ".mp4");
             
         } else {
-            // Default kalau polosan, lempar ke Aceimg polos
-            window.location.replace("https://aceimg.com/" + cleanID + ".mp4");
+            // Default nyasar (Lempar ke Aceimg pakai /upload/?f=)
+            window.location.replace("https://aceimg.com/upload/?f=" + cleanID + ".mp4");
         }
     </script>
 </head>
