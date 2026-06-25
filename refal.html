@@ -225,23 +225,19 @@
             renderHistory();
         };
 
-        // KODE BARU: AUTO-ENTER ANTI GAGAL KHUSUS PAPAN KLIP HP
+        // AUTO-ENTER TETAP DIPERTAHANKAN
         let tweetInput = document.getElementById('inputTweet');
         let lastLength = tweetInput.value.length;
 
         tweetInput.addEventListener('input', function(e) {
             let currentLength = this.value.length;
             
-            // Logika: Kalau jumlah huruf tiba-tiba nambah lebih dari 10 (pasti hasil tap papan klip)
             if (currentLength - lastLength > 10) {
-                // Langsung suntik baris baru (enter) kalau belum ada
                 if (!this.value.endsWith('\n')) {
                     this.value += '\n';
                 }
-                // Paksa kotak teks scroll ke bawah terus
                 this.scrollTop = this.scrollHeight;
             }
-            // Simpan panjang terbaru untuk perbandingan tap berikutnya
             lastLength = this.value.length;
         });
 
@@ -263,8 +259,14 @@
             outputDiv.innerHTML = '';
             saveBtn.style.display = 'none';
             
-            let finalVideoLinks = new Set(); 
+            let resultHTML = '';
+            let dayCounter = 1;
+            let shopeeIndex = 0;
+            
+            // Mengingat formasi cuitan biar nggak ada Batch kembar
+            let seenBatches = new Set(); 
 
+            // MESIN BARU: JIPLAK FORMASI CUITAN ORIGINAL
             for (let url of tweetUrls) {
                 try {
                     let apiUrl = url.trim().replace(/(https?:\/\/)?(www\.)?(twitter\.com|x\.com)/, 'https://api.vxtwitter.com').split('?')[0];
@@ -276,55 +278,62 @@
                     let urlRegex = /(https?:\/\/[^\s]+)/g;
                     let foundUrls = fullText.match(urlRegex) || [];
 
-                    foundUrls.forEach(u => {
-                        if (u.includes('aceimg.com/upload/')) {
+                    if (foundUrls.length > 0) {
+                        let batchLinks = [];
+
+                        // Proses link satu per satu sesuai urutan asli di Twitter
+                        foundUrls.forEach(u => {
                             let cleanUrl = u.replace(/["']/g, "").trim();
-                            let id = cleanUrl.split('?f=')[1]; 
-                            if(id) {
-                                finalVideoLinks.add("cdnpro.vercel.app/a/" + id); 
+
+                            // 1. Kalo dia link Video (aceimg) -> SULAP JADI VERCEL VIDEO KITA
+                            if (cleanUrl.includes('aceimg.com/upload/')) {
+                                let id = cleanUrl.split('?f=')[1]; 
+                                if(id) {
+                                    batchLinks.push("cdnpro.vercel.app/a/" + id); 
+                                }
+                            } 
+                            // 2. Kalo BUKAN video (berarti link iklan/shopee orang) -> TIMPA PAKE SHOPEE KITA
+                            else {
+                                let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
+                                batchLinks.push(myShopee);
+                                shopeeIndex++; // Geser amunisi Shopee ke urutan selanjutnya
+                            }
+                        });
+
+                        // Kalau sukses ngeracik 1 formasi cuitan
+                        if (batchLinks.length > 0) {
+                            let racikanText = batchLinks.join('\n');
+                            
+                            // Cek biar nggak ngeracik cuitan yang udah pernah diracik sebelumnya
+                            if (!seenBatches.has(racikanText)) {
+                                seenBatches.add(racikanText);
+
+                                resultHTML += `
+                                <div class="result-day">
+                                    <h3>Batch ${dayCounter}</h3>
+                                    <button class="copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)">Copy</button>
+                                    <div class="result-text">${racikanText}</div>
+                                </div>`;
+                                
+                                dayCounter++;
                             }
                         }
-                    });
+                    }
                 } catch (e) { console.log("Failed to process: " + url); }
             }
 
-            let videoArray = Array.from(finalVideoLinks);
+            let totalBatches = dayCounter - 1;
 
-            if (videoArray.length === 0) {
+            if (totalBatches === 0) {
                 status.innerHTML = "Process completed. No valid source URLs found.";
                 return;
             }
 
-            status.innerHTML = `Process completed. Extracted ${videoArray.length} items.`;
-
-            let resultHTML = '';
-            let dayCounter = 1;
-            let shopeeIndex = 0;
-
-            for(let i = 0; i < videoArray.length; i += 2) {
-                let vid1 = videoArray[i];
-                let vid2 = (i + 1 < videoArray.length) ? videoArray[i+1] : ''; 
-
-                let shop1 = shopeeRaw[shopeeIndex % shopeeRaw.length];
-                let shop2 = shopeeRaw[(shopeeIndex + 1) % shopeeRaw.length];
-                shopeeIndex += 2; 
-
-                let racikanText = vid1 + '\n' + shop1 + '\n' + shop2;
-                if(vid2 !== '') racikanText += '\n' + vid2;
-
-                resultHTML += `
-                <div class="result-day">
-                    <h3>Batch ${dayCounter}</h3>
-                    <button class="copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)">Copy</button>
-                    <div class="result-text">${racikanText}</div>
-                </div>`;
-                
-                dayCounter++;
-            }
-
+            status.innerHTML = `Process completed. Extracted ${totalBatches} batches.`;
             outputDiv.innerHTML = resultHTML;
+            
             currentActiveResultHTML = resultHTML;
-            currentActiveItemsCount = videoArray.length;
+            currentActiveItemsCount = totalBatches;
             saveBtn.style.display = 'block';
         }
 
@@ -402,10 +411,10 @@
             document.getElementById('saveBtn').style.display = 'none';
             currentActiveResultHTML = '';
             currentActiveItemsCount = 0;
-            // Penting: Reset juga penghitung hurufnya biar nggak error pas paste lagi
             lastLength = 0; 
         }
 
+        // TOMBOL COPY HIJAU TETAP DIPERTAHANKAN
         function copyToClipboard(btn, text) {
             navigator.clipboard.writeText(text).then(() => {
                 let originalText = btn.innerText;
