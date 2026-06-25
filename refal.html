@@ -225,24 +225,24 @@
             renderHistory();
         };
 
-        // FITUR BARU: AUTO-ENTER VERSI MOBILE-FRIENDLY
-        document.getElementById('inputTweet').addEventListener('paste', function(e) {
-            let el = this;
-            // Kasih jeda 10 milidetik biar keyboard HP nempel teksnya dulu secara normal
-            setTimeout(function() {
-                let currentPos = el.selectionEnd;
-                let textBefore = el.value.substring(0, currentPos);
-                let textAfter = el.value.substring(currentPos);
-                
-                // Kalau ujung teksnya belum ada enter, otomatis kita suntik enter
-                if (!textBefore.endsWith('\n')) {
-                    el.value = textBefore + '\n' + textAfter;
-                    // Paksa kursor turun ke baris baru
-                    el.selectionStart = el.selectionEnd = currentPos + 1;
+        // KODE BARU: AUTO-ENTER ANTI GAGAL KHUSUS PAPAN KLIP HP
+        let tweetInput = document.getElementById('inputTweet');
+        let lastLength = tweetInput.value.length;
+
+        tweetInput.addEventListener('input', function(e) {
+            let currentLength = this.value.length;
+            
+            // Logika: Kalau jumlah huruf tiba-tiba nambah lebih dari 10 (pasti hasil tap papan klip)
+            if (currentLength - lastLength > 10) {
+                // Langsung suntik baris baru (enter) kalau belum ada
+                if (!this.value.endsWith('\n')) {
+                    this.value += '\n';
                 }
-                // Otomatis narik layar textarea ke bawah ngikutin kursor
-                el.scrollTop = el.scrollHeight;
-            }, 10);
+                // Paksa kotak teks scroll ke bawah terus
+                this.scrollTop = this.scrollHeight;
+            }
+            // Simpan panjang terbaru untuk perbandingan tap berikutnya
+            lastLength = this.value.length;
         });
 
         async function generateAll() {
@@ -402,6 +402,8 @@
             document.getElementById('saveBtn').style.display = 'none';
             currentActiveResultHTML = '';
             currentActiveItemsCount = 0;
+            // Penting: Reset juga penghitung hurufnya biar nggak error pas paste lagi
+            lastLength = 0; 
         }
 
         function copyToClipboard(btn, text) {
