@@ -184,7 +184,7 @@
         .btn-vid { background-color: #e5f1ff; color: #007aff; }
         .btn-shop { background-color: #fff0e6; color: #ff6b00; }
 
-        /* TOMBOL X */
+        /* TOMBOL X YANG KEMAREN KELUPAAN KEHAPUS */
         .post-x-btn {
             width: 100%;
             padding: 12px;
@@ -287,7 +287,7 @@
             let draftTweet = localStorage.getItem('draft_tweet');
             if(draftTweet) {
                 tweetInput.value = draftTweet;
-                lastLength = tweetInput.length; 
+                lastLength = draftTweet.length; 
             }
 
             let draftResult = localStorage.getItem('draft_result');
@@ -297,95 +297,185 @@
                 currentActiveResultHTML = draftResult;
                 currentActiveItemsCount = parseInt(draftCount || '0');
                 document.getElementById('saveBtn').style.display = 'block';
+                document.getElementById('status').innerHTML = "Data recovered from previous session.";
             }
         };
 
-        shopeeInput.addEventListener('input', () => localStorage.setItem('draft_shopee', shopeeInput.value));
-        
+        shopeeInput.addEventListener('input', function() {
+            localStorage.setItem('draft_shopee', this.value);
+        });
+
         tweetInput.addEventListener('input', function(e) {
             let currentLength = this.value.length;
             if (currentLength - lastLength > 10) {
-                if (!this.value.endsWith('\n')) this.value += '\n';
+                if (!this.value.endsWith('\n')) {
+                    this.value += '\n';
+                }
                 this.scrollTop = this.scrollHeight;
             }
             lastLength = this.value.length;
             localStorage.setItem('draft_tweet', this.value);
         });
 
-        // FUNGSI SHARE KE X (Native Android Share)
+        // FUNGSI SHARE KE X 
         function shareToX(btn) {
-            let racikanText = btn.getAttribute('data-text');
+            let racikanText = decodeURIComponent(btn.getAttribute('data-text'));
             if (navigator.share) {
-                navigator.share({ text: racikanText }).catch(err => console.log(err));
+                navigator.share({
+                    text: racikanText
+                }).catch((error) => console.log('Batal share:', error));
             } else {
-                // Fallback untuk HP lama
-                window.location.href = `intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT=${encodeURIComponent(racikanText)};end`;
+                let intentUrl = `intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT=${btn.getAttribute('data-text')};end`;
+                window.location.href = intentUrl;
             }
         }
 
         async function generateAll() {
             let shopeeRaw = shopeeInput.value.split('\n').map(s => s.trim()).filter(s => s !== '');
-            let tweetUrls = tweetInput.value.match(/(https?:\/\/[^\s]+)/g) || [];
+            let rawTweetInput = tweetInput.value;
+            let tweetUrls = rawTweetInput.match(/(https?:\/\/[^\s]+)/g) || [];
+
             let status = document.getElementById('status');
             let outputDiv = document.getElementById('outputContainer');
             let saveBtn = document.getElementById('saveBtn');
             
-            if (shopeeRaw.length === 0 || tweetUrls.length === 0) return alert("Fill fields!");
+            if (shopeeRaw.length === 0 || tweetUrls.length === 0) {
+                alert("Please fill in both fields.");
+                return;
+            }
 
-            status.innerHTML = "Processing...";
+            status.innerHTML = "Processing data...";
             outputDiv.innerHTML = '';
+            saveBtn.style.display = 'none';
             
             let resultHTML = '';
             let dayCounter = 1;
             let shopeeIndex = 0;
+            let seenBatches = new Set(); 
 
             for (let url of tweetUrls) {
-                let response = await fetch('https://api.vxtwitter.com/' + url.split('status/')[1].split('?')[0]);
-                let data = await response.json();
-                let batchLinks = [];
+                try {
+                    let apiUrl = url.trim().replace(/(https?:\/\/)?(www\.)?(twitter\.com|x\.com)/, 'https://api.vxtwitter.com').split('?')[0];
+                    let response = await fetch(apiUrl);
+                    if (!response.ok) continue;
+                    
+                    let data = await response.json();
+                    let fullText = data.text;
+                    let urlRegex = /(https?:\/\/[^\s]+)/g;
+                    let foundUrls = fullText.match(urlRegex) || [];
 
-                data.text.match(/(https?:\/\/[^\s]+)/g)?.forEach(u => {
-                    if (u.includes('aceimg.com/upload/')) {
-                        let id = u.split('?f=')[1];
-                        batchLinks.push({ url: "cdnpro.vercel.app/a/" + id, type: "vid" });
-                    } else {
-                        batchLinks.push({ url: shopeeRaw[shopeeIndex++ % shopeeRaw.length], type: "shop" });
+                    if (foundUrls.length > 0) {
+                        let batchLinksData = [];
+
+                        foundUrls.forEach(u => {
+                            let cleanUrl = u.replace(/["']/g, "").trim();
+
+                            if (cleanUrl.includes('aceimg.com/upload/')) {
+                                let id = cleanUrl.split('?f=')[1]; 
+                                if(id) {
+                                    batchLinksData.push({ url: "cdnpro.vercel.app/a/" + id, type: "vid" }); 
+                                }
+                            } else {
+                                let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
+                                batchLinksData.push({ url: myShopee, type: "shop" });
+                                shopeeIndex++; 
+                            }
+                        });
+
+                        if (batchLinksData.length > 0) {
+                            let plainTextArr = [];
+                            let testButtonsHTML = `<div class="test-side-panel">`;
+
+                            batchLinksData.forEach((item, idx) => {
+                                plainTextArr.push(item.url);
+                                let href = item.url.startsWith('http') ? item.url : 'https://' + item.url;
+                                
+                                let btnClass = item.type === 'vid' ? 'btn-vid' : 'btn-shop';
+                                let btnText = item.type === 'vid' ? 'V' + (idx+1) : 'S' + (idx+1);
+                                
+                                testButtonsHTML += `<button class="test-btn ${btnClass}" onclick="window.location.href='${href}'">${btnText}</button>`;
+                            });
+                            testButtonsHTML += `</div>`;
+
+                            let racikanText = plainTextArr.join('\n'); 
+                            let encodedTweetText = encodeURIComponent(racikanText);
+
+                            if (!seenBatches.has(racikanText)) {
+                                seenBatches.add(racikanText);
+
+                                resultHTML += `
+                                <div class="result-day">
+                                    <h3>Batch ${dayCounter}</h3>
+                                    <button class="copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)">Copy</button>
+                                    
+                                    <div class="result-body">
+                                        <div class="result-text">${racikanText}</div>
+                                        ${testButtonsHTML}
+                                    </div>
+                                    
+                                    <button class="post-x-btn" onclick="shareToX(this)" data-text="${encodedTweetText}">
+                                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                                        Share ke X
+                                    </button>
+                                </div>`;
+                                
+                                dayCounter++;
+                            }
+                        }
                     }
-                });
-
-                let racikanText = batchLinks.map(b => b.url).join('\n');
-                let buttons = batchLinks.map((b, i) => `<button class="test-btn ${b.type === 'vid' ? 'btn-vid' : 'btn-shop'}" onclick="window.location.href='${b.url}'">${b.type === 'vid' ? 'V' : 'S'}${i+1}</button>`).join('');
-
-                resultHTML += `
-                <div class="result-day">
-                    <h3>Batch ${dayCounter}</h3>
-                    <button class="copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)">Copy</button>
-                    <div class="result-body">
-                        <div class="result-text">${racikanText}</div>
-                        <div class="test-side-panel">${buttons}</div>
-                    </div>
-                    <button class="post-x-btn" onclick="shareToX(this)" data-text="${racikanText}">Post ke X</button>
-                </div>`;
-                dayCounter++;
+                } catch (e) { console.log("Failed to process: " + url); }
             }
 
+            let totalBatches = dayCounter - 1;
+
+            if (totalBatches === 0) {
+                status.innerHTML = "Process completed. No valid source URLs found.";
+                return;
+            }
+
+            status.innerHTML = `Process completed. Extracted ${totalBatches} batches.`;
             outputDiv.innerHTML = resultHTML;
+            
+            currentActiveResultHTML = resultHTML;
+            currentActiveItemsCount = totalBatches;
             saveBtn.style.display = 'block';
+
             localStorage.setItem('draft_result', resultHTML);
-            localStorage.setItem('draft_count', dayCounter-1);
+            localStorage.setItem('draft_count', totalBatches);
         }
 
         function saveCurrentToHistory() {
+            if (!currentActiveResultHTML) return;
+            
             let history = JSON.parse(localStorage.getItem('refal_history')) || [];
-            history.unshift({ id: Date.now(), date: new Date().toLocaleString(), count: currentActiveItemsCount, html: currentActiveResultHTML });
+            let timestamp = new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+            
+            let newRecord = {
+                id: Date.now(),
+                date: timestamp,
+                count: currentActiveItemsCount,
+                html: currentActiveResultHTML
+            };
+            
+            history.unshift(newRecord); 
             localStorage.setItem('refal_history', JSON.stringify(history));
+            
+            document.getElementById('saveBtn').style.display = 'none';
             renderHistory();
         }
 
         function renderHistory() {
             let history = JSON.parse(localStorage.getItem('refal_history')) || [];
             let container = document.getElementById('historyContainer');
-            container.innerHTML = history.length ? history.map(item => `
+            
+            if (history.length === 0) {
+                container.innerHTML = '<div style="color:#86868b; font-size:13px; text-align:center; padding:10px;">No saved history available.</div>';
+                return;
+            }
+            
+            let html = '';
+            history.forEach(item => {
+                html += `
                 <div class="history-item">
                     <div>
                         <div class="history-info">Batch Record (${item.count} Items)</div>
@@ -395,31 +485,66 @@
                         <button class="hist-btn load-h" onclick="loadHistoryItem(${item.id})">Open</button>
                         <button class="hist-btn del-h" onclick="deleteHistoryItem(${item.id})">Delete</button>
                     </div>
-                </div>`).join('') : '<div style="color:#86868b; font-size:13px; text-align:center; padding:10px;">No history.</div>';
+                </div>`;
+            });
+            container.innerHTML = html;
         }
 
         function loadHistoryItem(id) {
-            let history = JSON.parse(localStorage.getItem('refal_history'));
+            let history = JSON.parse(localStorage.getItem('refal_history')) || [];
             let record = history.find(item => item.id === id);
-            document.getElementById('outputContainer').innerHTML = record.html;
+            if (record) {
+                document.getElementById('status').innerHTML = `Viewing record from history (${record.date})`;
+                document.getElementById('outputContainer').innerHTML = record.html;
+                document.getElementById('saveBtn').style.display = 'none';
+                document.getElementById('outputContainer').scrollIntoView({ behavior: 'smooth' });
+                
+                currentActiveResultHTML = record.html;
+                currentActiveItemsCount = record.count;
+                localStorage.setItem('draft_result', record.html);
+                localStorage.setItem('draft_count', record.count);
+            }
         }
 
         function deleteHistoryItem(id) {
-            let history = JSON.parse(localStorage.getItem('refal_history')).filter(item => item.id !== id);
-            localStorage.setItem('refal_history', JSON.stringify(history));
-            renderHistory();
+            if(confirm("Hapus catatan riwayat ini?")) {
+                let history = JSON.parse(localStorage.getItem('refal_history')) || [];
+                history = history.filter(item => item.id !== id);
+                localStorage.setItem('refal_history', JSON.stringify(history));
+                renderHistory();
+            }
+        }
+
+        function resetForm() {
+            shopeeInput.value = '';
+            tweetInput.value = '';
+            document.getElementById('status').innerHTML = '';
+            document.getElementById('outputContainer').innerHTML = '';
+            document.getElementById('saveBtn').style.display = 'none';
+            currentActiveResultHTML = '';
+            currentActiveItemsCount = 0;
+            lastLength = 0; 
+            
+            localStorage.removeItem('draft_shopee');
+            localStorage.removeItem('draft_tweet');
+            localStorage.removeItem('draft_result');
+            localStorage.removeItem('draft_count');
         }
 
         function copyToClipboard(btn, text) {
             navigator.clipboard.writeText(text).then(() => {
+                let originalText = btn.innerText;
                 btn.innerText = "Copied ✓";
-                setTimeout(() => btn.innerText = "Copy", 1500);
+                
+                btn.style.backgroundColor = "#34c759"; 
+                btn.style.boxShadow = "0 2px 8px rgba(52, 199, 89, 0.3)";
+                
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = ""; 
+                    btn.style.boxShadow = "";
+                }, 1500);
             });
-        }
-
-        function resetForm() {
-            shopeeInput.value = ''; tweetInput.value = ''; document.getElementById('outputContainer').innerHTML = '';
-            localStorage.clear();
         }
     </script>
 </body>
