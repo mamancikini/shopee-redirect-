@@ -344,7 +344,8 @@
                 return;
             }
 
-            status.innerHTML = "Processing data...";
+            // GANTI TEKS BIAR KETAHUAN KALO KODE BARU UDAH JALAN
+            status.innerHTML = "Membuka jalur data...";
             outputDiv.innerHTML = '';
             saveBtn.style.display = 'none';
             
@@ -352,35 +353,26 @@
             let dayCounter = 1;
             let shopeeIndex = 0;
             let seenBatches = new Set(); 
+            let adaError = false;
 
-            // Pakai for biasa biar teratur dan gampang dipantau
-            for (let i = 0; i < tweetUrls.length; i++) {
-                let url = tweetUrls[i];
+            for (let url of tweetUrls) {
                 try {
-                    // Update status biar lu tau sistemnya jalan nggak stuck
-                    status.innerHTML = `Mengambil data link ${i + 1} dari ${tweetUrls.length}...`;
-
                     let apiUrl = url.trim().replace(/(https?:\/\/)?(www\.)?(twitter\.com|x\.com)/, 'https://api.vxtwitter.com').split('?')[0];
                     
-                    // ANTI-HANG SYSTEM: Batasin waktu tunggu maksimal 8 detik
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 8000);
+                    // JALUR BYPASS WEB INTO APP (Pake Proxy AllOrigins)
+                    let proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
                     
-                    let response = await fetch(apiUrl, { signal: controller.signal }).catch(e => {
-                        console.log("Koneksi gagal atau timeout: ", e);
-                        return null; // Kalau gagal, kembaliin null aja jangan nge-crash
-                    });
+                    // Coba jalur bypass dulu, kalo gagal coba jalur normal
+                    let response = await fetch(proxyUrl).catch(() => fetch(apiUrl));
                     
-                    clearTimeout(timeoutId);
-
-                    // Kalau responsenya jelek atau mati, lewatin link ini lanjut ke berikutnya
-                    if (!response || !response.ok) continue;
+                    if (!response || !response.ok) {
+                        adaError = true;
+                        continue;
+                    }
                     
                     let data = await response.json();
-                    
-                    // PENGAMAN TAMBAHAN: Kalau API kosong, langsung lewatin
-                    if (!data || !data.text) continue; 
-                    
+                    if (!data || !data.text) continue;
+
                     let fullText = data.text;
                     let urlRegex = /(https?:\/\/[^\s]+)/g;
                     let foundUrls = fullText.match(urlRegex) || [];
@@ -444,13 +436,20 @@
                             }
                         }
                     }
-                } catch (e) { console.log("Failed to process: " + url, e); }
+                } catch (e) { 
+                    console.log("Failed to process", e); 
+                    adaError = true;
+                }
             }
 
             let totalBatches = dayCounter - 1;
 
             if (totalBatches === 0) {
-                status.innerHTML = "Gagal memproses data. Cek koneksi atau coba URL yang lain.";
+                if (adaError) {
+                    status.innerHTML = "WebIntoApp masih memblokir koneksi API. Mohon cek langkah 2!";
+                } else {
+                    status.innerHTML = "Proses selesai, tapi URL tidak valid.";
+                }
                 return;
             }
 
