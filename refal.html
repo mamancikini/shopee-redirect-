@@ -138,36 +138,17 @@
 
         .result-day h3 { margin-top: 0; margin-bottom: 14px; font-size: 16px; font-weight: 700; color: #1d1d1f; }
 
+        /* Teks murni original */
         .result-text {
             font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-            line-height: 1.8; 
+            line-height: 1.6; 
             color: #333;
             font-size: 13px;
             background: #f5f5f7;
             padding: 14px;
             border-radius: 12px;
+            white-space: pre-wrap;
         }
-
-        .result-text a {
-            color: #007aff;
-            text-decoration: none;
-        }
-        .result-text a:hover {
-            text-decoration: underline;
-        }
-        .badge {
-            display: inline-block;
-            font-size: 9px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            vertical-align: middle;
-        }
-        .badge-vid { background-color: #e5f1ff; color: #007aff; }
-        .badge-shop { background-color: #fff0e6; color: #ff6b00; }
 
         .copy-btn {
             background-color: #007aff;
@@ -185,6 +166,14 @@
             box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
         }
         .copy-btn:active { transform: scale(0.92); }
+
+        /* Panel Tes Link Baru */
+        .test-row { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .test-label { font-size: 10px; font-weight: 700; color: #86868b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .test-btn { padding: 6px 12px; border-radius: 8px; border: none; font-size: 11px; font-weight: 700; cursor: pointer; transition: transform 0.1s; }
+        .test-btn:active { transform: scale(0.92); }
+        .btn-vid { background-color: #e5f1ff; color: #007aff; }
+        .btn-shop { background-color: #fff0e6; color: #ff6b00; }
 
         .history-section { margin-top: 40px; border-top: 1px solid #d1d1d6; padding-top: 24px; }
         .history-item {
@@ -244,11 +233,9 @@
         let shopeeInput = document.getElementById('inputShopee');
         let lastLength = 0;
 
-        // MESIN AUTO-SAVE: Bekerja otomatis memulihkan data saat aplikasi ter-refresh
         window.onload = function() {
             renderHistory();
 
-            // Memulihkan inputan sebelumnya
             let draftShopee = localStorage.getItem('draft_shopee');
             if(draftShopee) shopeeInput.value = draftShopee;
 
@@ -258,7 +245,6 @@
                 lastLength = draftTweet.length; 
             }
 
-            // Memulihkan hasil racikan sebelumnya
             let draftResult = localStorage.getItem('draft_result');
             let draftCount = localStorage.getItem('draft_count');
             if(draftResult) {
@@ -270,7 +256,6 @@
             }
         };
 
-        // Simpan inputan secara real-time pas lu ngetik/paste
         shopeeInput.addEventListener('input', function() {
             localStorage.setItem('draft_shopee', this.value);
         });
@@ -341,23 +326,25 @@
 
                         if (batchLinksData.length > 0) {
                             let plainTextArr = [];
-                            let displayArr = [];
+                            
+                            // Bikin tombol khusus buat ngetes
+                            let testButtonsHTML = `<div class="test-row"><span class="test-label">Cek Link:</span>`;
 
-                            batchLinksData.forEach(item => {
+                            batchLinksData.forEach((item, idx) => {
+                                // Teks murni buat di-copy
                                 plainTextArr.push(item.url);
                                 
-                                // Format Normal: Langsung buka https:// tanpa Intent aneh-aneh biar gak error
+                                // Bikin URL yang aman buat diklik
                                 let href = item.url.startsWith('http') ? item.url : 'https://' + item.url;
                                 
-                                let badge = item.type === 'vid' 
-                                    ? `<span class="badge badge-vid">Video</span>` 
-                                    : `<span class="badge badge-shop">Shopee</span>`;
-                                
-                                displayArr.push(`<a href="${href}" target="_blank" rel="noopener noreferrer">${item.url}</a>${badge}`);
+                                // Tombolnya
+                                let btnClass = item.type === 'vid' ? 'btn-vid' : 'btn-shop';
+                                let btnText = item.type === 'vid' ? 'Vid' : 'Shop';
+                                testButtonsHTML += `<button class="test-btn ${btnClass}" onclick="window.open('${href}', '_blank')">${btnText} ${idx+1}</button>`;
                             });
+                            testButtonsHTML += `</div>`;
 
                             let racikanText = plainTextArr.join('\n'); 
-                            let displayHTML = displayArr.join('\n');   
 
                             if (!seenBatches.has(racikanText)) {
                                 seenBatches.add(racikanText);
@@ -366,7 +353,8 @@
                                 <div class="result-day">
                                     <h3>Batch ${dayCounter}</h3>
                                     <button class="copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)">Copy</button>
-                                    <div class="result-text">${displayHTML}</div>
+                                    <div class="result-text">${racikanText}</div>
+                                    ${testButtonsHTML}
                                 </div>`;
                                 
                                 dayCounter++;
@@ -390,7 +378,6 @@
             currentActiveItemsCount = totalBatches;
             saveBtn.style.display = 'block';
 
-            // Simpan otomatis racikan terakhir ke memori HP
             localStorage.setItem('draft_result', resultHTML);
             localStorage.setItem('draft_count', totalBatches);
         }
@@ -450,7 +437,6 @@
                 document.getElementById('saveBtn').style.display = 'none';
                 document.getElementById('outputContainer').scrollIntoView({ behavior: 'smooth' });
                 
-                // Set draft ke riwayat yang lagi dibuka biar kalau back tetep aman
                 currentActiveResultHTML = record.html;
                 currentActiveItemsCount = record.count;
                 localStorage.setItem('draft_result', record.html);
@@ -477,7 +463,6 @@
             currentActiveItemsCount = 0;
             lastLength = 0; 
             
-            // Hapus juga memori Auto-Save
             localStorage.removeItem('draft_shopee');
             localStorage.removeItem('draft_tweet');
             localStorage.removeItem('draft_result');
