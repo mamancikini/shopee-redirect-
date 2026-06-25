@@ -138,8 +138,15 @@
 
         .result-day h3 { margin-top: 0; margin-bottom: 14px; font-size: 16px; font-weight: 700; color: #1d1d1f; }
 
-        /* Teks murni original */
+        /* Tampilan Layout Teks dan Tombol Cek di Samping */
+        .result-body {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
         .result-text {
+            flex: 1;
             font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
             line-height: 1.6; 
             color: #333;
@@ -148,7 +155,49 @@
             padding: 14px;
             border-radius: 12px;
             white-space: pre-wrap;
+            word-break: break-all;
         }
+
+        /* Panel Cek Link di Kanan */
+        .test-side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            justify-content: flex-start;
+        }
+        .test-btn { 
+            width: 45px;
+            padding: 8px 0; 
+            border-radius: 8px; 
+            border: none; 
+            font-size: 11px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: transform 0.1s; 
+            text-align: center;
+        }
+        .test-btn:active { transform: scale(0.92); }
+        .btn-vid { background-color: #e5f1ff; color: #007aff; }
+        .btn-shop { background-color: #fff0e6; color: #ff6b00; }
+
+        /* Tombol Post ke X Baru */
+        .post-x-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #1da1f2; 
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        .post-x-btn:active { transform: scale(0.96); background-color: #1a91da; }
 
         .copy-btn {
             background-color: #007aff;
@@ -166,14 +215,6 @@
             box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
         }
         .copy-btn:active { transform: scale(0.92); }
-
-        /* Panel Tes Link Baru */
-        .test-row { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-        .test-label { font-size: 10px; font-weight: 700; color: #86868b; text-transform: uppercase; letter-spacing: 0.5px; }
-        .test-btn { padding: 6px 12px; border-radius: 8px; border: none; font-size: 11px; font-weight: 700; cursor: pointer; transition: transform 0.1s; }
-        .test-btn:active { transform: scale(0.92); }
-        .btn-vid { background-color: #e5f1ff; color: #007aff; }
-        .btn-shop { background-color: #fff0e6; color: #ff6b00; }
 
         .history-section { margin-top: 40px; border-top: 1px solid #d1d1d6; padding-top: 24px; }
         .history-item {
@@ -327,24 +368,23 @@
                         if (batchLinksData.length > 0) {
                             let plainTextArr = [];
                             
-                            // Bikin tombol khusus buat ngetes
-                            let testButtonsHTML = `<div class="test-row"><span class="test-label">Cek Link:</span>`;
+                            // Tumpukan Tombol Cek di Samping
+                            let testButtonsHTML = `<div class="test-side-panel">`;
 
                             batchLinksData.forEach((item, idx) => {
-                                // Teks murni buat di-copy
                                 plainTextArr.push(item.url);
-                                
-                                // Bikin URL yang aman buat diklik
                                 let href = item.url.startsWith('http') ? item.url : 'https://' + item.url;
                                 
-                                // Tombolnya
                                 let btnClass = item.type === 'vid' ? 'btn-vid' : 'btn-shop';
-                                let btnText = item.type === 'vid' ? 'Vid' : 'Shop';
-                                testButtonsHTML += `<button class="test-btn ${btnClass}" onclick="window.open('${href}', '_blank')">${btnText} ${idx+1}</button>`;
+                                let btnText = item.type === 'vid' ? 'V' + (idx+1) : 'S' + (idx+1);
+                                testButtonsHTML += `<button class="test-btn ${btnClass}" onclick="window.open('${href}', '_blank')">${btnText}</button>`;
                             });
                             testButtonsHTML += `</div>`;
 
                             let racikanText = plainTextArr.join('\n'); 
+                            
+                            // Encode teks racikan buat dilempar ke Twitter X
+                            let encodedTweetText = encodeURIComponent(racikanText);
 
                             if (!seenBatches.has(racikanText)) {
                                 seenBatches.add(racikanText);
@@ -353,8 +393,16 @@
                                 <div class="result-day">
                                     <h3>Batch ${dayCounter}</h3>
                                     <button class="copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)">Copy</button>
-                                    <div class="result-text">${racikanText}</div>
-                                    ${testButtonsHTML}
+                                    
+                                    <div class="result-body">
+                                        <div class="result-text">${racikanText}</div>
+                                        ${testButtonsHTML}
+                                    </div>
+                                    
+                                    <button class="post-x-btn" onclick="window.open('https://twitter.com/intent/tweet?text=${encodedTweetText}', '_blank')">
+                                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                                        Post ke X
+                                    </button>
                                 </div>`;
                                 
                                 dayCounter++;
