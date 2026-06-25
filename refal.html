@@ -320,11 +320,18 @@
                                 plainTextArr.push(item.url);
                                 
                                 let href = item.url.startsWith('http') ? item.url : 'https://' + item.url;
-                                
-                                // TRIK INTENT ANDROID: Mengubah link menjadi perintah sistem HP
-                                // HP bakal dipaksa ngebuka link ini pakai Chrome atau langsung ke Aplikasi Shopee
                                 let cleanUrlForIntent = href.replace(/^https?:\/\//, '');
-                                let intentHref = `intent://${cleanUrlForIntent}#Intent;scheme=https;end`;
+                                let fallbackUrl = encodeURIComponent(href);
+                                let intentHref = '';
+
+                                // UPDATE: KODE INTENT ANTI-ERROR
+                                if (item.type === 'shop') {
+                                    // Maksa nendang ke Aplikasi Shopee, kalo gagal masuk fallback
+                                    intentHref = `intent://${cleanUrlForIntent}#Intent;scheme=https;package=com.shopee.id;action=android.intent.action.VIEW;S.browser_fallback_url=${fallbackUrl};end`;
+                                } else {
+                                    // Maksa nendang ke Google Chrome, kalo gagal masuk fallback
+                                    intentHref = `intent://${cleanUrlForIntent}#Intent;scheme=https;package=com.android.chrome;action=android.intent.action.VIEW;S.browser_fallback_url=${fallbackUrl};end`;
+                                }
                                 
                                 let badge = item.type === 'vid' 
                                     ? `<span class="badge badge-vid">Video</span>` 
