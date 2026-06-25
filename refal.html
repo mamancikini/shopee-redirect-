@@ -140,7 +140,7 @@
 
         .result-text {
             font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-            line-height: 1.8; /* Ditingkatkan dikit biar link gampang diklik pake jari */
+            line-height: 1.8; 
             color: #333;
             font-size: 13px;
             background: #f5f5f7;
@@ -148,7 +148,6 @@
             border-radius: 12px;
         }
 
-        /* GAYA BARU KHUSUS LINK DAN LABEL (BADGE) */
         .result-text a {
             color: #007aff;
             text-decoration: none;
@@ -317,24 +316,25 @@
                             let plainTextArr = [];
                             let displayArr = [];
 
-                            // PROSES PEMISAHAN TEKS COPY & TEKS TAMPILAN
                             batchLinksData.forEach(item => {
-                                // 1. Simpan string mentah untuk tombol Copy
                                 plainTextArr.push(item.url);
                                 
-                                // 2. Bikin URL bisa diklik (wajib pakai https:// biar gak error)
                                 let href = item.url.startsWith('http') ? item.url : 'https://' + item.url;
                                 
-                                // 3. Bikin Label Kecil (Badge)
+                                // TRIK INTENT ANDROID: Mengubah link menjadi perintah sistem HP
+                                // HP bakal dipaksa ngebuka link ini pakai Chrome atau langsung ke Aplikasi Shopee
+                                let cleanUrlForIntent = href.replace(/^https?:\/\//, '');
+                                let intentHref = `intent://${cleanUrlForIntent}#Intent;scheme=https;end`;
+                                
                                 let badge = item.type === 'vid' 
                                     ? `<span class="badge badge-vid">Video</span>` 
                                     : `<span class="badge badge-shop">Shopee</span>`;
                                 
-                                displayArr.push(`<a href="${href}" target="_blank">${item.url}</a>${badge}`);
+                                displayArr.push(`<a href="${intentHref}">${item.url}</a>${badge}`);
                             });
 
-                            let racikanText = plainTextArr.join('\n'); // Bersih tanpa HTML
-                            let displayHTML = displayArr.join('\n');   // Cantik pakai HTML
+                            let racikanText = plainTextArr.join('\n'); 
+                            let displayHTML = displayArr.join('\n');   
 
                             if (!seenBatches.has(racikanText)) {
                                 seenBatches.add(racikanText);
