@@ -194,7 +194,6 @@
             justify-content: center;
             align-items: center;
             gap: 8px;
-            text-decoration: none;
         }
         .post-x-btn:active { transform: scale(0.96); background-color: #1a91da; }
 
@@ -312,6 +311,22 @@
             localStorage.setItem('draft_tweet', this.value);
         });
 
+        // MESIN NATIVE SHARE ANDROID (ANTI ERROR 100%)
+        function shareToX(btn) {
+            let racikanText = decodeURIComponent(btn.getAttribute('data-text'));
+            
+            // Panggil fungsi Share asli bawaan HP
+            if (navigator.share) {
+                navigator.share({
+                    text: racikanText
+                }).catch((error) => console.log('Batal share:', error));
+            } else {
+                // Fallback aman kalau HP-nya tipe lama
+                let intentUrl = `intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT=${btn.getAttribute('data-text')};end`;
+                window.location.href = intentUrl;
+            }
+        }
+
         async function generateAll() {
             let shopeeRaw = shopeeInput.value.split('\n').map(s => s.trim()).filter(s => s !== '');
             let rawTweetInput = tweetInput.value;
@@ -370,12 +385,12 @@
 
                             batchLinksData.forEach((item, idx) => {
                                 plainTextArr.push(item.url);
-                                
-                                // Tombol cek dibalikin ke link dasar paling aman, no intent, no _blank
-                                // Biar satpam WebIntoApp ga ngamuk ngeluarin popup GetApps
                                 let href = item.url.startsWith('http') ? item.url : 'https://' + item.url;
+                                
                                 let btnClass = item.type === 'vid' ? 'btn-vid' : 'btn-shop';
                                 let btnText = item.type === 'vid' ? 'V' + (idx+1) : 'S' + (idx+1);
+                                
+                                // Tombol Cek Link balik pake jalur normal biar stabil
                                 testButtonsHTML += `<button class="test-btn ${btnClass}" onclick="window.location.href='${href}'">${btnText}</button>`;
                             });
                             testButtonsHTML += `</div>`;
@@ -385,10 +400,6 @@
 
                             if (!seenBatches.has(racikanText)) {
                                 seenBatches.add(racikanText);
-
-                                // JALUR VIP: Pake Native Scheme "twitter://"
-                                // Ini bakal nembus WebView dan langsung manggil aplikasi X di HP lu
-                                let vipTwitterLink = `twitter://post?message=${encodedTweetText}`;
 
                                 resultHTML += `
                                 <div class="result-day">
@@ -400,9 +411,9 @@
                                         ${testButtonsHTML}
                                     </div>
                                     
-                                    <button class="post-x-btn" onclick="window.location.href='${vipTwitterLink}'">
+                                    <button class="post-x-btn" onclick="shareToX(this)" data-text="${encodedTweetText}">
                                         <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                                        Post ke X
+                                        Share ke X
                                     </button>
                                 </div>`;
                                 
