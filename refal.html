@@ -179,7 +179,6 @@
         .btn-vid { background-color: #e5f1ff; color: #007aff; }
         .btn-shop { background-color: #fff0e6; color: #ff6b00; }
 
-        /* KEMBALI JADI TOMBOL MURNI (BUKAN LINK) BIAR ANTI ERROR */
         .post-x-btn {
             width: 100%;
             padding: 12px;
@@ -195,6 +194,7 @@
             justify-content: center;
             align-items: center;
             gap: 8px;
+            text-decoration: none;
         }
         .post-x-btn:active { transform: scale(0.96); background-color: #1a91da; }
 
@@ -312,23 +312,6 @@
             localStorage.setItem('draft_tweet', this.value);
         });
 
-        // MESIN BYPASS ANTI-ERROR 500 (GHOST CLICK)
-        function triggerIntent(url) {
-            let a = document.createElement('a');
-            a.href = url;
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => document.body.removeChild(a), 100);
-        }
-
-        // FUNGSI POST KE X YANG AMAN
-        function postToX(btn) {
-            let encodedText = btn.getAttribute('data-text');
-            let cleanUrl = `twitter.com/intent/tweet?text=${encodedText}`;
-            let intentUrl = `intent://${cleanUrl}#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end`;
-            triggerIntent(intentUrl);
-        }
-
         async function generateAll() {
             let shopeeRaw = shopeeInput.value.split('\n').map(s => s.trim()).filter(s => s !== '');
             let rawTweetInput = tweetInput.value;
@@ -387,15 +370,13 @@
 
                             batchLinksData.forEach((item, idx) => {
                                 plainTextArr.push(item.url);
+                                
+                                // Tombol cek dibalikin ke link dasar paling aman, no intent, no _blank
+                                // Biar satpam WebIntoApp ga ngamuk ngeluarin popup GetApps
                                 let href = item.url.startsWith('http') ? item.url : 'https://' + item.url;
-                                
-                                // UPDATE: Tombol Cek Link juga pakai Mesin Ghost Click biar super aman
-                                let cleanHref = href.replace(/^https?:\/\//, '');
-                                let intentHref = `intent://${cleanHref}#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end`;
-                                
                                 let btnClass = item.type === 'vid' ? 'btn-vid' : 'btn-shop';
                                 let btnText = item.type === 'vid' ? 'V' + (idx+1) : 'S' + (idx+1);
-                                testButtonsHTML += `<button class="test-btn ${btnClass}" onclick="triggerIntent('${intentHref}')">${btnText}</button>`;
+                                testButtonsHTML += `<button class="test-btn ${btnClass}" onclick="window.location.href='${href}'">${btnText}</button>`;
                             });
                             testButtonsHTML += `</div>`;
 
@@ -404,6 +385,10 @@
 
                             if (!seenBatches.has(racikanText)) {
                                 seenBatches.add(racikanText);
+
+                                // JALUR VIP: Pake Native Scheme "twitter://"
+                                // Ini bakal nembus WebView dan langsung manggil aplikasi X di HP lu
+                                let vipTwitterLink = `twitter://post?message=${encodedTweetText}`;
 
                                 resultHTML += `
                                 <div class="result-day">
@@ -415,7 +400,7 @@
                                         ${testButtonsHTML}
                                     </div>
                                     
-                                    <button class="post-x-btn" onclick="postToX(this)" data-text="${encodedTweetText}">
+                                    <button class="post-x-btn" onclick="window.location.href='${vipTwitterLink}'">
                                         <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                                         Post ke X
                                     </button>
