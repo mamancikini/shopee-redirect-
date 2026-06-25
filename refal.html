@@ -240,17 +240,43 @@
     <script>
         let currentActiveResultHTML = '';
         let currentActiveItemsCount = 0;
+        let tweetInput = document.getElementById('inputTweet');
+        let shopeeInput = document.getElementById('inputShopee');
+        let lastLength = 0;
 
+        // MESIN AUTO-SAVE: Bekerja otomatis memulihkan data saat aplikasi ter-refresh
         window.onload = function() {
             renderHistory();
+
+            // Memulihkan inputan sebelumnya
+            let draftShopee = localStorage.getItem('draft_shopee');
+            if(draftShopee) shopeeInput.value = draftShopee;
+
+            let draftTweet = localStorage.getItem('draft_tweet');
+            if(draftTweet) {
+                tweetInput.value = draftTweet;
+                lastLength = draftTweet.length; 
+            }
+
+            // Memulihkan hasil racikan sebelumnya
+            let draftResult = localStorage.getItem('draft_result');
+            let draftCount = localStorage.getItem('draft_count');
+            if(draftResult) {
+                document.getElementById('outputContainer').innerHTML = draftResult;
+                currentActiveResultHTML = draftResult;
+                currentActiveItemsCount = parseInt(draftCount || '0');
+                document.getElementById('saveBtn').style.display = 'block';
+                document.getElementById('status').innerHTML = "Data recovered from previous session.";
+            }
         };
 
-        let tweetInput = document.getElementById('inputTweet');
-        let lastLength = tweetInput.value.length;
+        // Simpan inputan secara real-time pas lu ngetik/paste
+        shopeeInput.addEventListener('input', function() {
+            localStorage.setItem('draft_shopee', this.value);
+        });
 
         tweetInput.addEventListener('input', function(e) {
             let currentLength = this.value.length;
-            
             if (currentLength - lastLength > 10) {
                 if (!this.value.endsWith('\n')) {
                     this.value += '\n';
@@ -258,11 +284,12 @@
                 this.scrollTop = this.scrollHeight;
             }
             lastLength = this.value.length;
+            localStorage.setItem('draft_tweet', this.value);
         });
 
         async function generateAll() {
-            let shopeeRaw = document.getElementById('inputShopee').value.split('\n').map(s => s.trim()).filter(s => s !== '');
-            let rawTweetInput = document.getElementById('inputTweet').value;
+            let shopeeRaw = shopeeInput.value.split('\n').map(s => s.trim()).filter(s => s !== '');
+            let rawTweetInput = tweetInput.value;
             let tweetUrls = rawTweetInput.match(/(https?:\/\/[^\s]+)/g) || [];
 
             let status = document.getElementById('status');
@@ -319,19 +346,14 @@
                             batchLinksData.forEach(item => {
                                 plainTextArr.push(item.url);
                                 
+                                // Format Normal: Langsung buka https:// tanpa Intent aneh-aneh biar gak error
                                 let href = item.url.startsWith('http') ? item.url : 'https://' + item.url;
-                                let cleanUrlForIntent = href.replace(/^https?:\/\//, '');
-                                
-                                // UPDATE: INTENT UNIVERSAL BROWSABLE
-                                // Ini bakal nyuruh HP lu buat buka link ini di browser/aplikasi aslinya
-                                // Tanpa nyebutin nama "package" biar gak diblokir sama keamanan Android 11+
-                                let intentHref = `intent://${cleanUrlForIntent}#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end`;
                                 
                                 let badge = item.type === 'vid' 
                                     ? `<span class="badge badge-vid">Video</span>` 
                                     : `<span class="badge badge-shop">Shopee</span>`;
                                 
-                                displayArr.push(`<a href="${intentHref}">${item.url}</a>${badge}`);
+                                displayArr.push(`<a href="${href}" target="_blank" rel="noopener noreferrer">${item.url}</a>${badge}`);
                             });
 
                             let racikanText = plainTextArr.join('\n'); 
@@ -367,6 +389,10 @@
             currentActiveResultHTML = resultHTML;
             currentActiveItemsCount = totalBatches;
             saveBtn.style.display = 'block';
+
+            // Simpan otomatis racikan terakhir ke memori HP
+            localStorage.setItem('draft_result', resultHTML);
+            localStorage.setItem('draft_count', totalBatches);
         }
 
         function saveCurrentToHistory() {
@@ -423,6 +449,12 @@
                 document.getElementById('outputContainer').innerHTML = record.html;
                 document.getElementById('saveBtn').style.display = 'none';
                 document.getElementById('outputContainer').scrollIntoView({ behavior: 'smooth' });
+                
+                // Set draft ke riwayat yang lagi dibuka biar kalau back tetep aman
+                currentActiveResultHTML = record.html;
+                currentActiveItemsCount = record.count;
+                localStorage.setItem('draft_result', record.html);
+                localStorage.setItem('draft_count', record.count);
             }
         }
 
@@ -436,14 +468,20 @@
         }
 
         function resetForm() {
-            document.getElementById('inputShopee').value = '';
-            document.getElementById('inputTweet').value = '';
+            shopeeInput.value = '';
+            tweetInput.value = '';
             document.getElementById('status').innerHTML = '';
             document.getElementById('outputContainer').innerHTML = '';
             document.getElementById('saveBtn').style.display = 'none';
             currentActiveResultHTML = '';
             currentActiveItemsCount = 0;
             lastLength = 0; 
+            
+            // Hapus juga memori Auto-Save
+            localStorage.removeItem('draft_shopee');
+            localStorage.removeItem('draft_tweet');
+            localStorage.removeItem('draft_result');
+            localStorage.removeItem('draft_count');
         }
 
         function copyToClipboard(btn, text) {
