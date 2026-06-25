@@ -225,28 +225,28 @@
             renderHistory();
         };
 
-        // FITUR BARU: AUTO-ENTER SAAT PASTE LINK TWITTER
+        // FITUR BARU: AUTO-ENTER VERSI MOBILE-FRIENDLY
         document.getElementById('inputTweet').addEventListener('paste', function(e) {
-            e.preventDefault();
-            // Ambil teks dari clipboard
-            let pastedText = (e.clipboardData || window.clipboardData).getData('text').trim();
-            
-            // Tambahkan otomatis 'Enter' (baris baru) di belakang teks
-            let textToInsert = pastedText + '\n';
-            
-            // Sisipkan ke posisi kursor saat ini
-            let startPos = this.selectionStart;
-            let endPos = this.selectionEnd;
-            this.value = this.value.substring(0, startPos) + textToInsert + this.value.substring(endPos);
-            
-            // Pindahkan kursor ke baris baru biar siap di-paste link selanjutnya
-            this.selectionStart = this.selectionEnd = startPos + textToInsert.length;
+            let el = this;
+            // Kasih jeda 10 milidetik biar keyboard HP nempel teksnya dulu secara normal
+            setTimeout(function() {
+                let currentPos = el.selectionEnd;
+                let textBefore = el.value.substring(0, currentPos);
+                let textAfter = el.value.substring(currentPos);
+                
+                // Kalau ujung teksnya belum ada enter, otomatis kita suntik enter
+                if (!textBefore.endsWith('\n')) {
+                    el.value = textBefore + '\n' + textAfter;
+                    // Paksa kursor turun ke baris baru
+                    el.selectionStart = el.selectionEnd = currentPos + 1;
+                }
+                // Otomatis narik layar textarea ke bawah ngikutin kursor
+                el.scrollTop = el.scrollHeight;
+            }, 10);
         });
 
         async function generateAll() {
-            // Mesin pembaca link yang udah dipintarkan, memisahkan link berdasarkan Enter maupun Spasi
             let shopeeRaw = document.getElementById('inputShopee').value.split('\n').map(s => s.trim()).filter(s => s !== '');
-            // Ambil semua url di input tweet secara otomatis
             let rawTweetInput = document.getElementById('inputTweet').value;
             let tweetUrls = rawTweetInput.match(/(https?:\/\/[^\s]+)/g) || [];
 
@@ -404,18 +404,15 @@
             currentActiveItemsCount = 0;
         }
 
-        // FITUR BARU: TOMBOL COPY JADI WARNA HIJAU SAAT DIKLIK
         function copyToClipboard(btn, text) {
             navigator.clipboard.writeText(text).then(() => {
                 let originalText = btn.innerText;
                 btn.innerText = "Copied ✓";
                 
-                // Ubah gaya tombol ke Hijau Success
                 btn.style.backgroundColor = "#34c759"; 
                 btn.style.boxShadow = "0 2px 8px rgba(52, 199, 89, 0.3)";
                 
                 setTimeout(() => {
-                    // Balikin lagi ke biru normal setelah 1.5 detik
                     btn.innerText = originalText;
                     btn.style.backgroundColor = ""; 
                     btn.style.boxShadow = "";
