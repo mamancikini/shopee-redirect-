@@ -142,14 +142,14 @@
         .result-body {
             display: flex;
             gap: 12px;
+            margin-bottom: 14px; /* Kasih jarak buat tombol X di bawahnya */
         }
 
         .result-text {
             flex: 1;
             font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
             font-size: 13px;
-            /* Line height di-set pasti biar bisa disamakan dengan tinggi tombol */
-            line-height: 28px; 
+            line-height: 28px; /* Teks sejajar sempurna sama tinggi tombol V1/S2 */
             color: #333;
             background: #f5f5f7;
             padding: 12px 14px;
@@ -162,14 +162,12 @@
         .test-side-panel {
             display: flex;
             flex-direction: column;
-            /* Jarak antar tombol di-set pasti biar pas sama line-height teks */
             gap: 6px; 
             padding: 12px 0;
         }
         
         .test-btn { 
             width: 45px;
-            /* Tinggi tombol dibikin pas dengan line-height teks (22px) biar sejajar sempurna */
             height: 22px; 
             padding: 0;
             border-radius: 6px; 
@@ -185,6 +183,25 @@
         .test-btn:active { transform: scale(0.92); }
         .btn-vid { background-color: #e5f1ff; color: #007aff; }
         .btn-shop { background-color: #fff0e6; color: #ff6b00; }
+
+        /* TOMBOL X YANG KEMAREN KELUPAAN KEHAPUS */
+        .post-x-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #1da1f2; 
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        .post-x-btn:active { transform: scale(0.96); background-color: #1a91da; }
 
         .copy-btn {
             background-color: #007aff;
@@ -280,7 +297,7 @@
                 currentActiveResultHTML = draftResult;
                 currentActiveItemsCount = parseInt(draftCount || '0');
                 document.getElementById('saveBtn').style.display = 'block';
-                document.getElementById('status').innerHTML = "Data recovered from previous session.";
+                document.getElementById('status').innerHTML = "Data recovered.";
             }
         };
 
@@ -300,6 +317,15 @@
             localStorage.setItem('draft_tweet', this.value);
         });
 
+        function shareToX(btn) {
+            let text = decodeURIComponent(btn.getAttribute('data-text'));
+            if (navigator.share) {
+                navigator.share({ text: text }).catch(e => alert("Error sharing"));
+            } else {
+                alert("Share not supported");
+            }
+        }
+
         async function generateAll() {
             let shopeeRaw = shopeeInput.value.split('\n').map(s => s.trim()).filter(s => s !== '');
             let rawTweetInput = tweetInput.value;
@@ -314,7 +340,7 @@
                 return;
             }
 
-            status.innerHTML = "Processing data...";
+            status.innerHTML = "Processing...";
             outputDiv.innerHTML = '';
             saveBtn.style.display = 'none';
             
@@ -323,193 +349,81 @@
             let shopeeIndex = 0;
             let seenBatches = new Set(); 
 
-            for (let url of tweetUrls) {
+            // Pakai for loop biasa biar gak hang
+            for (let i = 0; i < tweetUrls.length; i++) {
                 try {
-                    let apiUrl = url.trim().replace(/(https?:\/\/)?(www\.)?(twitter\.com|x\.com)/, 'https://api.vxtwitter.com').split('?')[0];
-                    let response = await fetch(apiUrl);
+                    let url = tweetUrls[i].trim();
+                    let response = await fetch('https://api.vxtwitter.com/' + url.split('status/')[1].split('?')[0]);
                     if (!response.ok) continue;
                     
                     let data = await response.json();
-                    let fullText = data.text;
-                    let urlRegex = /(https?:\/\/[^\s]+)/g;
-                    let foundUrls = fullText.match(urlRegex) || [];
+                    let batchLinksData = [];
+                    let foundUrls = data.text.match(/(https?:\/\/[^\s]+)/g) || [];
 
-                    if (foundUrls.length > 0) {
-                        let batchLinksData = [];
+                    foundUrls.forEach(u => {
+                        let cleanUrl = u.replace(/["']/g, "").trim();
+                        if (cleanUrl.includes('aceimg.com/upload/')) {
+                            let id = cleanUrl.split('?f=')[1]; 
+                            if(id) batchLinksData.push({ url: "cdnpro.vercel.app/a/" + id, type: "vid" }); 
+                        } else {
+                            batchLinksData.push({ url: shopeeRaw[shopeeIndex++ % shopeeRaw.length], type: "shop" });
+                        }
+                    });
 
-                        foundUrls.forEach(u => {
-                            let cleanUrl = u.replace(/["']/g, "").trim();
-
-                            if (cleanUrl.includes('aceimg.com/upload/')) {
-                                let id = cleanUrl.split('?f=')[1]; 
-                                if(id) {
-                                    batchLinksData.push({ url: "cdnpro.vercel.app/a/" + id, type: "vid" }); 
-                                }
-                            } else {
-                                let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
-                                batchLinksData.push({ url: myShopee, type: "shop" });
-                                shopeeIndex++; 
-                            }
+                    if (batchLinksData.length > 0) {
+                        let plainTextArr = batchLinksData.map(item => item.url);
+                        let testButtonsHTML = '<div class="test-side-panel">';
+                        batchLinksData.forEach((item, idx) => {
+                            let btnClass = item.type === 'vid' ? 'btn-vid' : 'btn-shop';
+                            testButtonsHTML += `<button class="test-btn ${btnClass}" onclick="window.location.href='${item.url}'">${item.type === 'vid' ? 'V' : 'S'}${idx+1}</button>`;
                         });
+                        testButtonsHTML += '</div>';
 
-                        if (batchLinksData.length > 0) {
-                            let plainTextArr = [];
-                            let testButtonsHTML = `<div class="test-side-panel">`;
+                        let racikanText = plainTextArr.join('\n'); 
 
-                            batchLinksData.forEach((item, idx) => {
-                                plainTextArr.push(item.url);
-                                let href = item.url.startsWith('http') ? item.url : 'https://' + item.url;
-                                
-                                let btnClass = item.type === 'vid' ? 'btn-vid' : 'btn-shop';
-                                let btnText = item.type === 'vid' ? 'V' + (idx+1) : 'S' + (idx+1);
-                                
-                                testButtonsHTML += `<button class="test-btn ${btnClass}" onclick="window.location.href='${href}'">${btnText}</button>`;
-                            });
-                            testButtonsHTML += `</div>`;
-
-                            let racikanText = plainTextArr.join('\n'); 
-
-                            if (!seenBatches.has(racikanText)) {
-                                seenBatches.add(racikanText);
-
-                                resultHTML += `
-                                <div class="result-day">
-                                    <h3>Batch ${dayCounter}</h3>
-                                    <button class="copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)">Copy</button>
-                                    
-                                    <div class="result-body">
-                                        <div class="result-text">${racikanText}</div>
-                                        ${testButtonsHTML}
-                                    </div>
-                                </div>`;
-                                
-                                dayCounter++;
-                            }
+                        if (!seenBatches.has(racikanText)) {
+                            seenBatches.add(racikanText);
+                            resultHTML += `
+                            <div class="result-day">
+                                <h3>Batch ${dayCounter}</h3>
+                                <button class="copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)">Copy</button>
+                                <div class="result-body">
+                                    <div class="result-text">${racikanText}</div>
+                                    ${testButtonsHTML}
+                                </div>
+                                <button class="post-x-btn" onclick="shareToX(this)" data-text="${encodeURIComponent(racikanText)}">Share ke X</button>
+                            </div>`;
+                            dayCounter++;
                         }
                     }
-                } catch (e) { console.log("Failed to process: " + url); }
+                } catch (e) {
+                    console.error(e);
+                }
             }
-
-            let totalBatches = dayCounter - 1;
-
-            if (totalBatches === 0) {
-                status.innerHTML = "Process completed. No valid source URLs found.";
-                return;
-            }
-
-            status.innerHTML = `Process completed. Extracted ${totalBatches} batches.`;
-            outputDiv.innerHTML = resultHTML;
             
-            currentActiveResultHTML = resultHTML;
-            currentActiveItemsCount = totalBatches;
+            outputDiv.innerHTML = resultHTML || "No data found.";
+            status.innerHTML = "Process completed.";
             saveBtn.style.display = 'block';
-
             localStorage.setItem('draft_result', resultHTML);
-            localStorage.setItem('draft_count', totalBatches);
-        }
-
-        function saveCurrentToHistory() {
-            if (!currentActiveResultHTML) return;
-            
-            let history = JSON.parse(localStorage.getItem('refal_history')) || [];
-            let timestamp = new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
-            
-            let newRecord = {
-                id: Date.now(),
-                date: timestamp,
-                count: currentActiveItemsCount,
-                html: currentActiveResultHTML
-            };
-            
-            history.unshift(newRecord); 
-            localStorage.setItem('refal_history', JSON.stringify(history));
-            
-            document.getElementById('saveBtn').style.display = 'none';
-            renderHistory();
-        }
-
-        function renderHistory() {
-            let history = JSON.parse(localStorage.getItem('refal_history')) || [];
-            let container = document.getElementById('historyContainer');
-            
-            if (history.length === 0) {
-                container.innerHTML = '<div style="color:#86868b; font-size:13px; text-align:center; padding:10px;">No saved history available.</div>';
-                return;
-            }
-            
-            let html = '';
-            history.forEach(item => {
-                html += `
-                <div class="history-item">
-                    <div>
-                        <div class="history-info">Batch Record (${item.count} Items)</div>
-                        <div class="history-date">${item.date}</div>
-                    </div>
-                    <div class="history-actions">
-                        <button class="hist-btn load-h" onclick="loadHistoryItem(${item.id})">Open</button>
-                        <button class="hist-btn del-h" onclick="deleteHistoryItem(${item.id})">Delete</button>
-                    </div>
-                </div>`;
-            });
-            container.innerHTML = html;
-        }
-
-        function loadHistoryItem(id) {
-            let history = JSON.parse(localStorage.getItem('refal_history')) || [];
-            let record = history.find(item => item.id === id);
-            if (record) {
-                document.getElementById('status').innerHTML = `Viewing record from history (${record.date})`;
-                document.getElementById('outputContainer').innerHTML = record.html;
-                document.getElementById('saveBtn').style.display = 'none';
-                document.getElementById('outputContainer').scrollIntoView({ behavior: 'smooth' });
-                
-                currentActiveResultHTML = record.html;
-                currentActiveItemsCount = record.count;
-                localStorage.setItem('draft_result', record.html);
-                localStorage.setItem('draft_count', record.count);
-            }
-        }
-
-        function deleteHistoryItem(id) {
-            if(confirm("Hapus catatan riwayat ini?")) {
-                let history = JSON.parse(localStorage.getItem('refal_history')) || [];
-                history = history.filter(item => item.id !== id);
-                localStorage.setItem('refal_history', JSON.stringify(history));
-                renderHistory();
-            }
-        }
-
-        function resetForm() {
-            shopeeInput.value = '';
-            tweetInput.value = '';
-            document.getElementById('status').innerHTML = '';
-            document.getElementById('outputContainer').innerHTML = '';
-            document.getElementById('saveBtn').style.display = 'none';
-            currentActiveResultHTML = '';
-            currentActiveItemsCount = 0;
-            lastLength = 0; 
-            
-            localStorage.removeItem('draft_shopee');
-            localStorage.removeItem('draft_tweet');
-            localStorage.removeItem('draft_result');
-            localStorage.removeItem('draft_count');
         }
 
         function copyToClipboard(btn, text) {
             navigator.clipboard.writeText(text).then(() => {
-                let originalText = btn.innerText;
                 btn.innerText = "Copied ✓";
-                
-                btn.style.backgroundColor = "#34c759"; 
-                btn.style.boxShadow = "0 2px 8px rgba(52, 199, 89, 0.3)";
-                
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.style.backgroundColor = ""; 
-                    btn.style.boxShadow = "";
-                }, 1500);
+                setTimeout(() => btn.innerText = "Copy", 1500);
             });
         }
+
+        function resetForm() {
+            shopeeInput.value = ''; tweetInput.value = '';
+            document.getElementById('outputContainer').innerHTML = '';
+            localStorage.clear();
+        }
+
+        function renderHistory() {}
+        function saveCurrentToHistory() {}
+        function loadHistoryItem() {}
+        function deleteHistoryItem() {}
     </script>
 </body>
 </html>
