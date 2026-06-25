@@ -5,140 +5,176 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Link AutoMixer</title>
     <style>
+        /* Gaya dasar aplikasi - modern background */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f8f9fa;
-            color: #212529;
-            padding: 40px 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f2f4f7; 
+            color: #1c1c1e;
+            padding: 30px 20px;
             max-width: 800px;
             margin: 0 auto;
+            -webkit-tap-highlight-color: transparent; /* Ilangin efek biru pas diklik di HP */
         }
+        
+        /* Judul Header ala aplikasi native */
         h2 { 
-            font-size: 22px; 
-            font-weight: 600; 
-            margin-bottom: 24px; 
-            color: #212529; 
+            font-size: 24px; 
+            font-weight: 700; 
+            margin-bottom: 28px; 
+            color: #111; 
             letter-spacing: -0.5px;
+            text-align: center;
         }
+
+        /* Kotak Card UI Modern (Soft shadow, no border) */
         .box {
             background: #ffffff;
-            padding: 24px;
-            border-radius: 8px;
+            padding: 22px;
+            border-radius: 18px; 
             margin-bottom: 20px;
-            border: 1px solid #dee2e6;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            border: none; 
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04); 
         }
+
+        /* Label elegan */
         label { 
-            font-weight: 500; 
+            font-weight: 600; 
             display: block; 
-            margin-bottom: 10px; 
-            font-size: 14px; 
-            color: #495057; 
+            margin-bottom: 12px; 
+            font-size: 12px; 
+            color: #86868b; 
+            text-transform: uppercase; 
+            letter-spacing: 0.8px;
         }
+
+        /* Kotak Input kekinian */
         textarea {
             width: 100%;
-            height: 120px;
-            border: 1px solid #ced4da;
-            border-radius: 6px;
-            padding: 12px;
+            height: 110px;
+            border: none; 
+            border-radius: 14px;
+            padding: 16px;
             font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
             font-size: 13px;
             box-sizing: border-box;
-            resize: vertical;
-            background-color: #fafbfc;
-            color: #212529;
-            line-height: 1.5;
+            resize: none; 
+            background-color: #f5f5f7; 
+            color: #1d1d1f;
+            line-height: 1.6;
+            transition: all 0.2s ease;
         }
+
         textarea:focus { 
             outline: none; 
-            border-color: #80bdff; 
-            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); 
+            background-color: #ffffff;
+            box-shadow: 0 0 0 2px #007aff; /* Efek ring biru pas ngetik */
         }
+
+        /* Grup Tombol */
         .button-group {
             display: flex;
             gap: 12px;
             margin-top: 24px;
         }
+
+        /* Tombol Utama (Hitam Elegan) */
         button.action-btn {
             flex: 3;
-            padding: 14px;
-            background-color: #212529;
+            padding: 16px;
+            background-color: #000000; 
             color: #ffffff;
             border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
+            border-radius: 16px; 
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.15s ease-in-out;
+            transition: transform 0.1s, background-color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
         }
-        button.action-btn:hover { 
-            background-color: #343a40; 
+
+        /* Efek ditekan */
+        button.action-btn:active {
+            transform: scale(0.97); 
         }
+
+        /* Tombol Reset (Abu-abu lembut) */
         button.reset-btn {
             flex: 1;
-            padding: 14px;
-            background-color: #ffffff;
-            color: #495057;
-            border: 1px solid #ced4da;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
+            padding: 16px;
+            background-color: #e5e5ea; 
+            color: #1c1c1e;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.15s ease-in-out;
+            transition: transform 0.1s, background-color 0.2s;
         }
-        button.reset-btn:hover {
-            background-color: #f8f9fa;
-            border-color: #adb5bd;
-            color: #212529;
+
+        button.reset-btn:active {
+            transform: scale(0.97);
+            background-color: #d1d1d6;
         }
+
+        /* Teks Status */
         #status {
             font-weight: 500;
-            color: #495057;
-            margin: 20px 0;
-            font-size: 13px;
+            color: #86868b;
+            margin: 24px 0 10px;
+            font-size: 14px;
+            text-align: center;
         }
+
+        /* Kotak Hasil Racikan */
         .result-day {
             background: #ffffff;
             padding: 20px;
-            border-left: 3px solid #6c757d;
             margin-bottom: 16px;
-            border-radius: 6px;
-            border-top: 1px solid #dee2e6;
-            border-right: 1px solid #dee2e6;
-            border-bottom: 1px solid #dee2e6;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
             position: relative;
         }
+
         .result-day h3 { 
             margin-top: 0; 
-            margin-bottom: 12px; 
-            font-size: 14px; 
-            font-weight: 600; 
-            color: #495057;
+            margin-bottom: 14px; 
+            font-size: 16px; 
+            font-weight: 700; 
+            color: #1d1d1f;
         }
+
+        /* Teks Hasil */
         .result-text {
             font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
             white-space: pre-wrap;
             line-height: 1.6;
-            color: #212529;
+            color: #333;
             font-size: 13px;
+            background: #f5f5f7;
+            padding: 14px;
+            border-radius: 12px;
         }
+
+        /* Tombol Copy (Bentuk Pill/Kapsul) */
         .copy-btn {
-            background-color: #f8f9fa;
-            color: #495057;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            padding: 6px 12px;
+            background-color: #007aff;
+            color: #ffffff;
+            border: none;
+            border-radius: 20px; 
+            padding: 6px 16px;
             font-size: 12px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             position: absolute;
-            top: 20px;
+            top: 18px;
             right: 20px;
             transition: all 0.15s;
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
         }
-        .copy-btn:hover { 
-            background-color: #e2e6ea; 
-            color: #212529; 
+
+        .copy-btn:active { 
+            transform: scale(0.92);
+            background-color: #005bb5; 
         }
     </style>
 </head>
@@ -243,7 +279,6 @@
             outputDiv.innerHTML = resultHTML;
         }
 
-        // Fungsi baru buat bersihin layar
         function resetForm() {
             document.getElementById('inputShopee').value = '';
             document.getElementById('inputTweet').value = '';
