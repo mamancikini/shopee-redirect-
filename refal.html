@@ -5,110 +5,566 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Link AutoMixer</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f2f4f7; color: #1c1c1e; padding: 30px 20px; max-width: 800px; margin: 0 auto; -webkit-tap-highlight-color: transparent; }
-        h2 { font-size: 24px; font-weight: 700; margin-bottom: 28px; color: #111; text-align: center; }
-        .box { background: #ffffff; padding: 22px; border-radius: 18px; margin-bottom: 20px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04); }
-        label { font-weight: 600; display: block; margin-bottom: 12px; font-size: 12px; color: #86868b; text-transform: uppercase; }
-        textarea { width: 100%; height: 110px; border: none; border-radius: 14px; padding: 16px; font-family: ui-monospace, monospace; font-size: 13px; box-sizing: border-box; resize: none; background-color: #f5f5f7; }
-        .button-group { display: flex; gap: 12px; margin-top: 24px; }
-        button.action-btn { flex: 3; padding: 16px; background-color: #000000; color: #ffffff; border: none; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer; }
-        button.reset-btn { flex: 1; padding: 16px; background-color: #e5e5ea; color: #1c1c1e; border: none; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer; }
-        #status { font-weight: 500; color: #ff3b30; margin: 24px 0 10px; font-size: 14px; text-align: center; }
-        .result-day { background: #ffffff; padding: 20px; margin-bottom: 16px; border-radius: 18px; position: relative; }
-        .result-body { display: flex; gap: 12px; }
-        .result-text { flex: 1; font-family: ui-monospace, monospace; font-size: 13px; line-height: 28px; background: #f5f5f7; padding: 12px; border-radius: 12px; }
-        .test-side-panel { display: flex; flex-direction: column; gap: 6px; }
-        .test-btn { width: 45px; height: 22px; border-radius: 6px; border: none; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f2f4f7; 
+            color: #1c1c1e;
+            padding: 30px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        h2 { 
+            font-size: 24px; 
+            font-weight: 700; 
+            margin-bottom: 28px; 
+            color: #111; 
+            letter-spacing: -0.5px;
+            text-align: center;
+        }
+
+        .box {
+            background: #ffffff;
+            padding: 22px;
+            border-radius: 18px; 
+            margin-bottom: 20px;
+            border: none; 
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04); 
+        }
+
+        label { 
+            font-weight: 600; 
+            display: block; 
+            margin-bottom: 12px; 
+            font-size: 12px; 
+            color: #86868b; 
+            text-transform: uppercase; 
+            letter-spacing: 0.8px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 110px;
+            border: none; 
+            border-radius: 14px;
+            padding: 16px;
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            font-size: 13px;
+            box-sizing: border-box;
+            resize: none; 
+            background-color: #f5f5f7; 
+            color: #1d1d1f;
+            line-height: 1.6;
+            transition: all 0.2s ease;
+        }
+
+        textarea:focus { 
+            outline: none; 
+            background-color: #ffffff;
+            box-shadow: 0 0 0 2px #007aff;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        button.action-btn {
+            flex: 3;
+            padding: 16px;
+            background-color: #000000; 
+            color: #ffffff;
+            border: none;
+            border-radius: 16px; 
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+        }
+
+        button.action-btn:active { transform: scale(0.97); }
+
+        button.reset-btn {
+            flex: 1;
+            padding: 16px;
+            background-color: #e5e5ea; 
+            color: #1c1c1e;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+
+        button.reset-btn:active { transform: scale(0.97); background-color: #d1d1d6; }
+
+        button.save-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #34c759;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: none;
+            transition: transform 0.1s;
+            box-shadow: 0 4px 12px rgba(52, 199, 89, 0.2);
+        }
+        button.save-btn:active { transform: scale(0.98); }
+
+        #status {
+            font-weight: 500;
+            color: #86868b;
+            margin: 24px 0 10px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .result-day {
+            background: #ffffff;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            position: relative;
+        }
+
+        .result-day h3 { margin-top: 0; margin-bottom: 14px; font-size: 16px; font-weight: 700; color: #1d1d1f; }
+
+        /* PERBAIKAN LAYOUT PRESISI: Teks dan Tombol Sejajar */
+        .result-body {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 14px; /* Kasih jarak buat tombol X di bawahnya */
+        }
+
+        .result-text {
+            flex: 1;
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            font-size: 13px;
+            line-height: 28px; /* Teks sejajar sempurna sama tinggi tombol V1/S2 */
+            color: #333;
+            background: #f5f5f7;
+            padding: 12px 14px;
+            border-radius: 12px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin: 0;
+        }
+
+        .test-side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 6px; 
+            padding: 12px 0;
+        }
+        
+        .test-btn { 
+            width: 45px;
+            height: 22px; 
+            padding: 0;
+            border-radius: 6px; 
+            border: none; 
+            font-size: 11px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: transform 0.1s; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .test-btn:active { transform: scale(0.92); }
         .btn-vid { background-color: #e5f1ff; color: #007aff; }
         .btn-shop { background-color: #fff0e6; color: #ff6b00; }
-        .post-x-btn { width: 100%; padding: 12px; background-color: #1da1f2; color: #ffffff; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 10px; }
-        .copy-btn { background-color: #007aff; color: #ffffff; border: none; border-radius: 20px; padding: 6px 16px; font-size: 12px; position: absolute; top: 18px; right: 20px; }
+
+        /* TOMBOL X YANG KEMAREN KELUPAAN KEHAPUS */
+        .post-x-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #1da1f2; 
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        .post-x-btn:active { transform: scale(0.96); background-color: #1a91da; }
+
+        .copy-btn {
+            background-color: #007aff;
+            color: #ffffff;
+            border: none;
+            border-radius: 20px; 
+            padding: 6px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            position: absolute;
+            top: 18px;
+            right: 20px;
+            transition: all 0.15s;
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+        }
+        .copy-btn:active { transform: scale(0.92); }
+
+        .history-section { margin-top: 40px; border-top: 1px solid #d1d1d6; padding-top: 24px; }
+        .history-item {
+            background: #ffffff;
+            padding: 16px;
+            border-radius: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.02);
+        }
+        .history-info { font-size: 14px; font-weight: 500; color: #1d1d1f; }
+        .history-date { font-size: 11px; color: #86868b; margin-top: 4px; }
+        .history-actions { display: flex; gap: 8px; }
+        .hist-btn {
+            border: none; padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer;
+        }
+        .load-h { background-color: #f2f4f7; color: #007aff; }
+        .del-h { background-color: #ffe5e5; color: #ff3b30; }
     </style>
 </head>
 <body>
+
     <h2>Link AutoMixer</h2>
+
     <div class="box">
         <label>Shopee Links Configuration</label>
-        <textarea id="inputShopee"></textarea>
+        <textarea id="inputShopee" placeholder="Enter Shopee links..."></textarea>
     </div>
+
     <div class="box">
         <label>Source URLs Extraction</label>
-        <textarea id="inputTweet"></textarea>
+        <textarea id="inputTweet" placeholder="Enter source URLs..."></textarea>
     </div>
+
     <div class="button-group">
         <button class="action-btn" onclick="generateAll()">Process Links</button>
         <button class="reset-btn" onclick="resetForm()">Reset</button>
     </div>
+
     <div id="status"></div>
+
+    <button id="saveBtn" class="save-btn" onclick="saveCurrentToHistory()">Save to History</button>
+
     <div id="outputContainer"></div>
 
+    <div class="history-section">
+        <label>Saved History</label>
+        <div id="historyContainer"></div>
+    </div>
+
     <script>
-        async function generateAll() {
-            let shopeeRaw = document.getElementById('inputShopee').value.split('\n').filter(s => s.trim() !== '');
-            let tweetUrls = document.getElementById('inputTweet').value.match(/(https?:\/\/[^\s]+)/g) || [];
-            let status = document.getElementById('status');
-            let outputDiv = document.getElementById('outputContainer');
-            
-            if (shopeeRaw.length === 0 || tweetUrls.length === 0) return alert("Fill fields!");
+        let currentActiveResultHTML = '';
+        let currentActiveItemsCount = 0;
+        let tweetInput = document.getElementById('inputTweet');
+        let shopeeInput = document.getElementById('inputShopee');
+        let lastLength = 0;
 
-            status.innerHTML = "Processing...";
-            outputDiv.innerHTML = '';
-            
-            try {
-                let url = tweetUrls[0];
-                let tweetId = url.split('status/')[1].split('?')[0];
-                
-                // Tambahkan timeout & error log
-                let controller = new AbortController();
-                let id = setTimeout(() => controller.abort(), 10000);
+        window.onload = function() {
+            renderHistory();
 
-                let response = await fetch('https://api.vxtwitter.com/' + tweetId, { signal: controller.signal });
-                clearTimeout(id);
+            let draftShopee = localStorage.getItem('draft_shopee');
+            if(draftShopee) shopeeInput.value = draftShopee;
 
-                if (!response.ok) throw new Error("API Gagal (Status: " + response.status + ")");
-                
-                let data = await response.json();
-                let shopeeIndex = 0;
-                let resultHTML = '<div class="result-day"><h3>Batch 1</h3>';
-                let plainTextArr = [];
-                let buttonsHTML = '<div class="test-side-panel">';
+            let draftTweet = localStorage.getItem('draft_tweet');
+            if(draftTweet) {
+                tweetInput.value = draftTweet;
+                lastLength = draftTweet.length; 
+            }
 
-                data.text.match(/(https?:\/\/[^\s]+)/g)?.forEach((u, i) => {
-                    let item = u.includes('aceimg.com/upload/') ? 
-                        { url: "cdnpro.vercel.app/a/" + u.split('?f=')[1], type: "vid" } : 
-                        { url: shopeeRaw[shopeeIndex++ % shopeeRaw.length], type: "shop" };
-                    
-                    plainTextArr.push(item.url);
-                    buttonsHTML += `<button class="test-btn ${item.type === 'vid' ? 'btn-vid' : 'btn-shop'}" onclick="window.location.href='${item.url.startsWith('http') ? item.url : 'https://'+item.url}'">${item.type === 'vid' ? 'V' : 'S'}${i+1}</button>`;
-                });
+            let draftResult = localStorage.getItem('draft_result');
+            let draftCount = localStorage.getItem('draft_count');
+            if(draftResult) {
+                document.getElementById('outputContainer').innerHTML = draftResult;
+                currentActiveResultHTML = draftResult;
+                currentActiveItemsCount = parseInt(draftCount || '0');
+                document.getElementById('saveBtn').style.display = 'block';
+                document.getElementById('status').innerHTML = "Data recovered from previous session.";
+            }
+        };
 
-                buttonsHTML += '</div>';
-                let racikanText = plainTextArr.join('\n');
+        shopeeInput.addEventListener('input', function() {
+            localStorage.setItem('draft_shopee', this.value);
+        });
 
-                resultHTML += `
-                    <button class="copy-btn" onclick="navigator.clipboard.writeText(\`${racikanText}\`)">Copy</button>
-                    <div class="result-body">
-                        <div class="result-text">${racikanText}</div>
-                        ${buttonsHTML}
-                    </div>
-                    <button class="post-x-btn" onclick="shareToX(\`${encodeURIComponent(racikanText)}\`)">Post ke X</button>
-                </div>`;
+        tweetInput.addEventListener('input', function(e) {
+            let currentLength = this.value.length;
+            if (currentLength - lastLength > 10) {
+                if (!this.value.endsWith('\n')) {
+                    this.value += '\n';
+                }
+                this.scrollTop = this.scrollHeight;
+            }
+            lastLength = this.value.length;
+            localStorage.setItem('draft_tweet', this.value);
+        });
 
-                outputDiv.innerHTML = resultHTML;
-                status.innerHTML = "";
-            } catch (e) {
-                status.innerHTML = "ERROR: " + e.message + ". (Coba buka di Chrome browser asli, kalau di Chrome bisa berarti aplikasi pembungkusnya yang bermasalah)";
+        // FUNGSI SHARE KE X 
+        function shareToX(btn) {
+            let racikanText = decodeURIComponent(btn.getAttribute('data-text'));
+            if (navigator.share) {
+                navigator.share({
+                    text: racikanText
+                }).catch((error) => console.log('Batal share:', error));
+            } else {
+                let intentUrl = `intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT=${btn.getAttribute('data-text')};end`;
+                window.location.href = intentUrl;
             }
         }
 
-        function shareToX(text) {
-            let decoded = decodeURIComponent(text);
-            if (navigator.share) navigator.share({ text: decoded });
-            else window.location.href = `intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT=${text};end`;
+        async function generateAll() {
+            let shopeeRaw = shopeeInput.value.split('\n').map(s => s.trim()).filter(s => s !== '');
+            let rawTweetInput = tweetInput.value;
+            let tweetUrls = rawTweetInput.match(/(https?:\/\/[^\s]+)/g) || [];
+
+            let status = document.getElementById('status');
+            let outputDiv = document.getElementById('outputContainer');
+            let saveBtn = document.getElementById('saveBtn');
+            
+            if (shopeeRaw.length === 0 || tweetUrls.length === 0) {
+                alert("Please fill in both fields.");
+                return;
+            }
+
+            // GANTI TEKS BIAR KETAHUAN KALO KODE BARU UDAH JALAN
+            status.innerHTML = "Membuka jalur data...";
+            outputDiv.innerHTML = '';
+            saveBtn.style.display = 'none';
+            
+            let resultHTML = '';
+            let dayCounter = 1;
+            let shopeeIndex = 0;
+            let seenBatches = new Set(); 
+            let adaError = false;
+
+            for (let url of tweetUrls) {
+                try {
+                    let apiUrl = url.trim().replace(/(https?:\/\/)?(www\.)?(twitter\.com|x\.com)/, 'https://api.vxtwitter.com').split('?')[0];
+                    
+                    // JALUR BYPASS WEB INTO APP (Pake Proxy AllOrigins)
+                    let proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
+                    
+                    // Coba jalur bypass dulu, kalo gagal coba jalur normal
+                    let response = await fetch(proxyUrl).catch(() => fetch(apiUrl));
+                    
+                    if (!response || !response.ok) {
+                        adaError = true;
+                        continue;
+                    }
+                    
+                    let data = await response.json();
+                    if (!data || !data.text) continue;
+
+                    let fullText = data.text;
+                    let urlRegex = /(https?:\/\/[^\s]+)/g;
+                    let foundUrls = fullText.match(urlRegex) || [];
+
+                    if (foundUrls.length > 0) {
+                        let batchLinksData = [];
+
+                        foundUrls.forEach(u => {
+                            let cleanUrl = u.replace(/["']/g, "").trim();
+
+                            if (cleanUrl.includes('aceimg.com/upload/')) {
+                                let id = cleanUrl.split('?f=')[1]; 
+                                if(id) {
+                                    batchLinksData.push({ url: "cdnpro.vercel.app/a/" + id, type: "vid" }); 
+                                }
+                            } else {
+                                let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
+                                batchLinksData.push({ url: myShopee, type: "shop" });
+                                shopeeIndex++; 
+                            }
+                        });
+
+                        if (batchLinksData.length > 0) {
+                            let plainTextArr = [];
+                            let testButtonsHTML = `<div class="test-side-panel">`;
+
+                            batchLinksData.forEach((item, idx) => {
+                                plainTextArr.push(item.url);
+                                let href = item.url.startsWith('http') ? item.url : 'https://' + item.url;
+                                
+                                let btnClass = item.type === 'vid' ? 'btn-vid' : 'btn-shop';
+                                let btnText = item.type === 'vid' ? 'V' + (idx+1) : 'S' + (idx+1);
+                                
+                                testButtonsHTML += `<button class="test-btn ${btnClass}" onclick="window.location.href='${href}'">${btnText}</button>`;
+                            });
+                            testButtonsHTML += `</div>`;
+
+                            let racikanText = plainTextArr.join('\n'); 
+                            let encodedTweetText = encodeURIComponent(racikanText);
+
+                            if (!seenBatches.has(racikanText)) {
+                                seenBatches.add(racikanText);
+
+                                resultHTML += `
+                                <div class="result-day">
+                                    <h3>Batch ${dayCounter}</h3>
+                                    <button class="copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)">Copy</button>
+                                    
+                                    <div class="result-body">
+                                        <div class="result-text">${racikanText}</div>
+                                        ${testButtonsHTML}
+                                    </div>
+                                    
+                                    <button class="post-x-btn" onclick="shareToX(this)" data-text="${encodedTweetText}">
+                                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                                        Share ke X
+                                    </button>
+                                </div>`;
+                                
+                                dayCounter++;
+                            }
+                        }
+                    }
+                } catch (e) { 
+                    console.log("Failed to process", e); 
+                    adaError = true;
+                }
+            }
+
+            let totalBatches = dayCounter - 1;
+
+            if (totalBatches === 0) {
+                if (adaError) {
+                    status.innerHTML = "WebIntoApp masih memblokir koneksi API. Mohon cek langkah 2!";
+                } else {
+                    status.innerHTML = "Proses selesai, tapi URL tidak valid.";
+                }
+                return;
+            }
+
+            status.innerHTML = `Process completed. Extracted ${totalBatches} batches.`;
+            outputDiv.innerHTML = resultHTML;
+            
+            currentActiveResultHTML = resultHTML;
+            currentActiveItemsCount = totalBatches;
+            saveBtn.style.display = 'block';
+
+            localStorage.setItem('draft_result', resultHTML);
+            localStorage.setItem('draft_count', totalBatches);
+        }
+
+        function saveCurrentToHistory() {
+            if (!currentActiveResultHTML) return;
+            
+            let history = JSON.parse(localStorage.getItem('refal_history')) || [];
+            let timestamp = new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+            
+            let newRecord = {
+                id: Date.now(),
+                date: timestamp,
+                count: currentActiveItemsCount,
+                html: currentActiveResultHTML
+            };
+            
+            history.unshift(newRecord); 
+            localStorage.setItem('refal_history', JSON.stringify(history));
+            
+            document.getElementById('saveBtn').style.display = 'none';
+            renderHistory();
+        }
+
+        function renderHistory() {
+            let history = JSON.parse(localStorage.getItem('refal_history')) || [];
+            let container = document.getElementById('historyContainer');
+            
+            if (history.length === 0) {
+                container.innerHTML = '<div style="color:#86868b; font-size:13px; text-align:center; padding:10px;">No saved history available.</div>';
+                return;
+            }
+            
+            let html = '';
+            history.forEach(item => {
+                html += `
+                <div class="history-item">
+                    <div>
+                        <div class="history-info">Batch Record (${item.count} Items)</div>
+                        <div class="history-date">${item.date}</div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="hist-btn load-h" onclick="loadHistoryItem(${item.id})">Open</button>
+                        <button class="hist-btn del-h" onclick="deleteHistoryItem(${item.id})">Delete</button>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function loadHistoryItem(id) {
+            let history = JSON.parse(localStorage.getItem('refal_history')) || [];
+            let record = history.find(item => item.id === id);
+            if (record) {
+                document.getElementById('status').innerHTML = `Viewing record from history (${record.date})`;
+                document.getElementById('outputContainer').innerHTML = record.html;
+                document.getElementById('saveBtn').style.display = 'none';
+                document.getElementById('outputContainer').scrollIntoView({ behavior: 'smooth' });
+                
+                currentActiveResultHTML = record.html;
+                currentActiveItemsCount = record.count;
+                localStorage.setItem('draft_result', record.html);
+                localStorage.setItem('draft_count', record.count);
+            }
+        }
+
+        function deleteHistoryItem(id) {
+            if(confirm("Hapus catatan riwayat ini?")) {
+                let history = JSON.parse(localStorage.getItem('refal_history')) || [];
+                history = history.filter(item => item.id !== id);
+                localStorage.setItem('refal_history', JSON.stringify(history));
+                renderHistory();
+            }
         }
 
         function resetForm() {
-            location.reload();
+            shopeeInput.value = '';
+            tweetInput.value = '';
+            document.getElementById('status').innerHTML = '';
+            document.getElementById('outputContainer').innerHTML = '';
+            document.getElementById('saveBtn').style.display = 'none';
+            currentActiveResultHTML = '';
+            currentActiveItemsCount = 0;
+            lastLength = 0; 
+            
+            localStorage.removeItem('draft_shopee');
+            localStorage.removeItem('draft_tweet');
+            localStorage.removeItem('draft_result');
+            localStorage.removeItem('draft_count');
+        }
+
+        function copyToClipboard(btn, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                let originalText = btn.innerText;
+                btn.innerText = "Copied ✓";
+                
+                btn.style.backgroundColor = "#34c759"; 
+                btn.style.boxShadow = "0 2px 8px rgba(52, 199, 89, 0.3)";
+                
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = ""; 
+                    btn.style.boxShadow = "";
+                }, 1500);
+            });
         }
     </script>
 </body>
