@@ -140,14 +140,35 @@
 
         .result-text {
             font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-            white-space: pre-wrap;
-            line-height: 1.6;
+            line-height: 1.8; /* Ditingkatkan dikit biar link gampang diklik pake jari */
             color: #333;
             font-size: 13px;
             background: #f5f5f7;
             padding: 14px;
             border-radius: 12px;
         }
+
+        /* GAYA BARU KHUSUS LINK DAN LABEL (BADGE) */
+        .result-text a {
+            color: #007aff;
+            text-decoration: none;
+        }
+        .result-text a:hover {
+            text-decoration: underline;
+        }
+        .badge {
+            display: inline-block;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            vertical-align: middle;
+        }
+        .badge-vid { background-color: #e5f1ff; color: #007aff; }
+        .badge-shop { background-color: #fff0e6; color: #ff6b00; }
 
         .copy-btn {
             background-color: #007aff;
@@ -225,7 +246,6 @@
             renderHistory();
         };
 
-        // AUTO-ENTER TETAP DIPERTAHANKAN
         let tweetInput = document.getElementById('inputTweet');
         let lastLength = tweetInput.value.length;
 
@@ -262,11 +282,8 @@
             let resultHTML = '';
             let dayCounter = 1;
             let shopeeIndex = 0;
-            
-            // Mengingat formasi cuitan biar nggak ada Batch kembar
             let seenBatches = new Set(); 
 
-            // MESIN BARU: JIPLAK FORMASI CUITAN ORIGINAL
             for (let url of tweetUrls) {
                 try {
                     let apiUrl = url.trim().replace(/(https?:\/\/)?(www\.)?(twitter\.com|x\.com)/, 'https://api.vxtwitter.com').split('?')[0];
@@ -279,32 +296,46 @@
                     let foundUrls = fullText.match(urlRegex) || [];
 
                     if (foundUrls.length > 0) {
-                        let batchLinks = [];
+                        let batchLinksData = [];
 
-                        // Proses link satu per satu sesuai urutan asli di Twitter
                         foundUrls.forEach(u => {
                             let cleanUrl = u.replace(/["']/g, "").trim();
 
-                            // 1. Kalo dia link Video (aceimg) -> SULAP JADI VERCEL VIDEO KITA
                             if (cleanUrl.includes('aceimg.com/upload/')) {
                                 let id = cleanUrl.split('?f=')[1]; 
                                 if(id) {
-                                    batchLinks.push("cdnpro.vercel.app/a/" + id); 
+                                    batchLinksData.push({ url: "cdnpro.vercel.app/a/" + id, type: "vid" }); 
                                 }
-                            } 
-                            // 2. Kalo BUKAN video (berarti link iklan/shopee orang) -> TIMPA PAKE SHOPEE KITA
-                            else {
+                            } else {
                                 let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
-                                batchLinks.push(myShopee);
-                                shopeeIndex++; // Geser amunisi Shopee ke urutan selanjutnya
+                                batchLinksData.push({ url: myShopee, type: "shop" });
+                                shopeeIndex++; 
                             }
                         });
 
-                        // Kalau sukses ngeracik 1 formasi cuitan
-                        if (batchLinks.length > 0) {
-                            let racikanText = batchLinks.join('\n');
-                            
-                            // Cek biar nggak ngeracik cuitan yang udah pernah diracik sebelumnya
+                        if (batchLinksData.length > 0) {
+                            let plainTextArr = [];
+                            let displayArr = [];
+
+                            // PROSES PEMISAHAN TEKS COPY & TEKS TAMPILAN
+                            batchLinksData.forEach(item => {
+                                // 1. Simpan string mentah untuk tombol Copy
+                                plainTextArr.push(item.url);
+                                
+                                // 2. Bikin URL bisa diklik (wajib pakai https:// biar gak error)
+                                let href = item.url.startsWith('http') ? item.url : 'https://' + item.url;
+                                
+                                // 3. Bikin Label Kecil (Badge)
+                                let badge = item.type === 'vid' 
+                                    ? `<span class="badge badge-vid">Video</span>` 
+                                    : `<span class="badge badge-shop">Shopee</span>`;
+                                
+                                displayArr.push(`<a href="${href}" target="_blank">${item.url}</a>${badge}`);
+                            });
+
+                            let racikanText = plainTextArr.join('\n'); // Bersih tanpa HTML
+                            let displayHTML = displayArr.join('\n');   // Cantik pakai HTML
+
                             if (!seenBatches.has(racikanText)) {
                                 seenBatches.add(racikanText);
 
@@ -312,7 +343,7 @@
                                 <div class="result-day">
                                     <h3>Batch ${dayCounter}</h3>
                                     <button class="copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)">Copy</button>
-                                    <div class="result-text">${racikanText}</div>
+                                    <div class="result-text">${displayHTML}</div>
                                 </div>`;
                                 
                                 dayCounter++;
@@ -414,7 +445,6 @@
             lastLength = 0; 
         }
 
-        // TOMBOL COPY HIJAU TETAP DIPERTAHANKAN
         function copyToClipboard(btn, text) {
             navigator.clipboard.writeText(text).then(() => {
                 let originalText = btn.innerText;
