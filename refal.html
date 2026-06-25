@@ -178,6 +178,7 @@
         .btn-vid { background-color: #e5f1ff; color: #007aff; }
         .btn-shop { background-color: #fff0e6; color: #ff6b00; }
 
+        /* KODE CSS BARU: Tombol Post ke X diubah jadi Link */
         .post-x-btn {
             width: 100%;
             padding: 12px;
@@ -193,6 +194,8 @@
             justify-content: center;
             align-items: center;
             gap: 8px;
+            text-decoration: none; /* Biar ngga ada garis bawah khas link */
+            box-sizing: border-box;
         }
         .post-x-btn:active { transform: scale(0.96); background-color: #1a91da; }
 
@@ -382,8 +385,7 @@
                             if (!seenBatches.has(racikanText)) {
                                 seenBatches.add(racikanText);
 
-                                // UPDATE: KODE TOMBOL POST KE X ANTI ERROR 500
-                                // Pake window.location.href biar gak bikin WebView AppMint pingsan
+                                // KODE BARU: Pakai tag <a> murni biar nggak error 500
                                 resultHTML += `
                                 <div class="result-day">
                                     <h3>Batch ${dayCounter}</h3>
@@ -394,10 +396,10 @@
                                         ${testButtonsHTML}
                                     </div>
                                     
-                                    <button class="post-x-btn" onclick="window.location.href='https://twitter.com/intent/tweet?text=${encodedTweetText}'">
+                                    <a href="https://twitter.com/intent/tweet?text=${encodedTweetText}" class="post-x-btn" target="_blank" rel="noopener noreferrer">
                                         <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                                         Post ke X
-                                    </button>
+                                    </a>
                                 </div>`;
                                 
                                 dayCounter++;
