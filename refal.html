@@ -344,8 +344,7 @@
                 return;
             }
 
-            // GANTI TEKS BIAR KETAHUAN KALO KODE BARU UDAH JALAN
-            status.innerHTML = "Membuka jalur data...";
+            status.innerHTML = "Processing data...";
             outputDiv.innerHTML = '';
             saveBtn.style.display = 'none';
             
@@ -353,26 +352,15 @@
             let dayCounter = 1;
             let shopeeIndex = 0;
             let seenBatches = new Set(); 
-            let adaError = false;
 
             for (let url of tweetUrls) {
                 try {
+                    // LANGSUNG TEMBAK KE TWITTER (TANPA PROXY) BIAR INSTAN
                     let apiUrl = url.trim().replace(/(https?:\/\/)?(www\.)?(twitter\.com|x\.com)/, 'https://api.vxtwitter.com').split('?')[0];
-                    
-                    // JALUR BYPASS WEB INTO APP (Pake Proxy AllOrigins)
-                    let proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
-                    
-                    // Coba jalur bypass dulu, kalo gagal coba jalur normal
-                    let response = await fetch(proxyUrl).catch(() => fetch(apiUrl));
-                    
-                    if (!response || !response.ok) {
-                        adaError = true;
-                        continue;
-                    }
+                    let response = await fetch(apiUrl);
+                    if (!response.ok) continue;
                     
                     let data = await response.json();
-                    if (!data || !data.text) continue;
-
                     let fullText = data.text;
                     let urlRegex = /(https?:\/\/[^\s]+)/g;
                     let foundUrls = fullText.match(urlRegex) || [];
@@ -436,20 +424,13 @@
                             }
                         }
                     }
-                } catch (e) { 
-                    console.log("Failed to process", e); 
-                    adaError = true;
-                }
+                } catch (e) { console.log("Failed to process: " + url); }
             }
 
             let totalBatches = dayCounter - 1;
 
             if (totalBatches === 0) {
-                if (adaError) {
-                    status.innerHTML = "WebIntoApp masih memblokir koneksi API. Mohon cek langkah 2!";
-                } else {
-                    status.innerHTML = "Proses selesai, tapi URL tidak valid.";
-                }
+                status.innerHTML = "Process completed. No valid source URLs found.";
                 return;
             }
 
