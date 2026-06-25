@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Link AutoMixer</title>
     <style>
-        /* Gaya dasar aplikasi - modern background */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #f2f4f7; 
@@ -13,10 +12,9 @@
             padding: 30px 20px;
             max-width: 800px;
             margin: 0 auto;
-            -webkit-tap-highlight-color: transparent; /* Ilangin efek biru pas diklik di HP */
+            -webkit-tap-highlight-color: transparent;
         }
         
-        /* Judul Header ala aplikasi native */
         h2 { 
             font-size: 24px; 
             font-weight: 700; 
@@ -26,7 +24,6 @@
             text-align: center;
         }
 
-        /* Kotak Card UI Modern (Soft shadow, no border) */
         .box {
             background: #ffffff;
             padding: 22px;
@@ -36,7 +33,6 @@
             box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04); 
         }
 
-        /* Label elegan */
         label { 
             font-weight: 600; 
             display: block; 
@@ -47,7 +43,6 @@
             letter-spacing: 0.8px;
         }
 
-        /* Kotak Input kekinian */
         textarea {
             width: 100%;
             height: 110px;
@@ -67,17 +62,15 @@
         textarea:focus { 
             outline: none; 
             background-color: #ffffff;
-            box-shadow: 0 0 0 2px #007aff; /* Efek ring biru pas ngetik */
+            box-shadow: 0 0 0 2px #007aff;
         }
 
-        /* Grup Tombol */
         .button-group {
             display: flex;
             gap: 12px;
             margin-top: 24px;
         }
 
-        /* Tombol Utama (Hitam Elegan) */
         button.action-btn {
             flex: 3;
             padding: 16px;
@@ -88,16 +81,12 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.1s, background-color 0.2s, box-shadow 0.2s;
+            transition: transform 0.1s, background-color 0.2s;
             box-shadow: 0 4px 14px rgba(0,0,0,0.15);
         }
 
-        /* Efek ditekan */
-        button.action-btn:active {
-            transform: scale(0.97); 
-        }
+        button.action-btn:active { transform: scale(0.97); }
 
-        /* Tombol Reset (Abu-abu lembut) */
         button.reset-btn {
             flex: 1;
             padding: 16px;
@@ -111,12 +100,25 @@
             transition: transform 0.1s, background-color 0.2s;
         }
 
-        button.reset-btn:active {
-            transform: scale(0.97);
-            background-color: #d1d1d6;
-        }
+        button.reset-btn:active { transform: scale(0.97); background-color: #d1d1d6; }
 
-        /* Teks Status */
+        button.save-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #34c759;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: none;
+            transition: transform 0.1s;
+            box-shadow: 0 4px 12px rgba(52, 199, 89, 0.2);
+        }
+        button.save-btn:active { transform: scale(0.98); }
+
         #status {
             font-weight: 500;
             color: #86868b;
@@ -125,7 +127,6 @@
             text-align: center;
         }
 
-        /* Kotak Hasil Racikan */
         .result-day {
             background: #ffffff;
             padding: 20px;
@@ -135,15 +136,8 @@
             position: relative;
         }
 
-        .result-day h3 { 
-            margin-top: 0; 
-            margin-bottom: 14px; 
-            font-size: 16px; 
-            font-weight: 700; 
-            color: #1d1d1f;
-        }
+        .result-day h3 { margin-top: 0; margin-bottom: 14px; font-size: 16px; font-weight: 700; color: #1d1d1f; }
 
-        /* Teks Hasil */
         .result-text {
             font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
             white-space: pre-wrap;
@@ -155,7 +149,6 @@
             border-radius: 12px;
         }
 
-        /* Tombol Copy (Bentuk Pill/Kapsul) */
         .copy-btn {
             background-color: #007aff;
             color: #ffffff;
@@ -171,11 +164,28 @@
             transition: all 0.15s;
             box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
         }
+        .copy-btn:active { transform: scale(0.92); }
 
-        .copy-btn:active { 
-            transform: scale(0.92);
-            background-color: #005bb5; 
+        /* Style khusus untuk komponen History */
+        .history-section { margin-top: 40px; border-top: 1px solid #d1d1d6; padding-top: 24px; }
+        .history-item {
+            background: #ffffff;
+            padding: 16px;
+            border-radius: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.02);
         }
+        .history-info { font-size: 14px; font-weight: 500; color: #1d1d1f; }
+        .history-date { font-size: 11px; color: #86868b; margin-top: 4px; }
+        .history-actions { display: flex; gap: 8px; }
+        .hist-btn {
+            border: none; padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer;
+        }
+        .load-h { background-color: #f2f4f7; color: #007aff; }
+        .del-h { background-color: #ffe5e5; color: #ff3b30; }
     </style>
 </head>
 <body>
@@ -199,15 +209,32 @@
 
     <div id="status"></div>
 
+    <button id="saveBtn" class="save-btn" onclick="saveCurrentToHistory()">Save to History</button>
+
     <div id="outputContainer"></div>
 
+    <div class="history-section">
+        <label>Saved History</label>
+        <div id="historyContainer"></div>
+    </div>
+
     <script>
+        // Variabel global buat nampung data aktif yang lagi kelihatan di layar
+        let currentActiveResultHTML = '';
+        let currentActiveItemsCount = 0;
+
+        // Jalankan fungsi load history tiap kali aplikasi dibuka
+        window.onload = function() {
+            renderHistory();
+        };
+
         async function generateAll() {
             let shopeeRaw = document.getElementById('inputShopee').value.split('\n').map(s => s.trim()).filter(s => s !== '');
             let tweetUrls = document.getElementById('inputTweet').value.split('\n').map(s => s.trim()).filter(s => s !== '');
 
             let status = document.getElementById('status');
             let outputDiv = document.getElementById('outputContainer');
+            let saveBtn = document.getElementById('saveBtn');
             
             if (shopeeRaw.length === 0 || tweetUrls.length === 0) {
                 alert("Please fill in both fields.");
@@ -216,6 +243,7 @@
 
             status.innerHTML = "Processing data...";
             outputDiv.innerHTML = '';
+            saveBtn.style.display = 'none';
             
             let finalVideoLinks = new Set(); 
 
@@ -277,13 +305,95 @@
             }
 
             outputDiv.innerHTML = resultHTML;
+            
+            // Simpan data ke variabel global agar bisa di-save ke history kalau tombol diklik
+            currentActiveResultHTML = resultHTML;
+            currentActiveItemsCount = videoArray.length;
+            saveBtn.style.display = 'block'; // Munculkan tombol save
         }
 
+        // FUNGSI BARU: Menyimpan hasil racikan aktif ke LocalStorage
+        function saveCurrentToHistory() {
+            if (!currentActiveResultHTML) return;
+            
+            let history = JSON.parse(localStorage.getItem('refal_history')) || [];
+            let timestamp = new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+            
+            // Struktur data riwayat
+            let newRecord = {
+                id: Date.now(),
+                date: timestamp,
+                count: currentActiveItemsCount,
+                html: currentActiveResultHTML
+            };
+            
+            history.unshift(newRecord); // Taruh di urutan paling atas
+            localStorage.setItem('refal_history', JSON.stringify(history));
+            
+            document.getElementById('saveBtn').style.display = 'none';
+            alert("Racikan berhasil disimpan ke History!");
+            renderHistory();
+        }
+
+        // FUNGSI BARU: Menampilkan daftar riwayat di layar
+        function renderHistory() {
+            let history = JSON.parse(localStorage.getItem('refal_history')) || [];
+            let container = document.getElementById('historyContainer');
+            
+            if (history.length === 0) {
+                container.innerHTML = '<div style="color:#86868b; font-size:13px; text-align:center; padding:10px;">No saved history available.</div>';
+                return;
+            }
+            
+            let html = '';
+            history.forEach(item => {
+                html += `
+                <div class="history-item">
+                    <div>
+                        <div class="history-info">Batch Record (${item.count} Items)</div>
+                        <div class="history-date">${item.date}</div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="hist-btn load-h" onclick="loadHistoryItem(${item.id})">Open</button>
+                        <button class="hist-btn del-h" onclick="deleteHistoryItem(${item.id})">Delete</button>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // FUNGSI BARU: Membuka kembali data lama dari history ke layar utama
+        function loadHistoryItem(id) {
+            let history = JSON.parse(localStorage.getItem('refal_history')) || [];
+            let record = history.find(item => item.id === id);
+            if (record) {
+                document.getElementById('status').innerHTML = `Viewing record from history (${record.date})`;
+                document.getElementById('outputContainer').innerHTML = record.html;
+                document.getElementById('saveBtn').style.display = 'none';
+                // Scroll halus ke arah hasil biar langsung kelihatan
+                document.getElementById('outputContainer').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // FUNGSI BARU: Menghapus satu item dari riwayat
+        function deleteHistoryItem(id) {
+            if(confirm("Hapus catatan riwayat ini?")) {
+                let history = JSON.parse(localStorage.getItem('refal_history')) || [];
+                history = history.filter(item => item.id !== id);
+                localStorage.setItem('refal_history', JSON.stringify(history));
+                renderHistory();
+            }
+        }
+
+        // Tombol Reset = Fitur Percakapan Baru ala Gemini
         function resetForm() {
             document.getElementById('inputShopee').value = '';
             document.getElementById('inputTweet').value = '';
             document.getElementById('status').innerHTML = '';
             document.getElementById('outputContainer').innerHTML = '';
+            document.getElementById('saveBtn').style.display = 'none';
+            currentActiveResultHTML = '';
+            currentActiveItemsCount = 0;
         }
 
         function copyToClipboard(btn, text) {
