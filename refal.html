@@ -15,47 +15,230 @@
             -webkit-tap-highlight-color: transparent;
         }
         
-        h2 { font-size: 24px; font-weight: 700; margin-bottom: 28px; color: #111; letter-spacing: -0.5px; text-align: center; }
-
-        .box { background: #ffffff; padding: 22px; border-radius: 18px; margin-bottom: 20px; border: none; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04); }
-
-        label { font-weight: 600; display: block; margin-bottom: 12px; font-size: 12px; color: #86868b; text-transform: uppercase; letter-spacing: 0.8px; }
-
-        textarea {
-            width: 100%; height: 110px; border: none; border-radius: 14px; padding: 16px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; box-sizing: border-box; resize: none; background-color: #f5f5f7; color: #1d1d1f; line-height: 1.6; transition: all 0.2s ease;
+        h2 { 
+            font-size: 24px; 
+            font-weight: 700; 
+            margin-bottom: 28px; 
+            color: #111; 
+            letter-spacing: -0.5px;
+            text-align: center;
         }
 
-        textarea:focus { outline: none; background-color: #ffffff; box-shadow: 0 0 0 2px #007aff; }
+        .box {
+            background: #ffffff;
+            padding: 22px;
+            border-radius: 18px; 
+            margin-bottom: 20px;
+            border: none; 
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04); 
+        }
 
-        .button-group { display: flex; gap: 12px; margin-top: 24px; }
+        label { 
+            font-weight: 600; 
+            display: block; 
+            margin-bottom: 12px; 
+            font-size: 12px; 
+            color: #86868b; 
+            text-transform: uppercase; 
+            letter-spacing: 0.8px;
+        }
 
-        button.action-btn { flex: 3; padding: 16px; background-color: #000000; color: #ffffff; border: none; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.1s; box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
+        textarea {
+            width: 100%;
+            height: 110px;
+            border: none; 
+            border-radius: 14px;
+            padding: 16px;
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            font-size: 13px;
+            box-sizing: border-box;
+            resize: none; 
+            background-color: #f5f5f7; 
+            color: #1d1d1f;
+            line-height: 1.6;
+            transition: all 0.2s ease;
+        }
+
+        textarea:focus { 
+            outline: none; 
+            background-color: #ffffff;
+            box-shadow: 0 0 0 2px #007aff;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        button.action-btn {
+            flex: 3;
+            padding: 16px;
+            background-color: #000000; 
+            color: #ffffff;
+            border: none;
+            border-radius: 16px; 
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+        }
+
         button.action-btn:active { transform: scale(0.97); }
 
-        button.reset-btn { flex: 1; padding: 16px; background-color: #e5e5ea; color: #1c1c1e; border: none; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.1s; }
+        button.reset-btn {
+            flex: 1;
+            padding: 16px;
+            background-color: #e5e5ea; 
+            color: #1c1c1e;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+
         button.reset-btn:active { transform: scale(0.97); background-color: #d1d1d6; }
 
-        button.save-btn { width: 100%; padding: 14px; background-color: #34c759; color: white; border: none; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 20px; display: none; transition: transform 0.1s; box-shadow: 0 4px 12px rgba(52, 199, 89, 0.2); }
+        button.save-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #34c759;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: none;
+            transition: transform 0.1s;
+            box-shadow: 0 4px 12px rgba(52, 199, 89, 0.2);
+        }
         button.save-btn:active { transform: scale(0.98); }
 
-        .result-day { background: #ffffff; padding: 20px; margin-bottom: 16px; border-radius: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); position: relative; }
-        
-        .result-body { display: flex; gap: 12px; margin-bottom: 14px; }
+        #status {
+            font-weight: 500;
+            color: #86868b;
+            margin: 24px 0 10px;
+            font-size: 14px;
+            text-align: center;
+        }
 
-        .result-text { flex: 1; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; line-height: 28px; color: #333; background: #f5f5f7; padding: 12px 14px; border-radius: 12px; white-space: pre-wrap; word-break: break-all; margin: 0; }
+        .result-day {
+            background: #ffffff;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            position: relative;
+        }
 
-        .test-side-panel { display: flex; flex-direction: column; gap: 6px; padding: 12px 0; }
+        .result-day h3 { margin-top: 0; margin-bottom: 14px; font-size: 16px; font-weight: 700; color: #1d1d1f; }
+
+        /* PERBAIKAN LAYOUT PRESISI: Teks dan Tombol Sejajar */
+        .result-body {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 14px; /* Kasih jarak buat tombol X di bawahnya */
+        }
+
+        .result-text {
+            flex: 1;
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            font-size: 13px;
+            line-height: 28px; /* Teks sejajar sempurna sama tinggi tombol V1/S2 */
+            color: #333;
+            background: #f5f5f7;
+            padding: 12px 14px;
+            border-radius: 12px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin: 0;
+        }
+
+        .test-side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 6px; 
+            padding: 12px 0;
+        }
         
-        .test-btn { width: 45px; height: 22px; padding: 0; border-radius: 6px; border: none; font-size: 11px; font-weight: 700; cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; }
+        .test-btn { 
+            width: 45px;
+            height: 22px; 
+            padding: 0;
+            border-radius: 6px; 
+            border: none; 
+            font-size: 11px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: transform 0.1s; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
         .test-btn:active { transform: scale(0.92); }
         .btn-vid { background-color: #e5f1ff; color: #007aff; }
         .btn-shop { background-color: #fff0e6; color: #ff6b00; }
 
-        .post-x-btn { width: 100%; padding: 12px; background-color: #1da1f2; color: #ffffff; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: transform 0.1s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        /* TOMBOL X */
+        .post-x-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #1da1f2; 
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
         .post-x-btn:active { transform: scale(0.96); background-color: #1a91da; }
 
-        .copy-btn { background-color: #007aff; color: #ffffff; border: none; border-radius: 20px; padding: 6px 16px; font-size: 12px; font-weight: 600; cursor: pointer; position: absolute; top: 18px; right: 20px; transition: all 0.15s; }
+        .copy-btn {
+            background-color: #007aff;
+            color: #ffffff;
+            border: none;
+            border-radius: 20px; 
+            padding: 6px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            position: absolute;
+            top: 18px;
+            right: 20px;
+            transition: all 0.15s;
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+        }
         .copy-btn:active { transform: scale(0.92); }
+
+        .history-section { margin-top: 40px; border-top: 1px solid #d1d1d6; padding-top: 24px; }
+        .history-item {
+            background: #ffffff;
+            padding: 16px;
+            border-radius: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.02);
+        }
+        .history-info { font-size: 14px; font-weight: 500; color: #1d1d1f; }
+        .history-date { font-size: 11px; color: #86868b; margin-top: 4px; }
+        .history-actions { display: flex; gap: 8px; }
+        .hist-btn {
+            border: none; padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer;
+        }
+        .load-h { background-color: #f2f4f7; color: #007aff; }
+        .del-h { background-color: #ffe5e5; color: #ff3b30; }
     </style>
 </head>
 <body>
@@ -77,37 +260,83 @@
         <button class="reset-btn" onclick="resetForm()">Reset</button>
     </div>
 
+    <div id="status"></div>
+
+    <button id="saveBtn" class="save-btn" onclick="saveCurrentToHistory()">Save to History</button>
+
     <div id="outputContainer"></div>
 
+    <div class="history-section">
+        <label>Saved History</label>
+        <div id="historyContainer"></div>
+    </div>
+
     <script>
-        let shopeeInput = document.getElementById('inputShopee');
+        let currentActiveResultHTML = '';
+        let currentActiveItemsCount = 0;
         let tweetInput = document.getElementById('inputTweet');
-        
+        let shopeeInput = document.getElementById('inputShopee');
+        let lastLength = 0;
+
         window.onload = function() {
-            if(localStorage.getItem('draft_shopee')) shopeeInput.value = localStorage.getItem('draft_shopee');
-            if(localStorage.getItem('draft_tweet')) tweetInput.value = localStorage.getItem('draft_tweet');
-            if(localStorage.getItem('draft_result')) document.getElementById('outputContainer').innerHTML = localStorage.getItem('draft_result');
+            renderHistory();
+
+            let draftShopee = localStorage.getItem('draft_shopee');
+            if(draftShopee) shopeeInput.value = draftShopee;
+
+            let draftTweet = localStorage.getItem('draft_tweet');
+            if(draftTweet) {
+                tweetInput.value = draftTweet;
+                lastLength = tweetInput.length; 
+            }
+
+            let draftResult = localStorage.getItem('draft_result');
+            let draftCount = localStorage.getItem('draft_count');
+            if(draftResult) {
+                document.getElementById('outputContainer').innerHTML = draftResult;
+                currentActiveResultHTML = draftResult;
+                currentActiveItemsCount = parseInt(draftCount || '0');
+                document.getElementById('saveBtn').style.display = 'block';
+            }
         };
 
         shopeeInput.addEventListener('input', () => localStorage.setItem('draft_shopee', shopeeInput.value));
-        tweetInput.addEventListener('input', () => localStorage.setItem('draft_tweet', tweetInput.value));
+        
+        tweetInput.addEventListener('input', function(e) {
+            let currentLength = this.value.length;
+            if (currentLength - lastLength > 10) {
+                if (!this.value.endsWith('\n')) this.value += '\n';
+                this.scrollTop = this.scrollHeight;
+            }
+            lastLength = this.value.length;
+            localStorage.setItem('draft_tweet', this.value);
+        });
 
-        // JALUR INTENT VIP (LANGSUNG KE TWITTER)
-        function postToTwitter(text) {
-            let encodedText = encodeURIComponent(text);
-            // Intent ini yang ngebuka Twitter + ngisi teksnya
-            let intent = `intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT=${encodedText};package=com.twitter.android;end`;
-            window.location.href = intent;
+        // FUNGSI SHARE KE X (Native Android Share)
+        function shareToX(btn) {
+            let racikanText = btn.getAttribute('data-text');
+            if (navigator.share) {
+                navigator.share({ text: racikanText }).catch(err => console.log(err));
+            } else {
+                // Fallback untuk HP lama
+                window.location.href = `intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT=${encodeURIComponent(racikanText)};end`;
+            }
         }
 
         async function generateAll() {
-            let shopeeRaw = shopeeInput.value.split('\n').filter(s => s.trim() !== '');
+            let shopeeRaw = shopeeInput.value.split('\n').map(s => s.trim()).filter(s => s !== '');
             let tweetUrls = tweetInput.value.match(/(https?:\/\/[^\s]+)/g) || [];
+            let status = document.getElementById('status');
             let outputDiv = document.getElementById('outputContainer');
+            let saveBtn = document.getElementById('saveBtn');
             
-            outputDiv.innerHTML = 'Processing...';
+            if (shopeeRaw.length === 0 || tweetUrls.length === 0) return alert("Fill fields!");
+
+            status.innerHTML = "Processing...";
+            outputDiv.innerHTML = '';
             
             let resultHTML = '';
+            let dayCounter = 1;
             let shopeeIndex = 0;
 
             for (let url of tweetUrls) {
@@ -129,17 +358,56 @@
 
                 resultHTML += `
                 <div class="result-day">
+                    <h3>Batch ${dayCounter}</h3>
                     <button class="copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)">Copy</button>
                     <div class="result-body">
                         <div class="result-text">${racikanText}</div>
                         <div class="test-side-panel">${buttons}</div>
                     </div>
-                    <button class="post-x-btn" onclick="postToTwitter(\`${racikanText}\`)">Post ke X</button>
+                    <button class="post-x-btn" onclick="shareToX(this)" data-text="${racikanText}">Post ke X</button>
                 </div>`;
+                dayCounter++;
             }
 
             outputDiv.innerHTML = resultHTML;
+            saveBtn.style.display = 'block';
             localStorage.setItem('draft_result', resultHTML);
+            localStorage.setItem('draft_count', dayCounter-1);
+        }
+
+        function saveCurrentToHistory() {
+            let history = JSON.parse(localStorage.getItem('refal_history')) || [];
+            history.unshift({ id: Date.now(), date: new Date().toLocaleString(), count: currentActiveItemsCount, html: currentActiveResultHTML });
+            localStorage.setItem('refal_history', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            let history = JSON.parse(localStorage.getItem('refal_history')) || [];
+            let container = document.getElementById('historyContainer');
+            container.innerHTML = history.length ? history.map(item => `
+                <div class="history-item">
+                    <div>
+                        <div class="history-info">Batch Record (${item.count} Items)</div>
+                        <div class="history-date">${item.date}</div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="hist-btn load-h" onclick="loadHistoryItem(${item.id})">Open</button>
+                        <button class="hist-btn del-h" onclick="deleteHistoryItem(${item.id})">Delete</button>
+                    </div>
+                </div>`).join('') : '<div style="color:#86868b; font-size:13px; text-align:center; padding:10px;">No history.</div>';
+        }
+
+        function loadHistoryItem(id) {
+            let history = JSON.parse(localStorage.getItem('refal_history'));
+            let record = history.find(item => item.id === id);
+            document.getElementById('outputContainer').innerHTML = record.html;
+        }
+
+        function deleteHistoryItem(id) {
+            let history = JSON.parse(localStorage.getItem('refal_history')).filter(item => item.id !== id);
+            localStorage.setItem('refal_history', JSON.stringify(history));
+            renderHistory();
         }
 
         function copyToClipboard(btn, text) {
@@ -150,7 +418,7 @@
         }
 
         function resetForm() {
-            shopeeInput.value = ''; tweetInput.value = ''; outputDiv.innerHTML = '';
+            shopeeInput.value = ''; tweetInput.value = ''; document.getElementById('outputContainer').innerHTML = '';
             localStorage.clear();
         }
     </script>
