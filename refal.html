@@ -508,63 +508,44 @@
                     let caption = fullText.replace(urlRegex, '').trim();
 
                     if (foundUrls.length > 0) {
-                        
-                        let promises = foundUrls.map(async (u) => {
+                        let batchLinksData = [];
+
+                        // PROSES CEPAT, TANPA PROXY LEMOT! (Langsung dibungkus biar seragam)
+                        foundUrls.forEach(u => {
                             let cleanUrl = u.replace(/["']/g, "").trim();
 
+                            // SENSOR VIDEO 1: aceimg.com
                             if (cleanUrl.includes('aceimg.com/upload/')) {
                                 let id = cleanUrl.split('?f=')[1]; 
-                                return id ? { url: "cdnpro.vercel.app/a/" + id, type: "vid" } : null;
-                            } 
-                            else if (cleanUrl.includes('aceimq.site/')) {
-                                let fetchTarget = cleanUrl.startsWith('http') ? cleanUrl : 'https://' + cleanUrl;
-                                let encodedUrl = encodeURIComponent(fetchTarget);
-                                let regexId = /(?:f=|\/upload\/\?f=)([a-zA-Z0-9_-]+\.mp4)/i;
-                                let foundId = null;
-
-                                // MESIN BRUTEFORCE 3 PROXY SEKALIGUS (Siapa cepat dia dapat)
-                                let px1 = fetch('https://corsproxy.io/?' + encodedUrl).then(r=>r.text()).then(h=>{
-                                    let m = h.match(regexId); if(m&&m[1]) return m[1]; throw new Error();
-                                });
-                                let px2 = fetch('https://api.allorigins.win/get?url=' + encodedUrl + '&disableCache=true').then(r=>r.json()).then(d=>{
-                                    if(d.status && d.status.url && d.status.url.includes('?f=')) return d.status.url.split('?f=')[1].split('&')[0];
-                                    if(d.contents){ let m=d.contents.match(regexId); if(m&&m[1]) return m[1]; } throw new Error();
-                                });
-                                let px3 = fetch('https://api.codetabs.com/v1/proxy?quest=' + encodedUrl).then(r=>r.text()).then(h=>{
-                                    let m = h.match(regexId); if(m&&m[1]) return m[1]; throw new Error();
-                                });
-
-                                try {
-                                    foundId = await Promise.any([px1, px2, px3]);
-                                } catch (e) {
-                                    foundId = null;
+                                if(id) {
+                                    if (!id.endsWith('.mp4')) id += '.mp4';
+                                    batchLinksData.push({ url: "cdnpro.vercel.app/a/" + id, type: "vid" }); 
                                 }
-
-                                if (foundId) {
-                                    foundId = foundId.replace(/["'>]/g, '');
-                                    return { url: "cdnpro.vercel.app/a/" + foundId, type: "vid" };
-                                } else {
-                                    // JIKA GAGAL DIBONGKAR, BALIKIN LINK ASLI BIAR NGGAK JADI ERROR
-                                    return { url: cleanUrl, type: "vid" }; 
+                            } 
+                            // SENSOR VIDEO 2: aceimq.site (Langsung tarik ID dan bungkus!)
+                            else if (cleanUrl.includes('aceimq.site/')) {
+                                let idMatch = cleanUrl.match(/aceimq\.site\/([a-zA-Z0-9_.-]+)/i);
+                                if (idMatch && idMatch[1]) {
+                                    let id = idMatch[1];
+                                    if (!id.endsWith('.mp4')) id += '.mp4'; // Pastikan ada .mp4 biar nyaru
+                                    batchLinksData.push({ url: "cdnpro.vercel.app/a/" + id, type: "vid" });
                                 }
                             } 
                             else {
-                                // PROSES SHOPEE AUTO-NYARU KE VERCEL
+                                // SENSOR SHOPEE: Bungkus Vercel + Tambah .mp4 biar mirip video
                                 let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
                                 shopeeIndex++; 
                                 
                                 let shopUrl = myShopee;
                                 if (myShopee.includes('.co.id/')) {
+                                    // Ambil ID Shopee doang
                                     let sId = myShopee.split('.co.id/')[1].split('?')[0].replace(/\//g, '');
-                                    shopUrl = "cdnpro.vercel.app/a/" + sId;
+                                    shopUrl = "cdnpro.vercel.app/a/" + sId + ".mp4"; // Dibungkus + tambah .mp4
                                 }
 
-                                return { url: shopUrl, type: "shop" };
+                                batchLinksData.push({ url: shopUrl, type: "shop" });
                             }
                         });
-
-                        let resolvedLinks = await Promise.all(promises);
-                        let batchLinksData = resolvedLinks.filter(item => item !== null);
 
                         if (batchLinksData.length > 0) {
                             let plainTextArr = [];
