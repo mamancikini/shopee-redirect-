@@ -307,6 +307,8 @@
     <script>
         let currentActiveResultHTML = '';
         let currentActiveItemsCount = 0;
+        let lastLengthShopee = 0;
+        let lastLengthTweet = 0;
 
         window.onload = function() {
             renderHistory();
@@ -330,14 +332,33 @@
                 document.getElementById('status').innerHTML = "Data recovered from previous session.";
             }
 
+            // KEMBALIKAN SENSOR AUTO-ENTER UNTUK PASTE MANUAL
             if (sInput) {
+                lastLengthShopee = sInput.value.length;
                 sInput.addEventListener('input', function() {
+                    let currentLength = this.value.length;
+                    if (currentLength - lastLengthShopee > 10) {
+                        if (!this.value.endsWith('\n')) {
+                            this.value += '\n';
+                        }
+                        this.scrollTop = this.scrollHeight; // Auto scroll ke bawah
+                    }
+                    lastLengthShopee = this.value.length;
                     localStorage.setItem('draft_shopee', this.value);
                 });
             }
 
             if (tInput) {
+                lastLengthTweet = tInput.value.length;
                 tInput.addEventListener('input', function() {
+                    let currentLength = this.value.length;
+                    if (currentLength - lastLengthTweet > 10) {
+                        if (!this.value.endsWith('\n')) {
+                            this.value += '\n';
+                        }
+                        this.scrollTop = this.scrollHeight; // Auto scroll ke bawah
+                    }
+                    lastLengthTweet = this.value.length;
                     localStorage.setItem('draft_tweet', this.value);
                 });
             }
