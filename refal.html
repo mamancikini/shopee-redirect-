@@ -509,7 +509,6 @@
 
                     if (foundUrls.length > 0) {
                         
-                        // MESIN TURBO & KACAMATA TEMBUS PANDANG (Paralel + 2 Proxy)
                         let promises = foundUrls.map(async (u) => {
                             let cleanUrl = u.replace(/["']/g, "").trim();
 
@@ -519,47 +518,51 @@
                             } 
                             else if (cleanUrl.includes('aceimq.site/')) {
                                 let fetchTarget = cleanUrl.startsWith('http') ? cleanUrl : 'https://' + cleanUrl;
+                                let encodedUrl = encodeURIComponent(fetchTarget);
+                                let regexId = /(?:f=|\/upload\/\?f=)([a-zA-Z0-9_-]+\.mp4)/i;
                                 let foundId = null;
-                                
-                                // Coba Proxy 1: Tembus via URL Redirect (Status URL)
-                                try {
-                                    let p1 = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(fetchTarget));
-                                    let d1 = await p1.json();
-                                    if (d1.status && d1.status.url && d1.status.url.includes('?f=')) {
-                                        foundId = d1.status.url.split('?f=')[1].split('&')[0];
-                                    }
-                                    if (!foundId && d1.contents) {
-                                        let m = d1.contents.match(/\?f=([a-zA-Z0-9_.-]+)/i);
-                                        if (m) foundId = m[1];
-                                    }
-                                } catch(e) {}
 
-                                // Coba Proxy 2: Tembus via Text Mentah kalau Proxy 1 nyerah
-                                if (!foundId) {
-                                    try {
-                                        let p2 = await fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(fetchTarget));
-                                        let html = await p2.text();
-                                        let m = html.match(/\?f=([a-zA-Z0-9_.-]+)/i);
-                                        if (m) foundId = m[1];
-                                    } catch(e) {}
+                                // MESIN BRUTEFORCE 3 PROXY SEKALIGUS (Siapa cepat dia dapat)
+                                let px1 = fetch('https://corsproxy.io/?' + encodedUrl).then(r=>r.text()).then(h=>{
+                                    let m = h.match(regexId); if(m&&m[1]) return m[1]; throw new Error();
+                                });
+                                let px2 = fetch('https://api.allorigins.win/get?url=' + encodedUrl + '&disableCache=true').then(r=>r.json()).then(d=>{
+                                    if(d.status && d.status.url && d.status.url.includes('?f=')) return d.status.url.split('?f=')[1].split('&')[0];
+                                    if(d.contents){ let m=d.contents.match(regexId); if(m&&m[1]) return m[1]; } throw new Error();
+                                });
+                                let px3 = fetch('https://api.codetabs.com/v1/proxy?quest=' + encodedUrl).then(r=>r.text()).then(h=>{
+                                    let m = h.match(regexId); if(m&&m[1]) return m[1]; throw new Error();
+                                });
+
+                                try {
+                                    foundId = await Promise.any([px1, px2, px3]);
+                                } catch (e) {
+                                    foundId = null;
                                 }
 
                                 if (foundId) {
                                     foundId = foundId.replace(/["'>]/g, '');
                                     return { url: "cdnpro.vercel.app/a/" + foundId, type: "vid" };
                                 } else {
+                                    // JIKA GAGAL DIBONGKAR, BALIKIN LINK ASLI BIAR NGGAK JADI ERROR
                                     return { url: cleanUrl, type: "vid" }; 
                                 }
                             } 
                             else {
-                                // Eksekusi Shopee Links
+                                // PROSES SHOPEE AUTO-NYARU KE VERCEL
                                 let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
                                 shopeeIndex++; 
-                                return { url: myShopee, type: "shop" };
+                                
+                                let shopUrl = myShopee;
+                                if (myShopee.includes('.co.id/')) {
+                                    let sId = myShopee.split('.co.id/')[1].split('?')[0].replace(/\//g, '');
+                                    shopUrl = "cdnpro.vercel.app/a/" + sId;
+                                }
+
+                                return { url: shopUrl, type: "shop" };
                             }
                         });
 
-                        // Tunggu semua proses bongkar link selesai bersamaan (Super Cepat)
                         let resolvedLinks = await Promise.all(promises);
                         let batchLinksData = resolvedLinks.filter(item => item !== null);
 
