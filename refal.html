@@ -505,6 +505,9 @@
                     let urlRegex = /(https?:\/\/[^\s]+)/g;
                     let foundUrls = fullText.match(urlRegex) || [];
 
+                    // GABUNGKAN CAPTION: Hapus semua link dari teks asli cuitan buat ngambil judulnya doang
+                    let caption = fullText.replace(urlRegex, '').trim();
+
                     if (foundUrls.length > 0) {
                         let batchLinksData = [];
 
@@ -525,6 +528,11 @@
 
                         if (batchLinksData.length > 0) {
                             let plainTextArr = [];
+
+                            // MASUKIN CAPTION KE BARIS PALING ATAS KALAU ADA
+                            if (caption !== '') {
+                                plainTextArr.push(caption);
+                            }
 
                             batchLinksData.forEach((item, idx) => {
                                 plainTextArr.push(item.url);
