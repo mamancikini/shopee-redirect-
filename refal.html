@@ -169,7 +169,6 @@
             align-items: center;
         }
 
-        /* CEKLIS PINTAR (SMART CHECKBOX) */
         .posted-toggle {
             display: inline-flex;
             align-items: center;
@@ -215,31 +214,6 @@
             word-break: break-all;
             margin: 0;
         }
-
-        .test-side-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 6px; 
-            padding: 12px 0;
-        }
-        
-        .test-btn { 
-            width: 45px;
-            height: 22px; 
-            padding: 0;
-            border-radius: 6px; 
-            border: none; 
-            font-size: 11px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            transition: transform 0.1s; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .test-btn:active { transform: scale(0.92); }
-        .btn-vid { background-color: #e5f1ff; color: #007aff; }
-        .btn-shop { background-color: #fff0e6; color: #ff6b00; }
 
         .post-x-btn {
             width: 100%;
@@ -344,7 +318,7 @@
         let currentActiveItemsCount = 0;
         let lastLengthShopee = 0;
         let lastLengthTweet = 0;
-        let currentActiveHistoryId = null; // Memory Pintar buat ngelacak History
+        let currentActiveHistoryId = null;
 
         window.onload = function() {
             renderHistory();
@@ -403,19 +377,17 @@
             }
         };
 
-        // MESIN CEKLIS PINTAR
         function toggleDone(checkbox) {
             if (checkbox.checked) {
-                checkbox.setAttribute('checked', 'checked'); // Kunci centang ke dalam HTML
+                checkbox.setAttribute('checked', 'checked'); 
             } else {
-                checkbox.removeAttribute('checked'); // Cabut centang dari HTML
+                checkbox.removeAttribute('checked'); 
             }
 
             let outputContainer = document.getElementById('outputContainer');
             currentActiveResultHTML = outputContainer.innerHTML;
-            localStorage.setItem('draft_result', currentActiveResultHTML); // Update Draft Murni
+            localStorage.setItem('draft_result', currentActiveResultHTML); 
 
-            // Kalau data ini lagi ngebuka dari History, langsung tembak ke databasenya!
             if (currentActiveHistoryId) {
                 let history = JSON.parse(localStorage.getItem('refal_history')) || [];
                 let index = history.findIndex(item => item.id === currentActiveHistoryId);
@@ -505,7 +477,7 @@
             status.innerHTML = "Processing data...";
             outputDiv.innerHTML = '';
             saveBtn.style.display = 'none';
-            currentActiveHistoryId = null; // Reset Memory karena ini racikan baru
+            currentActiveHistoryId = null; 
             localStorage.removeItem('draft_history_id');
             
             let resultHTML = '';
@@ -553,18 +525,10 @@
 
                         if (batchLinksData.length > 0) {
                             let plainTextArr = [];
-                            let testButtonsHTML = `<div class="test-side-panel">`;
 
                             batchLinksData.forEach((item, idx) => {
                                 plainTextArr.push(item.url);
-                                let href = item.url.startsWith('http') ? item.url : 'https://' + item.url;
-                                
-                                let btnClass = item.type === 'vid' ? 'btn-vid' : 'btn-shop';
-                                let btnText = item.type === 'vid' ? 'V' + (idx+1) : 'S' + (idx+1);
-                                
-                                testButtonsHTML += `<button class="test-btn ${btnClass}" onclick="window.location.href='${href}'">${btnText}</button>`;
                             });
-                            testButtonsHTML += `</div>`;
 
                             let racikanText = plainTextArr.join('\n'); 
                             let encodedTweetText = encodeURIComponent(racikanText);
@@ -585,7 +549,6 @@
                                     
                                     <div class="result-body">
                                         <div class="result-text">${racikanText}</div>
-                                        ${testButtonsHTML}
                                     </div>
                                     
                                     <button class="post-x-btn" onclick="shareToX(this)" data-text="${encodedTweetText}">
@@ -635,7 +598,7 @@
             history.unshift(newRecord); 
             localStorage.setItem('refal_history', JSON.stringify(history));
             
-            currentActiveHistoryId = newRecord.id; // Kunci ke Memory History
+            currentActiveHistoryId = newRecord.id; 
             localStorage.setItem('draft_history_id', newRecord.id);
 
             document.getElementById('saveBtn').style.display = 'none';
@@ -679,7 +642,7 @@
                 
                 currentActiveResultHTML = record.html;
                 currentActiveItemsCount = record.count;
-                currentActiveHistoryId = id; // Kunci ke Memory History
+                currentActiveHistoryId = id; 
                 
                 localStorage.setItem('draft_result', record.html);
                 localStorage.setItem('draft_count', record.count);
@@ -705,7 +668,7 @@
             
             currentActiveResultHTML = '';
             currentActiveItemsCount = 0;
-            currentActiveHistoryId = null; // Reset Memory
+            currentActiveHistoryId = null; 
             
             localStorage.removeItem('draft_shopee');
             localStorage.removeItem('draft_tweet');
