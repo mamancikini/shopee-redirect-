@@ -510,29 +510,38 @@
                     if (foundUrls.length > 0) {
                         let batchLinksData = [];
 
-                        foundUrls.forEach(u => {
+                        // MESIN PEMBONGKAR LINK DIPERBARUI (Pake loop supaya bisa ditunggu)
+                        for (let u of foundUrls) {
                             let cleanUrl = u.replace(/["']/g, "").trim();
 
-                            // SENSOR 1: Nangkep link aslinya aceimg
+                            // JIKA KETEMU LINK TOPENG aceimq.site BONGKAR DULU!
+                            if (cleanUrl.includes('aceimq.site/')) {
+                                try {
+                                    let fetchTarget = cleanUrl.startsWith('http') ? cleanUrl : 'https://' + cleanUrl;
+                                    let proxyRes = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(fetchTarget));
+                                    let proxyData = await proxyRes.json();
+                                    
+                                    // Ganti link topeng sama link asli dari server
+                                    if (proxyData && proxyData.status && proxyData.status.url) {
+                                        cleanUrl = proxyData.status.url; 
+                                    }
+                                } catch(err) {
+                                    console.log("Gagal bongkar link:", err);
+                                }
+                            }
+
+                            // PROSES EKSTRAK ID SEPERTI BIASA
                             if (cleanUrl.includes('aceimg.com/upload/')) {
                                 let id = cleanUrl.split('?f=')[1]; 
                                 if(id) {
                                     batchLinksData.push({ url: "cdnpro.vercel.app/a/" + id, type: "vid" }); 
                                 }
-                            } 
-                            // SENSOR 2: Nangkep link topeng aceimq.site
-                            else if (cleanUrl.includes('aceimq.site/')) {
-                                let id = cleanUrl.split('aceimq.site/')[1]; 
-                                if(id) {
-                                    batchLinksData.push({ url: "cdnpro.vercel.app/a/" + id, type: "vid" }); 
-                                }
-                            }
-                            else {
+                            } else {
                                 let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
                                 batchLinksData.push({ url: myShopee, type: "shop" });
                                 shopeeIndex++; 
                             }
-                        });
+                        }
 
                         if (batchLinksData.length > 0) {
                             let plainTextArr = [];
