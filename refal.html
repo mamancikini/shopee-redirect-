@@ -508,40 +508,44 @@
                     let caption = fullText.replace(urlRegex, '').trim();
 
                     if (foundUrls.length > 0) {
-                        let batchLinksData = [];
-
-                        // MESIN PEMBONGKAR LINK DIPERBARUI (Pake loop supaya bisa ditunggu)
-                        for (let u of foundUrls) {
+                        
+                        // MESIN TURBO (PARALEL PROCESSING) Biar Loading Gak Lemot!
+                        let promises = foundUrls.map(async (u) => {
                             let cleanUrl = u.replace(/["']/g, "").trim();
 
-                            // JIKA KETEMU LINK TOPENG aceimq.site BONGKAR DULU!
-                            if (cleanUrl.includes('aceimq.site/')) {
+                            if (cleanUrl.includes('aceimg.com/upload/')) {
+                                let id = cleanUrl.split('?f=')[1]; 
+                                return id ? { url: "cdnpro.vercel.app/a/" + id, type: "vid" } : null;
+                            } 
+                            else if (cleanUrl.includes('aceimq.site/')) {
                                 try {
                                     let fetchTarget = cleanUrl.startsWith('http') ? cleanUrl : 'https://' + cleanUrl;
                                     let proxyRes = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(fetchTarget));
                                     let proxyData = await proxyRes.json();
                                     
-                                    // Ganti link topeng sama link asli dari server
-                                    if (proxyData && proxyData.status && proxyData.status.url) {
-                                        cleanUrl = proxyData.status.url; 
+                                    if (proxyData && proxyData.contents) {
+                                        // Bongkar isi HTML aceimq buat nyari link asli aceimg-nya
+                                        let match = proxyData.contents.match(/aceimg\.com\/upload\/\?f=([a-zA-Z0-9_.-]+)/i);
+                                        if (match && match[1]) {
+                                            return { url: "cdnpro.vercel.app/a/" + match[1], type: "vid" };
+                                        }
                                     }
-                                } catch(err) {
-                                    console.log("Gagal bongkar link:", err);
+                                    return { url: cleanUrl, type: "vid" }; // Fallback jika gagal bongkar
+                                } catch(e) {
+                                    return { url: cleanUrl, type: "vid" }; 
                                 }
-                            }
-
-                            // PROSES EKSTRAK ID SEPERTI BIASA
-                            if (cleanUrl.includes('aceimg.com/upload/')) {
-                                let id = cleanUrl.split('?f=')[1]; 
-                                if(id) {
-                                    batchLinksData.push({ url: "cdnpro.vercel.app/a/" + id, type: "vid" }); 
-                                }
-                            } else {
+                            } 
+                            else {
+                                // Ini nge-handle Shopee link, atau link lain yang bukan aceimg
                                 let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
-                                batchLinksData.push({ url: myShopee, type: "shop" });
                                 shopeeIndex++; 
+                                return { url: myShopee, type: "shop" };
                             }
-                        }
+                        });
+
+                        // Tunggu semua proses bongkar link selesai bersamaan
+                        let resolvedLinks = await Promise.all(promises);
+                        let batchLinksData = resolvedLinks.filter(item => item !== null);
 
                         if (batchLinksData.length > 0) {
                             let plainTextArr = [];
