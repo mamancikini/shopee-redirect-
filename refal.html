@@ -159,7 +159,42 @@
             position: relative;
         }
 
-        .result-day h3 { margin-top: 0; margin-bottom: 14px; font-size: 16px; font-weight: 700; color: #1d1d1f; }
+        .result-day h3 { 
+            margin-top: 0; 
+            margin-bottom: 14px; 
+            font-size: 16px; 
+            font-weight: 700; 
+            color: #1d1d1f; 
+            display: flex;
+            align-items: center;
+        }
+
+        /* CEKLIS PINTAR (SMART CHECKBOX) */
+        .posted-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #86868b;
+            cursor: pointer;
+            margin-left: 12px;
+            background: #f2f4f7;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .posted-toggle input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            accent-color: #34c759;
+            cursor: pointer;
+            margin: 0;
+        }
+        .posted-toggle input[type="checkbox"]:checked + span {
+            color: #34c759;
+            text-decoration: line-through;
+        }
 
         .result-body {
             display: flex;
@@ -309,6 +344,7 @@
         let currentActiveItemsCount = 0;
         let lastLengthShopee = 0;
         let lastLengthTweet = 0;
+        let currentActiveHistoryId = null; // Memory Pintar buat ngelacak History
 
         window.onload = function() {
             renderHistory();
@@ -324,15 +360,18 @@
 
             let draftResult = localStorage.getItem('draft_result');
             let draftCount = localStorage.getItem('draft_count');
+            let savedHistoryId = localStorage.getItem('draft_history_id');
+
             if(draftResult) {
                 document.getElementById('outputContainer').innerHTML = draftResult;
                 currentActiveResultHTML = draftResult;
                 currentActiveItemsCount = parseInt(draftCount || '0');
+                if (savedHistoryId) currentActiveHistoryId = parseInt(savedHistoryId);
+                
                 document.getElementById('saveBtn').style.display = 'block';
                 document.getElementById('status').innerHTML = "Data recovered from previous session.";
             }
 
-            // KEMBALIKAN SENSOR AUTO-ENTER UNTUK PASTE MANUAL
             if (sInput) {
                 lastLengthShopee = sInput.value.length;
                 sInput.addEventListener('input', function() {
@@ -341,7 +380,7 @@
                         if (!this.value.endsWith('\n')) {
                             this.value += '\n';
                         }
-                        this.scrollTop = this.scrollHeight; // Auto scroll ke bawah
+                        this.scrollTop = this.scrollHeight;
                     }
                     lastLengthShopee = this.value.length;
                     localStorage.setItem('draft_shopee', this.value);
@@ -356,7 +395,7 @@
                         if (!this.value.endsWith('\n')) {
                             this.value += '\n';
                         }
-                        this.scrollTop = this.scrollHeight; // Auto scroll ke bawah
+                        this.scrollTop = this.scrollHeight;
                     }
                     lastLengthTweet = this.value.length;
                     localStorage.setItem('draft_tweet', this.value);
@@ -364,7 +403,29 @@
             }
         };
 
-        // FUNGSI TEMPEL (PINTAR & DETEKSI OTOMATIS)
+        // MESIN CEKLIS PINTAR
+        function toggleDone(checkbox) {
+            if (checkbox.checked) {
+                checkbox.setAttribute('checked', 'checked'); // Kunci centang ke dalam HTML
+            } else {
+                checkbox.removeAttribute('checked'); // Cabut centang dari HTML
+            }
+
+            let outputContainer = document.getElementById('outputContainer');
+            currentActiveResultHTML = outputContainer.innerHTML;
+            localStorage.setItem('draft_result', currentActiveResultHTML); // Update Draft Murni
+
+            // Kalau data ini lagi ngebuka dari History, langsung tembak ke databasenya!
+            if (currentActiveHistoryId) {
+                let history = JSON.parse(localStorage.getItem('refal_history')) || [];
+                let index = history.findIndex(item => item.id === currentActiveHistoryId);
+                if (index !== -1) {
+                    history[index].html = currentActiveResultHTML;
+                    localStorage.setItem('refal_history', JSON.stringify(history));
+                }
+            }
+        }
+
         async function pasteToBox(targetId, btnElement) {
             try {
                 if (!navigator.clipboard || !navigator.clipboard.readText) {
@@ -378,24 +439,20 @@
                     let tInput = document.getElementById('inputTweet');
                     let targetTextarea;
 
-                    // LOGIKA PINTAR: Cek ada tulisan x.com atau twitter.com nggak?
                     if (text.includes('x.com/') || text.includes('twitter.com/')) {
-                        targetTextarea = tInput; // Lempar ke kotak bawah
+                        targetTextarea = tInput;
                     } else {
-                        targetTextarea = sInput; // Lempar ke kotak atas
+                        targetTextarea = sInput;
                     }
 
-                    // Masukin teksnya tanpa hapus yang lama
                     if (targetTextarea.value.trim() !== '') {
                         targetTextarea.value += '\n' + text;
                     } else {
                         targetTextarea.value = text;
                     }
                     
-                    // Simpan otomatis ke draft
                     targetTextarea.dispatchEvent(new Event('input'));
 
-                    // Efek Berhasil (Hijau)
                     let originalBg = btnElement.style.backgroundColor;
                     let span = btnElement.querySelector('span');
                     
@@ -448,6 +505,8 @@
             status.innerHTML = "Processing data...";
             outputDiv.innerHTML = '';
             saveBtn.style.display = 'none';
+            currentActiveHistoryId = null; // Reset Memory karena ini racikan baru
+            localStorage.removeItem('draft_history_id');
             
             let resultHTML = '';
             let dayCounter = 1;
@@ -459,12 +518,10 @@
                     let apiUrl = url.trim().replace(/(https?:\/\/)?(www\.)?(twitter\.com|x\.com)/, 'https://api.vxtwitter.com').split('?')[0];
                     let response;
                     
-                    // COBA JALUR UTAMA
                     try {
                         response = await fetch(apiUrl);
                         if (!response.ok) throw new Error("Gagal jalur utama");
                     } catch (err) {
-                        // JALUR CADANGAN (ALLORIGINS) JIKA SERVER TWITTER NOLAK
                         let proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
                         response = await fetch(proxyUrl);
                     }
@@ -517,7 +574,13 @@
 
                                 resultHTML += `
                                 <div class="result-day">
-                                    <h3>Batch ${dayCounter}</h3>
+                                    <h3>
+                                        Batch ${dayCounter}
+                                        <label class="posted-toggle">
+                                            <input type="checkbox" onchange="toggleDone(this)">
+                                            <span>Posted</span>
+                                        </label>
+                                    </h3>
                                     <button class="copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)">Copy</button>
                                     
                                     <div class="result-body">
@@ -572,6 +635,9 @@
             history.unshift(newRecord); 
             localStorage.setItem('refal_history', JSON.stringify(history));
             
+            currentActiveHistoryId = newRecord.id; // Kunci ke Memory History
+            localStorage.setItem('draft_history_id', newRecord.id);
+
             document.getElementById('saveBtn').style.display = 'none';
             renderHistory();
         }
@@ -613,8 +679,11 @@
                 
                 currentActiveResultHTML = record.html;
                 currentActiveItemsCount = record.count;
+                currentActiveHistoryId = id; // Kunci ke Memory History
+                
                 localStorage.setItem('draft_result', record.html);
                 localStorage.setItem('draft_count', record.count);
+                localStorage.setItem('draft_history_id', id);
             }
         }
 
@@ -633,13 +702,16 @@
             document.getElementById('status').innerHTML = '';
             document.getElementById('outputContainer').innerHTML = '';
             document.getElementById('saveBtn').style.display = 'none';
+            
             currentActiveResultHTML = '';
             currentActiveItemsCount = 0;
+            currentActiveHistoryId = null; // Reset Memory
             
             localStorage.removeItem('draft_shopee');
             localStorage.removeItem('draft_tweet');
             localStorage.removeItem('draft_result');
             localStorage.removeItem('draft_count');
+            localStorage.removeItem('draft_history_id');
         }
 
         function copyToClipboard(btn, text) {
