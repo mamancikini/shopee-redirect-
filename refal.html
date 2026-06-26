@@ -343,7 +343,7 @@
             }
         };
 
-        // FUNGSI TEMPEL (DIPERBAIKI 100% AMAN)
+        // FUNGSI TEMPEL (PINTAR & DETEKSI OTOMATIS)
         async function pasteToBox(targetId, btnElement) {
             try {
                 if (!navigator.clipboard || !navigator.clipboard.readText) {
@@ -353,22 +353,33 @@
                 
                 let text = await navigator.clipboard.readText();
                 if (text) {
-                    let textarea = document.getElementById(targetId);
-                    if (textarea.value.trim() !== '') {
-                        textarea.value += '\n' + text;
+                    let sInput = document.getElementById('inputShopee');
+                    let tInput = document.getElementById('inputTweet');
+                    let targetTextarea;
+
+                    // LOGIKA PINTAR: Cek ada tulisan x.com atau twitter.com nggak?
+                    if (text.includes('x.com/') || text.includes('twitter.com/')) {
+                        targetTextarea = tInput; // Lempar ke kotak bawah
                     } else {
-                        textarea.value = text;
+                        targetTextarea = sInput; // Lempar ke kotak atas
+                    }
+
+                    // Masukin teksnya tanpa hapus yang lama
+                    if (targetTextarea.value.trim() !== '') {
+                        targetTextarea.value += '\n' + text;
+                    } else {
+                        targetTextarea.value = text;
                     }
                     
                     // Simpan otomatis ke draft
-                    textarea.dispatchEvent(new Event('input'));
+                    targetTextarea.dispatchEvent(new Event('input'));
 
                     // Efek Berhasil (Hijau)
                     let originalBg = btnElement.style.backgroundColor;
                     let span = btnElement.querySelector('span');
                     
                     btnElement.style.backgroundColor = '#d4f5d6';
-                    span.innerText = 'Berhasil';
+                    span.innerText = 'Masuk!';
                     
                     setTimeout(() => { 
                         btnElement.style.backgroundColor = originalBg; 
@@ -376,7 +387,7 @@
                     }, 800);
                 }
             } catch (err) {
-                alert("Izin ditolak! Pastikan kamu mengizinkan (Allow) web ini untuk mengakses clipboard saat muncul notifikasi.");
+                alert("Izin ditolak! Buka ikon gembok 🔒 di samping link web di atas, pilih 'Izin' (Permissions), dan nyalakan Papan Klip (Clipboard).");
             }
         }
 
