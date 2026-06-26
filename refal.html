@@ -33,7 +33,6 @@
             box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04); 
         }
 
-        /* HEADER ROW BARU BUAT TOMBOL TEMPEL SEJAJAR LABEL */
         .header-row {
             display: flex;
             justify-content: space-between;
@@ -47,10 +46,9 @@
             color: #86868b; 
             text-transform: uppercase; 
             letter-spacing: 0.8px;
-            margin-bottom: 0; /* Margin dipindah ke header-row */
+            margin-bottom: 0; 
         }
 
-        /* TOMBOL TEMPEL ALA GOOGLE TRANSLATE */
         .paste-btn {
             background-color: #f2f4f7;
             color: #1d1d1f;
@@ -271,9 +269,9 @@
     <div class="box">
         <div class="header-row">
             <label>Shopee Links Configuration</label>
-            <button class="paste-btn" onclick="pasteToBox('inputShopee')">
+            <button class="paste-btn" onclick="pasteToBox('inputShopee', this)">
                 <svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm7 18H5V5h2v3h10V5h2v16z"/></svg>
-                Tempel
+                <span>Tempel</span>
             </button>
         </div>
         <textarea id="inputShopee" placeholder="Enter Shopee links..."></textarea>
@@ -282,9 +280,9 @@
     <div class="box">
         <div class="header-row">
             <label>Source URLs Extraction</label>
-            <button class="paste-btn" onclick="pasteToBox('inputTweet')">
+            <button class="paste-btn" onclick="pasteToBox('inputTweet', this)">
                 <svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm7 18H5V5h2v3h10V5h2v16z"/></svg>
-                Tempel
+                <span>Tempel</span>
             </button>
         </div>
         <textarea id="inputTweet" placeholder="Enter source URLs..."></textarea>
@@ -309,21 +307,18 @@
     <script>
         let currentActiveResultHTML = '';
         let currentActiveItemsCount = 0;
-        let tweetInput = document.getElementById('inputTweet');
-        let shopeeInput = document.getElementById('inputShopee');
-        let lastLength = 0;
 
         window.onload = function() {
             renderHistory();
+            
+            let sInput = document.getElementById('inputShopee');
+            let tInput = document.getElementById('inputTweet');
 
             let draftShopee = localStorage.getItem('draft_shopee');
-            if(draftShopee) shopeeInput.value = draftShopee;
+            if(draftShopee && sInput) sInput.value = draftShopee;
 
             let draftTweet = localStorage.getItem('draft_tweet');
-            if(draftTweet) {
-                tweetInput.value = draftTweet;
-                lastLength = draftTweet.length; 
-            }
+            if(draftTweet && tInput) tInput.value = draftTweet;
 
             let draftResult = localStorage.getItem('draft_result');
             let draftCount = localStorage.getItem('draft_count');
@@ -334,49 +329,56 @@
                 document.getElementById('saveBtn').style.display = 'block';
                 document.getElementById('status').innerHTML = "Data recovered from previous session.";
             }
+
+            if (sInput) {
+                sInput.addEventListener('input', function() {
+                    localStorage.setItem('draft_shopee', this.value);
+                });
+            }
+
+            if (tInput) {
+                tInput.addEventListener('input', function() {
+                    localStorage.setItem('draft_tweet', this.value);
+                });
+            }
         };
 
-        // FUNGSI TARIK CLIPBOARD
-        async function pasteToBox(targetId) {
+        // FUNGSI TEMPEL (DIPERBAIKI 100% AMAN)
+        async function pasteToBox(targetId, btnElement) {
             try {
+                if (!navigator.clipboard || !navigator.clipboard.readText) {
+                    alert("Browser kamu tidak mendukung fitur Tempel otomatis. Silakan tahan kotaknya lalu pilih 'Tempel' secara manual.");
+                    return;
+                }
+                
                 let text = await navigator.clipboard.readText();
                 if (text) {
                     let textarea = document.getElementById(targetId);
-                    
-                    if(textarea.value.trim() !== '') {
+                    if (textarea.value.trim() !== '') {
                         textarea.value += '\n' + text;
                     } else {
                         textarea.value = text;
                     }
                     
+                    // Simpan otomatis ke draft
                     textarea.dispatchEvent(new Event('input'));
+
+                    // Efek Berhasil (Hijau)
+                    let originalBg = btnElement.style.backgroundColor;
+                    let span = btnElement.querySelector('span');
                     
-                    // Efek kedip hijau biar keliatan sukses
-                    let btn = textarea.previousElementSibling.querySelector('.paste-btn');
-                    let originalBg = btn.style.backgroundColor;
-                    btn.style.backgroundColor = '#d4f5d6';
-                    setTimeout(() => { btn.style.backgroundColor = originalBg; }, 300);
+                    btnElement.style.backgroundColor = '#d4f5d6';
+                    span.innerText = 'Berhasil';
+                    
+                    setTimeout(() => { 
+                        btnElement.style.backgroundColor = originalBg; 
+                        span.innerText = 'Tempel';
+                    }, 800);
                 }
             } catch (err) {
-                alert("Gagal menempel! Pastikan kamu memberikan izin (Allow) untuk membaca Clipboard saat ada notifikasi pop-up dari Chrome.");
+                alert("Izin ditolak! Pastikan kamu mengizinkan (Allow) web ini untuk mengakses clipboard saat muncul notifikasi.");
             }
         }
-
-        shopeeInput.addEventListener('input', function() {
-            localStorage.setItem('draft_shopee', this.value);
-        });
-
-        tweetInput.addEventListener('input', function(e) {
-            let currentLength = this.value.length;
-            if (currentLength - lastLength > 10) {
-                if (!this.value.endsWith('\n')) {
-                    this.value += '\n';
-                }
-                this.scrollTop = this.scrollHeight;
-            }
-            lastLength = this.value.length;
-            localStorage.setItem('draft_tweet', this.value);
-        });
 
         function shareToX(btn) {
             let racikanText = decodeURIComponent(btn.getAttribute('data-text'));
@@ -391,14 +393,21 @@
         }
 
         async function generateAll() {
-            let shopeeRaw = shopeeInput.value.split('\n').map(s => s.trim()).filter(s => s !== '');
-            let rawTweetInput = tweetInput.value;
-            let tweetUrls = rawTweetInput.match(/(https?:\/\/[^\s]+)/g) || [];
-
             let status = document.getElementById('status');
             let outputDiv = document.getElementById('outputContainer');
             let saveBtn = document.getElementById('saveBtn');
-            
+            let sInput = document.getElementById('inputShopee');
+            let tInput = document.getElementById('inputTweet');
+
+            if (!sInput || !tInput) {
+                alert("Error: Kotak teks tidak ditemukan.");
+                return;
+            }
+
+            let shopeeRaw = sInput.value.split('\n').map(s => s.trim()).filter(s => s !== '');
+            let rawTweetInput = tInput.value;
+            let tweetUrls = rawTweetInput.match(/(https?:\/\/[^\s]+)/g) || [];
+
             if (shopeeRaw.length === 0 || tweetUrls.length === 0) {
                 alert("Please fill in both fields.");
                 return;
@@ -416,8 +425,19 @@
             for (let url of tweetUrls) {
                 try {
                     let apiUrl = url.trim().replace(/(https?:\/\/)?(www\.)?(twitter\.com|x\.com)/, 'https://api.vxtwitter.com').split('?')[0];
-                    let response = await fetch(apiUrl);
-                    if (!response.ok) continue;
+                    let response;
+                    
+                    // COBA JALUR UTAMA
+                    try {
+                        response = await fetch(apiUrl);
+                        if (!response.ok) throw new Error("Gagal jalur utama");
+                    } catch (err) {
+                        // JALUR CADANGAN (ALLORIGINS) JIKA SERVER TWITTER NOLAK
+                        let proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
+                        response = await fetch(proxyUrl);
+                    }
+
+                    if (!response || !response.ok) continue;
                     
                     let data = await response.json();
                     let fullText = data.text;
@@ -529,4 +549,82 @@
             let container = document.getElementById('historyContainer');
             
             if (history.length === 0) {
-                conta
+                container.innerHTML = '<div style="color:#86868b; font-size:13px; text-align:center; padding:10px;">No saved history available.</div>';
+                return;
+            }
+            
+            let html = '';
+            history.forEach(item => {
+                html += `
+                <div class="history-item">
+                    <div>
+                        <div class="history-info">Batch Record (${item.count} Items)</div>
+                        <div class="history-date">${item.date}</div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="hist-btn load-h" onclick="loadHistoryItem(${item.id})">Open</button>
+                        <button class="hist-btn del-h" onclick="deleteHistoryItem(${item.id})">Delete</button>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function loadHistoryItem(id) {
+            let history = JSON.parse(localStorage.getItem('refal_history')) || [];
+            let record = history.find(item => item.id === id);
+            if (record) {
+                document.getElementById('status').innerHTML = `Viewing record from history (${record.date})`;
+                document.getElementById('outputContainer').innerHTML = record.html;
+                document.getElementById('saveBtn').style.display = 'none';
+                document.getElementById('outputContainer').scrollIntoView({ behavior: 'smooth' });
+                
+                currentActiveResultHTML = record.html;
+                currentActiveItemsCount = record.count;
+                localStorage.setItem('draft_result', record.html);
+                localStorage.setItem('draft_count', record.count);
+            }
+        }
+
+        function deleteHistoryItem(id) {
+            if(confirm("Hapus catatan riwayat ini?")) {
+                let history = JSON.parse(localStorage.getItem('refal_history')) || [];
+                history = history.filter(item => item.id !== id);
+                localStorage.setItem('refal_history', JSON.stringify(history));
+                renderHistory();
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('inputShopee').value = '';
+            document.getElementById('inputTweet').value = '';
+            document.getElementById('status').innerHTML = '';
+            document.getElementById('outputContainer').innerHTML = '';
+            document.getElementById('saveBtn').style.display = 'none';
+            currentActiveResultHTML = '';
+            currentActiveItemsCount = 0;
+            
+            localStorage.removeItem('draft_shopee');
+            localStorage.removeItem('draft_tweet');
+            localStorage.removeItem('draft_result');
+            localStorage.removeItem('draft_count');
+        }
+
+        function copyToClipboard(btn, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                let originalText = btn.innerText;
+                btn.innerText = "Copied ✓";
+                
+                btn.style.backgroundColor = "#34c759"; 
+                btn.style.boxShadow = "0 2px 8px rgba(52, 199, 89, 0.3)";
+                
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = ""; 
+                    btn.style.boxShadow = "";
+                }, 1500);
+            });
+        }
+    </script>
+</body>
+</html>
