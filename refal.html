@@ -509,7 +509,7 @@
 
                     if (foundUrls.length > 0) {
                         
-                        // MESIN TURBO (PARALEL PROCESSING) Biar Loading Gak Lemot!
+                        // MESIN TURBO & KACAMATA TEMBUS PANDANG (Paralel + 2 Proxy)
                         let promises = foundUrls.map(async (u) => {
                             let cleanUrl = u.replace(/["']/g, "").trim();
 
@@ -518,32 +518,48 @@
                                 return id ? { url: "cdnpro.vercel.app/a/" + id, type: "vid" } : null;
                             } 
                             else if (cleanUrl.includes('aceimq.site/')) {
+                                let fetchTarget = cleanUrl.startsWith('http') ? cleanUrl : 'https://' + cleanUrl;
+                                let foundId = null;
+                                
+                                // Coba Proxy 1: Tembus via URL Redirect (Status URL)
                                 try {
-                                    let fetchTarget = cleanUrl.startsWith('http') ? cleanUrl : 'https://' + cleanUrl;
-                                    let proxyRes = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(fetchTarget));
-                                    let proxyData = await proxyRes.json();
-                                    
-                                    if (proxyData && proxyData.contents) {
-                                        // Bongkar isi HTML aceimq buat nyari link asli aceimg-nya
-                                        let match = proxyData.contents.match(/aceimg\.com\/upload\/\?f=([a-zA-Z0-9_.-]+)/i);
-                                        if (match && match[1]) {
-                                            return { url: "cdnpro.vercel.app/a/" + match[1], type: "vid" };
-                                        }
+                                    let p1 = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(fetchTarget));
+                                    let d1 = await p1.json();
+                                    if (d1.status && d1.status.url && d1.status.url.includes('?f=')) {
+                                        foundId = d1.status.url.split('?f=')[1].split('&')[0];
                                     }
-                                    return { url: cleanUrl, type: "vid" }; // Fallback jika gagal bongkar
-                                } catch(e) {
+                                    if (!foundId && d1.contents) {
+                                        let m = d1.contents.match(/\?f=([a-zA-Z0-9_.-]+)/i);
+                                        if (m) foundId = m[1];
+                                    }
+                                } catch(e) {}
+
+                                // Coba Proxy 2: Tembus via Text Mentah kalau Proxy 1 nyerah
+                                if (!foundId) {
+                                    try {
+                                        let p2 = await fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(fetchTarget));
+                                        let html = await p2.text();
+                                        let m = html.match(/\?f=([a-zA-Z0-9_.-]+)/i);
+                                        if (m) foundId = m[1];
+                                    } catch(e) {}
+                                }
+
+                                if (foundId) {
+                                    foundId = foundId.replace(/["'>]/g, '');
+                                    return { url: "cdnpro.vercel.app/a/" + foundId, type: "vid" };
+                                } else {
                                     return { url: cleanUrl, type: "vid" }; 
                                 }
                             } 
                             else {
-                                // Ini nge-handle Shopee link, atau link lain yang bukan aceimg
+                                // Eksekusi Shopee Links
                                 let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
                                 shopeeIndex++; 
                                 return { url: myShopee, type: "shop" };
                             }
                         });
 
-                        // Tunggu semua proses bongkar link selesai bersamaan
+                        // Tunggu semua proses bongkar link selesai bersamaan (Super Cepat)
                         let resolvedLinks = await Promise.all(promises);
                         let batchLinksData = resolvedLinks.filter(item => item !== null);
 
