@@ -35,7 +35,6 @@
             padding-bottom: 100px; 
         }
 
-        /* Teks Elegan ala Google */
         h1, h2, h3, label, .nav-item span {
             font-family: 'Google Sans', 'Outfit', sans-serif;
         }
@@ -64,6 +63,16 @@
             margin: 0; 
             color: var(--md-on-surface); 
         }
+
+        /* Ikon menu (Garis tiga) sekarang bisa diklik */
+        .menu-icon {
+            color: var(--md-on-surface-variant);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+        .menu-icon:active { background-color: var(--md-secondary-container); }
 
         .app-bar-right {
             display: flex;
@@ -207,7 +216,7 @@
             display: none;
         }
 
-        #status { font-weight: 400; color: var(--md-on-surface-variant); margin: 24px 0 16px; font-size: 14px; text-align: center; }
+        #status { font-weight: 400; color: var(--md-on-surface-variant); margin: 0 0 16px; font-size: 14px; text-align: center; }
 
         /* Result Cards */
         .result-day {
@@ -228,7 +237,7 @@
             align-items: center;
         }
 
-        /* Checkbox Posted pindah ke kanan atas */
+        /* Checkbox Posted murni kotak biru di kanan atas */
         .posted-toggle {
             position: absolute;
             top: 24px;
@@ -240,7 +249,7 @@
             cursor: pointer;
         }
         .posted-toggle input[type="checkbox"] { 
-            accent-color: var(--md-primary); /* Biru Google pas dicentang */
+            accent-color: var(--md-primary); 
             width: 22px; 
             height: 22px; 
             margin: 0;
@@ -261,40 +270,31 @@
             border: 1px solid var(--md-secondary-container);
         }
 
-        /* Wadah untuk tombol Copy & Share di bawah */
+        /* Desain Ikon Copy & Share Murni Tanpa Bulatan */
         .card-actions-bottom {
             display: flex;
             justify-content: flex-end;
-            gap: 12px;
+            gap: 16px;
+            margin-top: -4px; /* Naik sedikit biar nyatu sama kotak */
         }
-
-        /* Desain Tombol Bulat (Copy & Share) */
-        .action-circle-btn {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
+        .action-icon-only {
+            background: transparent;
             border: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            padding: 8px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: transform 0.1s, opacity 0.2s;
         }
-        .action-circle-btn:active {
-            transform: scale(0.92);
+        .action-icon-only:active {
+            transform: scale(0.9);
+            opacity: 0.6;
         }
-        .action-circle-btn .material-symbols-rounded { font-size: 22px; }
-
-        /* Warna Khusus Copy & Share */
-        .copy-btn {
-            background-color: var(--md-secondary-container);
-            color: var(--md-on-surface);
-            border: 1px solid var(--md-outline); /* Tambah border tipis biar senada sama reset */
-        }
-        .share-btn {
-            background-color: var(--md-primary); /* Biru Google */
-            color: var(--md-on-primary);
-        }
+        .action-icon-only .material-symbols-rounded { font-size: 24px; }
+        
+        .copy-btn { color: var(--md-on-surface-variant); }
+        .share-btn { color: var(--md-primary); }
 
         /* History Tab Styles */
         .history-item {
@@ -366,7 +366,7 @@
 
     <header class="app-bar">
         <div class="app-bar-left">
-            <span class="material-symbols-rounded" style="color: var(--md-on-surface-variant);">menu</span>
+            <span class="material-symbols-rounded menu-icon" onclick="switchTab('history')">menu</span>
             <h2>AutoMixer</h2>
         </div>
         <div class="app-bar-right">
@@ -397,11 +397,11 @@
                 <button class="action-btn" onclick="generateAll()">Proses Links</button>
                 <button class="reset-btn" onclick="resetForm()">Reset</button>
             </div>
+        </div>
 
+        <div id="tab-result" class="tab-content">
             <div id="status"></div>
-
             <button id="saveBtn" class="save-btn" onclick="saveCurrentToHistory()">Simpan ke File</button>
-
             <div id="outputContainer"></div>
         </div>
 
@@ -418,25 +418,30 @@
             </div>
             <span>Beranda</span>
         </div>
-        <div class="nav-item" onclick="switchTab('history')" id="nav-history">
+        <div class="nav-item" onclick="switchTab('result')" id="nav-result">
             <div class="nav-icon-wrapper">
-                <span class="material-symbols-rounded">folder</span>
+                <span class="material-symbols-rounded">article</span>
             </div>
-            <span>File</span>
+            <span>Hasil</span>
         </div>
     </nav>
 
     <script>
+        // Logika Perpindahan Tab 3 Arah
         function switchTab(tabName) {
             document.getElementById('tab-home').classList.remove('active');
+            document.getElementById('tab-result').classList.remove('active');
             document.getElementById('tab-history').classList.remove('active');
             
             document.getElementById('nav-home').classList.remove('active');
-            document.getElementById('nav-history').classList.remove('active');
+            document.getElementById('nav-result').classList.remove('active');
             
             document.getElementById('tab-' + tabName).classList.add('active');
-            document.getElementById('nav-' + tabName).classList.add('active');
-
+            
+            // Highlight navigasi bawah cuma kalau di home atau result
+            if(tabName === 'home' || tabName === 'result') {
+                document.getElementById('nav-' + tabName).classList.add('active');
+            }
             window.scrollTo(0, 0);
         }
 
@@ -625,7 +630,7 @@
                             if (!seenBatches.has(racikanText)) {
                                 seenBatches.add(racikanText);
 
-                                // MODIFIKASI: Centang di kanan atas, Copy & Share di bawah (bulat)
+                                // MODIFIKASI: Ikon Copy & Share tanpa background bulat
                                 resultHTML += `
                                 <div class="result-day">
                                     <h3>Batch ${dayCounter}</h3>
@@ -637,10 +642,10 @@
                                     <div class="result-text">${racikanText}</div>
                                     
                                     <div class="card-actions-bottom">
-                                        <button class="action-circle-btn copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)" title="Copy Text">
+                                        <button class="action-icon-only copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)" title="Copy">
                                             <span class="material-symbols-rounded">content_copy</span>
                                         </button>
-                                        <button class="action-circle-btn share-btn" onclick="shareToX(this)" data-text="${encodedTweetText}" title="Share ke X">
+                                        <button class="action-icon-only share-btn" onclick="shareToX(this)" data-text="${encodedTweetText}" title="Share ke X">
                                             <span class="material-symbols-rounded">share</span>
                                         </button>
                                     </div>
@@ -669,6 +674,9 @@
 
             localStorage.setItem('draft_result', resultHTML);
             localStorage.setItem('draft_count', totalBatches);
+            
+            // Otomatis pindah ke tab Hasil pas selesai proses
+            switchTab('result');
         }
 
         function saveCurrentToHistory() {
@@ -693,6 +701,7 @@
             document.getElementById('saveBtn').style.display = 'none';
             renderHistory();
             
+            // Buka tab history habis nge-save
             switchTab('history');
         }
 
@@ -702,7 +711,7 @@
             
             if (history.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align:center; padding: 80px 20px; color: var(--md-on-surface-variant);">
+                    <div style="text-align:center; padding: 60px 20px; color: var(--md-on-surface-variant);">
                         <span class="material-symbols-rounded" style="font-size: 80px; opacity: 0.3; margin-bottom: 16px; display:block;">folder_open</span>
                         <h3 style="margin:0; font-size:18px; font-weight:500; color:var(--md-on-surface); font-family: 'Google Sans', 'Outfit', sans-serif;">Penyimpanan File Kosong</h3>
                         <p style="font-size:14px; margin-top:8px;">Belum ada history racikan link yang Anda simpan.</p>
@@ -747,11 +756,8 @@
                 localStorage.setItem('draft_count', record.count);
                 localStorage.setItem('draft_history_id', id);
                 
-                switchTab('home');
-                
-                setTimeout(() => {
-                    document.getElementById('outputContainer').scrollIntoView({ behavior: 'smooth' });
-                }, 100);
+                // Pindah ke tab Hasil buat ngeliat file yang barusan di-load
+                switchTab('result');
             }
         }
 
@@ -784,19 +790,16 @@
 
         function copyToClipboard(btn, text) {
             navigator.clipboard.writeText(text).then(() => {
-                let originalHtml = btn.innerHTML;
-                // Karena tombol bulat, kita ganti iconnya aja jadi check
-                btn.innerHTML = `<span class="material-symbols-rounded">check</span>`;
+                let iconSpan = btn.querySelector('.material-symbols-rounded');
+                let originalIcon = iconSpan.innerText;
                 
-                btn.style.backgroundColor = "var(--md-primary-container)"; 
-                btn.style.color = "var(--md-on-primary-container)";
-                btn.style.borderColor = "transparent";
+                // Efek copy sukses: icon berubah centang dan jadi biru
+                iconSpan.innerText = 'check';
+                iconSpan.style.color = 'var(--md-primary)';
                 
                 setTimeout(() => {
-                    btn.innerHTML = originalHtml;
-                    btn.style.backgroundColor = ""; 
-                    btn.style.color = "";
-                    btn.style.borderColor = "";
+                    iconSpan.innerText = originalIcon;
+                    iconSpan.style.color = '';
                 }, 1500);
             });
         }
