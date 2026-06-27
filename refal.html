@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Link AutoMixer</title>
     
-    <!-- Import Google Fonts (Outfit untuk judul, Roboto untuk teks biasa) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
@@ -15,10 +14,10 @@
         :root {
             /* Tema Putih (Light Theme) ala Ekosistem Google */
             --md-bg: #ffffff;
-            --md-surface: #f1f3f4; /* Abu-abu terang khas kotak Google */
+            --md-surface: #f1f3f4; 
             --md-on-surface: #1f1f1f;
             --md-on-surface-variant: #444746;
-            --md-primary: #0a56d0; /* Biru Google */
+            --md-primary: #0a56d0; 
             --md-on-primary: #ffffff;
             --md-primary-container: #d3e3fd;
             --md-on-primary-container: #041e49;
@@ -131,28 +130,34 @@
 
         .box label { 
             font-weight: 500; 
-            font-size: 16px; 
+            font-size: 18px; /* Disamakan dengan ukuran judul Batch */
             color: var(--md-on-surface); 
-            margin-bottom: 8px;
+            margin-bottom: 16px; /* Disamakan dengan jarak judul Batch */
         }
 
-        /* Textarea Clean */
+        /* Textarea Clean (Menyamakan dengan desain Batch) */
         textarea {
             width: 100%;
-            height: 90px;
-            border: none; 
-            background-color: transparent; 
+            height: 120px; /* Diperbesar sedikit karena sekarang ada padding */
+            background: var(--md-bg); /* Kotak Putih */
             color: var(--md-on-surface);
+            border: 1px solid var(--md-secondary-container); /* Garis batas tipis */
             font-family: ui-monospace, monospace;
-            font-size: 14px;
-            line-height: 1.6;
+            font-size: 13px; /* Sama dengan teks Batch */
+            line-height: 24px; /* Sama dengan teks Batch */
             resize: none; 
-            padding: 0;
+            padding: 16px; /* Jarak teks ke pinggir kotak */
+            border-radius: 16px; /* Melengkung 16px */
+            box-sizing: border-box;
+            transition: all 0.2s ease;
         }
-        textarea:focus { outline: none; }
+        textarea:focus { 
+            outline: 2px solid var(--md-primary); /* Highlight biru ala Google pas diketik */
+            border-color: transparent;
+        }
         textarea::placeholder { color: #80868b; }
 
-        /* Action Buttons (Bentuk Kotak Melengkung ala Google Translate) */
+        /* Action Buttons */
         .button-group { 
             display: flex; 
             gap: 12px; 
@@ -160,12 +165,12 @@
         }
 
         button.action-btn {
-            flex: 1; /* Dibikin seimbang porsinya sama tombol reset */
+            flex: 1; 
             padding: 16px;
-            background-color: var(--md-primary); /* Biru Google */
-            color: var(--md-on-primary); /* Teks Putih */
+            background-color: var(--md-primary); 
+            color: var(--md-on-primary); 
             border: none;
-            border-radius: 16px; /* Kotak melengkung ala G-Translate */
+            border-radius: 16px; 
             font-size: 16px;
             font-weight: 500;
             font-family: 'Google Sans', 'Outfit', sans-serif;
@@ -180,7 +185,7 @@
             background-color: transparent; 
             color: var(--md-on-surface-variant);
             border: 1px solid var(--md-outline);
-            border-radius: 16px; /* Kotak melengkung ala G-Translate */
+            border-radius: 16px; 
             font-size: 16px;
             font-weight: 500;
             font-family: 'Google Sans', 'Outfit', sans-serif;
@@ -191,10 +196,10 @@
         button.save-btn {
             width: 100%;
             padding: 16px;
-            background-color: var(--md-primary); /* Biru Google */
-            color: var(--md-on-primary); /* Teks Putih */
+            background-color: var(--md-primary); 
+            color: var(--md-on-primary); 
             border: none;
-            border-radius: 16px; /* Kotak melengkung */
+            border-radius: 16px; 
             font-size: 15px;
             font-weight: 500;
             font-family: 'Google Sans', 'Outfit', sans-serif;
@@ -258,10 +263,10 @@
         .post-x-btn {
             width: 100%;
             padding: 16px;
-            background-color: var(--md-primary); /* Biru Google */
-            color: var(--md-on-primary); /* Teks Putih */
+            background-color: var(--md-primary); 
+            color: var(--md-on-primary); 
             border: none;
-            border-radius: 16px; /* Kotak melengkung */
+            border-radius: 16px; 
             font-size: 15px;
             font-weight: 500;
             font-family: 'Google Sans', 'Outfit', sans-serif;
@@ -361,21 +366,18 @@
 </head>
 <body>
 
-    <!-- Header -->
     <header class="app-bar">
         <div class="app-bar-left">
             <span class="material-symbols-rounded" style="color: var(--md-on-surface-variant);">menu</span>
             <h2>AutoMixer</h2>
         </div>
         <div class="app-bar-right">
-            <!-- Fitur notifikasi dihapus -->
             <div class="profile-pic">R</div>
         </div>
     </header>
 
     <main class="main-content">
         
-        <!-- BERANDA TAB -->
         <div id="tab-home" class="tab-content active">
             
             <div class="hero">
@@ -383,7 +385,6 @@
                 <p>Gabungkan link Shopee, kelola ekstraksi cuitan X,<br>dan jadikan satu format yang rapi.</p>
             </div>
 
-            <!-- Kotak Clean -->
             <div class="box">
                 <label>Shopee Links</label>
                 <textarea id="inputShopee" placeholder="Tempel link Shopee Anda di sini..."></textarea>
@@ -406,14 +407,12 @@
             <div id="outputContainer"></div>
         </div>
 
-        <!-- HISTORI / FILE TAB -->
         <div id="tab-history" class="tab-content">
             <div id="historyContainer"></div>
         </div>
 
     </main>
 
-    <!-- BOTTOM NAVIGATION -->
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('home')" id="nav-home">
             <div class="nav-icon-wrapper">
