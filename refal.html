@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Link AutoMixer</title>
     
-    <!-- Import Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
@@ -33,7 +32,7 @@
             padding: 0;
             margin: 0;
             -webkit-tap-highlight-color: transparent;
-            padding-bottom: 80px; /* Disesuaikan karena navbar lebih pendek */
+            padding-bottom: 80px; 
         }
 
         h1, h2, h3, label, .nav-item span {
@@ -173,13 +172,14 @@
             color: var(--md-on-primary); 
             border: none;
             border-radius: 16px; 
-            font-size: 16px;
-            font-weight: 500;
-            font-family: 'Google Sans', 'Outfit', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
             transition: opacity 0.2s;
         }
         button.action-btn:active { opacity: 0.8; }
+        button.action-btn .material-symbols-rounded { font-size: 26px; } /* Ukuran ikon tombol proses */
 
         button.reset-btn {
             flex: 1;
@@ -188,12 +188,13 @@
             color: var(--md-on-surface-variant);
             border: 1px solid var(--md-outline);
             border-radius: 16px; 
-            font-size: 16px;
-            font-weight: 500;
-            font-family: 'Google Sans', 'Outfit', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
         }
         button.reset-btn:active { background-color: var(--md-secondary-container); }
+        button.reset-btn .material-symbols-rounded { font-size: 26px; } /* Ukuran ikon tombol reset */
 
         button.save-btn {
             width: 100%;
@@ -308,13 +309,13 @@
         .load-h { background-color: var(--md-bg); color: var(--md-on-surface); border: 1px solid var(--md-secondary-container); }
         .del-h { background-color: #fce8e6; color: #d93025; }
 
-        /* Bottom Navigation */
+        /* Bottom Navigation - Desain Tanpa Bulatan */
         .bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            height: 64px; /* Tinggi dikurangi karena teks dihapus */
+            height: 64px; 
             background-color: var(--md-bg);
             display: flex;
             justify-content: space-around;
@@ -332,6 +333,7 @@
             width: 64px;
             cursor: pointer;
             color: var(--md-on-surface-variant);
+            transition: color 0.2s;
         }
 
         .nav-icon-wrapper {
@@ -341,13 +343,20 @@
             align-items: center;
             justify-content: center;
             border-radius: 16px; 
-            transition: background-color 0.2s;
+            background-color: transparent; /* Pastikan transparan dari awal */
+            transition: color 0.2s;
         }
 
         .nav-item .material-symbols-rounded { font-size: 24px; }
         
-        .nav-item.active { color: var(--md-on-surface); }
-        .nav-item.active .nav-icon-wrapper { background-color: var(--md-primary-container); color: var(--md-on-primary-container); }
+        /* State Aktif - Warnanya jadi Biru, TANPA bulatan background */
+        .nav-item.active { 
+            color: var(--md-primary); 
+        }
+        .nav-item.active .nav-icon-wrapper { 
+            background-color: transparent; 
+            color: var(--md-primary); 
+        }
         .nav-item.active .material-symbols-rounded { font-variation-settings: 'FILL' 1; }
 
     </style>
@@ -366,7 +375,6 @@
 
     <main class="main-content">
         
-        <!-- BERANDA TAB -->
         <div id="tab-home" class="tab-content active">
             
             <div class="hero">
@@ -379,39 +387,38 @@
             </div>
 
             <div class="box">
-                <label>Source URLs (X)</label>
+                <label>URLs</label>
                 <textarea id="inputTweet" placeholder="Tempel link cuitan Anda di sini..."></textarea>
             </div>
 
             <div class="button-group">
-                <button class="action-btn" onclick="generateAll()">Proses Links</button>
-                <button class="reset-btn" onclick="resetForm()">Reset</button>
+                <button class="action-btn" onclick="generateAll()" title="Proses Links">
+                    <span class="material-symbols-rounded">auto_awesome</span>
+                </button>
+                <button class="reset-btn" onclick="resetForm()" title="Reset Form">
+                    <span class="material-symbols-rounded">delete_outline</span>
+                </button>
             </div>
         </div>
 
-        <!-- HASIL TAB -->
         <div id="tab-result" class="tab-content">
             <div id="status"></div>
             <button id="saveBtn" class="save-btn" onclick="saveCurrentToHistory()">Simpan ke File</button>
             <div id="outputContainer"></div>
         </div>
 
-        <!-- HISTORI / FILE TAB -->
         <div id="tab-history" class="tab-content">
             <div id="historyContainer"></div>
         </div>
 
     </main>
 
-    <!-- BOTTOM NAVIGATION -->
     <nav class="bottom-nav">
-        <!-- Tab Beranda -->
         <div class="nav-item active" onclick="switchTab('home')" id="nav-home">
             <div class="nav-icon-wrapper">
                 <span class="material-symbols-rounded">home</span>
             </div>
         </div>
-        <!-- Tab Hasil -->
         <div class="nav-item" onclick="switchTab('result')" id="nav-result">
             <div class="nav-icon-wrapper">
                 <span class="material-symbols-rounded">article</span>
