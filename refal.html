@@ -118,7 +118,7 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Google One Style Cards (Kotak Clean) */
+        /* Google One Style Cards */
         .box {
             background: var(--md-surface);
             padding: 24px;
@@ -130,29 +130,28 @@
 
         .box label { 
             font-weight: 500; 
-            font-size: 18px; /* Disamakan dengan ukuran judul Batch */
+            font-size: 18px; 
             color: var(--md-on-surface); 
-            margin-bottom: 16px; /* Disamakan dengan jarak judul Batch */
+            margin-bottom: 16px; 
         }
 
-        /* Textarea Clean (Menyamakan dengan desain Batch) */
         textarea {
             width: 100%;
-            height: 120px; /* Diperbesar sedikit karena sekarang ada padding */
-            background: var(--md-bg); /* Kotak Putih */
+            height: 120px; 
+            background: var(--md-bg); 
             color: var(--md-on-surface);
-            border: 1px solid var(--md-secondary-container); /* Garis batas tipis */
+            border: 1px solid var(--md-secondary-container); 
             font-family: ui-monospace, monospace;
-            font-size: 13px; /* Sama dengan teks Batch */
-            line-height: 24px; /* Sama dengan teks Batch */
+            font-size: 13px; 
+            line-height: 24px; 
             resize: none; 
-            padding: 16px; /* Jarak teks ke pinggir kotak */
-            border-radius: 16px; /* Melengkung 16px */
+            padding: 16px; 
+            border-radius: 16px; 
             box-sizing: border-box;
             transition: all 0.2s ease;
         }
         textarea:focus { 
-            outline: 2px solid var(--md-primary); /* Highlight biru ala Google pas diketik */
+            outline: 2px solid var(--md-primary); 
             border-color: transparent;
         }
         textarea::placeholder { color: #80868b; }
@@ -229,22 +228,24 @@
             align-items: center;
         }
 
+        /* Checkbox Posted pindah ke kanan atas */
         .posted-toggle {
-            display: inline-flex;
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            margin: 0;
+            display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--md-on-surface-variant);
+            justify-content: center;
             cursor: pointer;
-            margin-left: 12px;
-            background: var(--md-bg);
-            padding: 6px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--md-secondary-container);
         }
-        .posted-toggle input[type="checkbox"] { accent-color: var(--md-primary); width: 16px; height: 16px; }
-        .posted-toggle input[type="checkbox"]:checked + span { color: var(--md-primary); text-decoration: line-through; }
+        .posted-toggle input[type="checkbox"] { 
+            accent-color: var(--md-primary); /* Biru Google pas dicentang */
+            width: 22px; 
+            height: 22px; 
+            margin: 0;
+            cursor: pointer;
+        }
 
         .result-text {
             font-family: ui-monospace, monospace;
@@ -260,42 +261,40 @@
             border: 1px solid var(--md-secondary-container);
         }
 
-        .post-x-btn {
-            width: 100%;
-            padding: 16px;
-            background-color: var(--md-primary); 
-            color: var(--md-on-primary); 
+        /* Wadah untuk tombol Copy & Share di bawah */
+        .card-actions-bottom {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* Desain Tombol Bulat (Copy & Share) */
+        .action-circle-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
             border: none;
-            border-radius: 16px; 
-            font-size: 15px;
-            font-weight: 500;
-            font-family: 'Google Sans', 'Outfit', sans-serif;
-            cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 8px;
-        }
-        .post-x-btn .material-symbols-rounded { font-size: 20px; }
-
-        .copy-btn {
-            background-color: var(--md-bg);
-            color: var(--md-on-surface);
-            border: 1px solid var(--md-secondary-container);
-            border-radius: 100px; 
-            padding: 6px 14px;
-            font-size: 13px;
-            font-weight: 500;
-            font-family: 'Google Sans', 'Outfit', sans-serif;
             cursor: pointer;
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
+            transition: transform 0.1s, opacity 0.2s;
         }
-        .copy-btn .material-symbols-rounded { font-size: 16px; }
+        .action-circle-btn:active {
+            transform: scale(0.92);
+        }
+        .action-circle-btn .material-symbols-rounded { font-size: 22px; }
+
+        /* Warna Khusus Copy & Share */
+        .copy-btn {
+            background-color: var(--md-secondary-container);
+            color: var(--md-on-surface);
+            border: 1px solid var(--md-outline); /* Tambah border tipis biar senada sama reset */
+        }
+        .share-btn {
+            background-color: var(--md-primary); /* Biru Google */
+            color: var(--md-on-primary);
+        }
 
         /* History Tab Styles */
         .history-item {
@@ -357,7 +356,6 @@
         .nav-item .material-symbols-rounded { font-size: 24px; }
         .nav-item span { font-size: 12px; font-weight: 500; }
 
-        /* Active State for Nav */
         .nav-item.active { color: var(--md-on-surface); }
         .nav-item.active .nav-icon-wrapper { background-color: var(--md-primary-container); color: var(--md-on-primary-container); }
         .nav-item.active .material-symbols-rounded { font-variation-settings: 'FILL' 1; }
@@ -429,7 +427,6 @@
     </nav>
 
     <script>
-        // --- UI LOGIC (TAB SWITCHING) ---
         function switchTab(tabName) {
             document.getElementById('tab-home').classList.remove('active');
             document.getElementById('tab-history').classList.remove('active');
@@ -443,7 +440,6 @@
             window.scrollTo(0, 0);
         }
 
-        // --- ORIGINAL APP LOGIC ---
         let currentActiveResultHTML = '';
         let currentActiveItemsCount = 0;
         let lastLengthShopee = 0;
@@ -629,24 +625,25 @@
                             if (!seenBatches.has(racikanText)) {
                                 seenBatches.add(racikanText);
 
+                                // MODIFIKASI: Centang di kanan atas, Copy & Share di bawah (bulat)
                                 resultHTML += `
                                 <div class="result-day">
-                                    <h3>
-                                        Batch ${dayCounter}
-                                        <label class="posted-toggle">
-                                            <input type="checkbox" onchange="toggleDone(this)">
-                                            <span>Posted</span>
-                                        </label>
-                                    </h3>
-                                    <button class="copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)">
-                                        <span class="material-symbols-rounded">content_copy</span> Copy
-                                    </button>
+                                    <h3>Batch ${dayCounter}</h3>
+                                    
+                                    <label class="posted-toggle" title="Tandai sudah diposting">
+                                        <input type="checkbox" onchange="toggleDone(this)">
+                                    </label>
                                     
                                     <div class="result-text">${racikanText}</div>
                                     
-                                    <button class="post-x-btn" onclick="shareToX(this)" data-text="${encodedTweetText}">
-                                        <span class="material-symbols-rounded">share</span> Share ke X
-                                    </button>
+                                    <div class="card-actions-bottom">
+                                        <button class="action-circle-btn copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)" title="Copy Text">
+                                            <span class="material-symbols-rounded">content_copy</span>
+                                        </button>
+                                        <button class="action-circle-btn share-btn" onclick="shareToX(this)" data-text="${encodedTweetText}" title="Share ke X">
+                                            <span class="material-symbols-rounded">share</span>
+                                        </button>
+                                    </div>
                                 </div>`;
                                 
                                 dayCounter++;
@@ -788,15 +785,18 @@
         function copyToClipboard(btn, text) {
             navigator.clipboard.writeText(text).then(() => {
                 let originalHtml = btn.innerHTML;
-                btn.innerHTML = `<span class="material-symbols-rounded">check</span> Copied`;
+                // Karena tombol bulat, kita ganti iconnya aja jadi check
+                btn.innerHTML = `<span class="material-symbols-rounded">check</span>`;
                 
                 btn.style.backgroundColor = "var(--md-primary-container)"; 
                 btn.style.color = "var(--md-on-primary-container)";
+                btn.style.borderColor = "transparent";
                 
                 setTimeout(() => {
                     btn.innerHTML = originalHtml;
-                    btn.style.backgroundColor = "var(--md-bg)"; 
-                    btn.style.color = "var(--md-on-surface)";
+                    btn.style.backgroundColor = ""; 
+                    btn.style.color = "";
+                    btn.style.borderColor = "";
                 }, 1500);
             });
         }
