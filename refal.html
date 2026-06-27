@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Link AutoMixer</title>
     
+    <!-- Import Google Fonts (Outfit untuk judul, Roboto untuk teks biasa) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
@@ -12,16 +13,17 @@
 
     <style>
         :root {
-            /* Palette 100% akurat dari screenshot Google One lu */
-            --md-bg: #1d1819;
-            --md-surface: #2b2224;
-            --md-on-surface: #f1dfe2;
-            --md-on-surface-variant: #d3c2c5;
-            --md-primary: #ffb1c8;
-            --md-primary-container: #772b46;
-            --md-on-primary-container: #ffd9e2;
-            --md-secondary-container: #423136;
-            --md-outline: #857377;
+            /* Tema Putih (Light Theme) ala Ekosistem Google */
+            --md-bg: #ffffff;
+            --md-surface: #f1f3f4; /* Abu-abu terang khas kotak Google */
+            --md-on-surface: #1f1f1f;
+            --md-on-surface-variant: #444746;
+            --md-primary: #0a56d0; /* Biru Google */
+            --md-on-primary: #ffffff;
+            --md-primary-container: #d3e3fd;
+            --md-on-primary-container: #041e49;
+            --md-secondary-container: #e1e3e1;
+            --md-outline: #747775;
         }
 
         body {
@@ -39,7 +41,7 @@
             font-family: 'Google Sans', 'Outfit', sans-serif;
         }
 
-        /* Top App Bar (Mirip Header Google One) */
+        /* Top App Bar */
         .app-bar {
             display: flex;
             align-items: center;
@@ -70,27 +72,12 @@
             gap: 12px;
         }
 
-        .icon-btn {
-            background: transparent;
-            border: none;
-            color: var(--md-on-surface-variant);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .icon-btn:active { background-color: var(--md-secondary-container); }
-        .icon-btn.active { color: var(--md-primary); }
-
         .profile-pic {
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background-color: #8c737a;
-            color: #3e282f;
+            background-color: var(--md-primary-container);
+            color: var(--md-on-primary-container);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -106,7 +93,7 @@
             margin: 0 auto;
         }
 
-        /* Hero Text (Tulisan Gede ala Google One) */
+        /* Hero Text */
         .hero {
             text-align: center;
             margin-bottom: 32px;
@@ -136,7 +123,7 @@
         .box {
             background: var(--md-surface);
             padding: 24px;
-            border-radius: 28px; /* Melengkung banget ala Google */
+            border-radius: 28px; 
             margin-bottom: 16px;
             display: flex;
             flex-direction: column;
@@ -149,32 +136,36 @@
             margin-bottom: 8px;
         }
 
-        /* Textarea Clean (Menyatu dengan Card) */
+        /* Textarea Clean */
         textarea {
             width: 100%;
             height: 90px;
             border: none; 
             background-color: transparent; 
-            color: var(--md-on-surface-variant);
+            color: var(--md-on-surface);
             font-family: ui-monospace, monospace;
             font-size: 14px;
             line-height: 1.6;
             resize: none; 
             padding: 0;
         }
-        textarea:focus { outline: none; color: var(--md-on-surface); }
-        textarea::placeholder { color: #857377; }
+        textarea:focus { outline: none; }
+        textarea::placeholder { color: #80868b; }
 
-        /* Action Buttons */
-        .button-group { display: flex; gap: 12px; margin-top: 16px; }
+        /* Action Buttons (Bentuk Kotak Melengkung ala Google Translate) */
+        .button-group { 
+            display: flex; 
+            gap: 12px; 
+            margin-top: 16px; 
+        }
 
         button.action-btn {
-            flex: 3;
+            flex: 1; /* Dibikin seimbang porsinya sama tombol reset */
             padding: 16px;
-            background-color: var(--md-primary-container); 
-            color: var(--md-on-primary-container);
+            background-color: var(--md-primary); /* Biru Google */
+            color: var(--md-on-primary); /* Teks Putih */
             border: none;
-            border-radius: 100px; 
+            border-radius: 16px; /* Kotak melengkung ala G-Translate */
             font-size: 16px;
             font-weight: 500;
             font-family: 'Google Sans', 'Outfit', sans-serif;
@@ -189,7 +180,7 @@
             background-color: transparent; 
             color: var(--md-on-surface-variant);
             border: 1px solid var(--md-outline);
-            border-radius: 100px;
+            border-radius: 16px; /* Kotak melengkung ala G-Translate */
             font-size: 16px;
             font-weight: 500;
             font-family: 'Google Sans', 'Outfit', sans-serif;
@@ -200,10 +191,10 @@
         button.save-btn {
             width: 100%;
             padding: 16px;
-            background-color: var(--md-primary);
-            color: #3e001c;
+            background-color: var(--md-primary); /* Biru Google */
+            color: var(--md-on-primary); /* Teks Putih */
             border: none;
-            border-radius: 100px;
+            border-radius: 16px; /* Kotak melengkung */
             font-size: 15px;
             font-weight: 500;
             font-family: 'Google Sans', 'Outfit', sans-serif;
@@ -245,6 +236,7 @@
             background: var(--md-bg);
             padding: 6px 12px;
             border-radius: 8px;
+            border: 1px solid var(--md-secondary-container);
         }
         .posted-toggle input[type="checkbox"] { accent-color: var(--md-primary); width: 16px; height: 16px; }
         .posted-toggle input[type="checkbox"]:checked + span { color: var(--md-primary); text-decoration: line-through; }
@@ -260,15 +252,16 @@
             white-space: pre-wrap;
             word-break: break-all;
             margin-bottom: 16px;
+            border: 1px solid var(--md-secondary-container);
         }
 
         .post-x-btn {
             width: 100%;
             padding: 16px;
-            background-color: var(--md-primary-container); 
-            color: var(--md-on-primary-container);
+            background-color: var(--md-primary); /* Biru Google */
+            color: var(--md-on-primary); /* Teks Putih */
             border: none;
-            border-radius: 100px;
+            border-radius: 16px; /* Kotak melengkung */
             font-size: 15px;
             font-weight: 500;
             font-family: 'Google Sans', 'Outfit', sans-serif;
@@ -283,9 +276,9 @@
         .copy-btn {
             background-color: var(--md-bg);
             color: var(--md-on-surface);
-            border: none;
+            border: 1px solid var(--md-secondary-container);
             border-radius: 100px; 
-            padding: 8px 16px;
+            padding: 6px 14px;
             font-size: 13px;
             font-weight: 500;
             font-family: 'Google Sans', 'Outfit', sans-serif;
@@ -316,10 +309,10 @@
             border: none; padding: 12px; border-radius: 50%; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
         }
-        .load-h { background-color: var(--md-bg); color: var(--md-on-surface); }
-        .del-h { background-color: #59191f; color: #ffb4ab; }
+        .load-h { background-color: var(--md-bg); color: var(--md-on-surface); border: 1px solid var(--md-secondary-container); }
+        .del-h { background-color: #fce8e6; color: #d93025; }
 
-        /* Bottom Navigation (Google Ecosystem Style) */
+        /* Bottom Navigation */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -332,6 +325,7 @@
             align-items: center;
             z-index: 100;
             padding-bottom: env(safe-area-inset-bottom);
+            border-top: 1px solid var(--md-secondary-container);
         }
 
         .nav-item {
@@ -367,21 +361,21 @@
 </head>
 <body>
 
+    <!-- Header -->
     <header class="app-bar">
         <div class="app-bar-left">
             <span class="material-symbols-rounded" style="color: var(--md-on-surface-variant);">menu</span>
             <h2>AutoMixer</h2>
         </div>
         <div class="app-bar-right">
-            <button id="notifToggleBtn" class="icon-btn" onclick="toggleNotification()" title="Nyalakan Alarm">
-                <span class="material-symbols-rounded" id="bellIcon">notifications</span>
-            </button>
+            <!-- Fitur notifikasi dihapus -->
             <div class="profile-pic">R</div>
         </div>
     </header>
 
     <main class="main-content">
         
+        <!-- BERANDA TAB -->
         <div id="tab-home" class="tab-content active">
             
             <div class="hero">
@@ -389,6 +383,7 @@
                 <p>Gabungkan link Shopee, kelola ekstraksi cuitan X,<br>dan jadikan satu format yang rapi.</p>
             </div>
 
+            <!-- Kotak Clean -->
             <div class="box">
                 <label>Shopee Links</label>
                 <textarea id="inputShopee" placeholder="Tempel link Shopee Anda di sini..."></textarea>
@@ -411,12 +406,14 @@
             <div id="outputContainer"></div>
         </div>
 
+        <!-- HISTORI / FILE TAB -->
         <div id="tab-history" class="tab-content">
             <div id="historyContainer"></div>
         </div>
 
     </main>
 
+    <!-- BOTTOM NAVIGATION -->
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('home')" id="nav-home">
             <div class="nav-icon-wrapper">
@@ -453,11 +450,9 @@
         let lastLengthShopee = 0;
         let lastLengthTweet = 0;
         let currentActiveHistoryId = null;
-        let alarmInterval = null;
 
         window.onload = function() {
             renderHistory();
-            checkNotifStatus(); 
             
             let sInput = document.getElementById('inputShopee');
             let tInput = document.getElementById('inputTweet');
@@ -512,77 +507,6 @@
                 });
             }
         };
-
-        // MESIN ALARM & NOTIFIKASI
-        function toggleNotification() {
-            let btn = document.getElementById('notifToggleBtn');
-            let icon = document.getElementById('bellIcon');
-            
-            if (!("Notification" in window)) {
-                alert("Browser HP lu nggak support notifikasi web bro. Harus install Capacitor Local Notifications.");
-                return;
-            }
-
-            if (Notification.permission === "granted") {
-                if (btn.classList.contains('active')) {
-                    btn.classList.remove('active');
-                    icon.innerText = 'notifications';
-                    if (alarmInterval) clearInterval(alarmInterval);
-                    localStorage.setItem('refal_notif_active', 'false');
-                    alert("Alarm jam 10 malam dimatikan.");
-                } else {
-                    btn.classList.add('active');
-                    icon.innerText = 'notifications_active';
-                    localStorage.setItem('refal_notif_active', 'true');
-                    startAlarmMachine();
-                    alert("Alarm aktif! Biarkan aplikasi terbuka di background biar notif jam 10 malem bisa masuk.");
-                }
-            } else if (Notification.permission !== "denied") {
-                Notification.requestPermission().then(function (permission) {
-                    if (permission === "granted") {
-                        btn.classList.add('active');
-                        icon.innerText = 'notifications_active';
-                        localStorage.setItem('refal_notif_active', 'true');
-                        startAlarmMachine();
-                        alert("Izin diberikan! Alarm jam 10 malam aktif.");
-                    } else {
-                        alert("Izin notifikasi ditolak.");
-                    }
-                });
-            } else {
-                alert("Izin notif ditolak permanen. Buka setting HP > Aplikasi > AutoMixer > Izinkan Notifikasi.");
-            }
-        }
-
-        function checkNotifStatus() {
-            let isActive = localStorage.getItem('refal_notif_active') === 'true';
-            let btn = document.getElementById('notifToggleBtn');
-            let icon = document.getElementById('bellIcon');
-            if (isActive && Notification.permission === "granted") {
-                btn.classList.add('active');
-                icon.innerText = 'notifications_active';
-                startAlarmMachine();
-            }
-        }
-
-        function startAlarmMachine() {
-            if (alarmInterval) clearInterval(alarmInterval);
-            alarmInterval = setInterval(() => {
-                let now = new Date();
-                if (now.getHours() === 22 && now.getMinutes() === 0 && now.getSeconds() === 0) {
-                    fireNotification();
-                }
-            }, 1000);
-        }
-
-        function fireNotification() {
-            let options = {
-                body: "Udah jam 10 malem nih bro! Waktunya post racikan link ke X.",
-                icon: "https://cdn-icons-png.flaticon.com/512/3254/3254068.png", 
-                vibrate: [200, 100, 200]
-            };
-            new Notification("Link AutoMixer", options);
-        }
 
         function toggleDone(checkbox) {
             if (checkbox.checked) {
@@ -867,8 +791,8 @@
                 let originalHtml = btn.innerHTML;
                 btn.innerHTML = `<span class="material-symbols-rounded">check</span> Copied`;
                 
-                btn.style.backgroundColor = "var(--md-primary)"; 
-                btn.style.color = "#3e001c";
+                btn.style.backgroundColor = "var(--md-primary-container)"; 
+                btn.style.color = "var(--md-on-primary-container)";
                 
                 setTimeout(() => {
                     btn.innerHTML = originalHtml;
