@@ -2,169 +2,189 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Link AutoMixer</title>
+    
+    <!-- Import Google Fonts & Material Symbols -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet" />
+
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f2f4f7; 
-            color: #1c1c1e;
-            padding: 30px 20px;
-            max-width: 800px;
-            margin: 0 auto;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        h2 { 
-            font-size: 24px; 
-            font-weight: 700; 
-            margin-bottom: 28px; 
-            color: #111; 
-            letter-spacing: -0.5px;
-            text-align: center;
+        :root {
+            /* Material You - Dark Theme Palette (Based on your screenshots) */
+            --md-bg: #1d1819;
+            --md-surface: #2b2224;
+            --md-on-surface: #ece0e2;
+            --md-on-surface-variant: #d0c3c6;
+            --md-primary: #ffb1c8;
+            --md-primary-container: #7d2d49;
+            --md-on-primary-container: #ffd9e2;
+            --md-secondary-container: #423136;
+            --md-outline: #857377;
         }
 
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--md-bg); 
+            color: var(--md-on-surface);
+            padding: 0;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+            padding-bottom: 90px; /* Space for bottom nav */
+        }
+
+        /* Top App Bar */
+        .app-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 20px;
+            position: sticky;
+            top: 0;
+            background-color: var(--md-bg);
+            z-index: 10;
+        }
+
+        .app-bar h2 { 
+            font-size: 22px; 
+            font-weight: 500; 
+            margin: 0; 
+            color: var(--md-on-surface); 
+            letter-spacing: 0px;
+        }
+
+        /* Main Container */
+        .main-content {
+            padding: 10px 20px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Tab System */
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Google Style Cards */
         .box {
-            background: #ffffff;
-            padding: 22px;
-            border-radius: 18px; 
-            margin-bottom: 20px;
-            border: none; 
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04); 
+            background: var(--md-surface);
+            padding: 20px;
+            border-radius: 24px; 
+            margin-bottom: 16px;
         }
 
         .header-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
 
         label { 
-            font-weight: 600; 
-            font-size: 12px; 
-            color: #86868b; 
-            text-transform: uppercase; 
-            letter-spacing: 0.8px;
-            margin-bottom: 0; 
+            font-weight: 500; 
+            font-size: 14px; 
+            color: var(--md-on-surface-variant); 
         }
 
+        /* Pill Buttons */
         .paste-btn {
-            background-color: #f2f4f7;
-            color: #1d1d1f;
+            background-color: var(--md-secondary-container);
+            color: var(--md-on-surface);
             border: none;
-            border-radius: 12px;
-            padding: 6px 12px;
-            font-size: 11px;
-            font-weight: 600;
+            border-radius: 100px; /* Google Pill style */
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 6px;
-            transition: transform 0.1s, background-color 0.2s;
+            transition: all 0.2s;
         }
-        .paste-btn:active { transform: scale(0.95); background-color: #e5e5ea; }
-        .paste-btn svg { width: 13px; height: 13px; fill: #1d1d1f; }
+        .paste-btn:active { background-color: #5c444b; }
+        .paste-btn .material-symbols-rounded { font-size: 18px; }
 
+        /* Input Fields */
         textarea {
             width: 100%;
             height: 110px;
             border: none; 
-            border-radius: 14px;
+            border-radius: 16px;
             padding: 16px;
-            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-            font-size: 13px;
+            font-family: ui-monospace, monospace;
+            font-size: 14px;
             box-sizing: border-box;
             resize: none; 
-            background-color: #f5f5f7; 
-            color: #1d1d1f;
+            background-color: var(--md-secondary-container); 
+            color: var(--md-on-surface);
             line-height: 1.6;
-            transition: all 0.2s ease;
         }
+        textarea:focus { outline: 2px solid var(--md-primary); background-color: #37292d; }
+        textarea::placeholder { color: #8f7f83; }
 
-        textarea:focus { 
-            outline: none; 
-            background-color: #ffffff;
-            box-shadow: 0 0 0 2px #007aff;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-        }
+        /* Action Buttons */
+        .button-group { display: flex; gap: 12px; margin-top: 10px; }
 
         button.action-btn {
             flex: 3;
             padding: 16px;
-            background-color: #000000; 
-            color: #ffffff;
+            background-color: var(--md-primary-container); 
+            color: var(--md-on-primary-container);
             border: none;
-            border-radius: 16px; 
-            font-size: 16px;
-            font-weight: 600;
+            border-radius: 100px; 
+            font-size: 15px;
+            font-weight: 500;
             cursor: pointer;
-            transition: transform 0.1s, background-color 0.2s;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+            transition: opacity 0.2s;
         }
-
-        button.action-btn:active { transform: scale(0.97); }
+        button.action-btn:active { opacity: 0.8; }
 
         button.reset-btn {
             flex: 1;
             padding: 16px;
-            background-color: #e5e5ea; 
-            color: #1c1c1e;
-            border: none;
-            border-radius: 16px;
-            font-size: 16px;
-            font-weight: 600;
+            background-color: transparent; 
+            color: var(--md-primary);
+            border: 1px solid var(--md-outline);
+            border-radius: 100px;
+            font-size: 15px;
+            font-weight: 500;
             cursor: pointer;
-            transition: transform 0.1s, background-color 0.2s;
         }
-
-        button.reset-btn:active { transform: scale(0.97); background-color: #d1d1d6; }
+        button.reset-btn:active { background-color: var(--md-secondary-container); }
 
         button.save-btn {
             width: 100%;
-            padding: 14px;
-            background-color: #34c759;
-            color: white;
+            padding: 16px;
+            background-color: var(--md-primary);
+            color: #3e001c;
             border: none;
-            border-radius: 14px;
-            font-size: 14px;
-            font-weight: 600;
+            border-radius: 100px;
+            font-size: 15px;
+            font-weight: 500;
             cursor: pointer;
             margin-bottom: 20px;
             display: none;
-            transition: transform 0.1s;
-            box-shadow: 0 4px 12px rgba(52, 199, 89, 0.2);
-        }
-        button.save-btn:active { transform: scale(0.98); }
-
-        #status {
-            font-weight: 500;
-            color: #86868b;
-            margin: 24px 0 10px;
-            font-size: 14px;
-            text-align: center;
         }
 
+        #status { font-weight: 400; color: var(--md-on-surface-variant); margin: 20px 0 16px; font-size: 14px; text-align: center; }
+
+        /* Result Cards */
         .result-day {
-            background: #ffffff;
+            background: var(--md-surface);
             padding: 20px;
             margin-bottom: 16px;
-            border-radius: 18px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            border-radius: 24px;
             position: relative;
         }
 
         .result-day h3 { 
             margin-top: 0; 
-            margin-bottom: 14px; 
-            font-size: 16px; 
-            font-weight: 700; 
-            color: #1d1d1f; 
+            margin-bottom: 16px; 
+            font-size: 18px; 
+            font-weight: 500; 
+            color: var(--md-on-surface); 
             display: flex;
             align-items: center;
         }
@@ -172,148 +192,220 @@
         .posted-toggle {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            font-weight: 600;
-            color: #86868b;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--md-on-surface-variant);
             cursor: pointer;
             margin-left: 12px;
-            background: #f2f4f7;
-            padding: 4px 8px;
+            background: var(--md-secondary-container);
+            padding: 6px 12px;
             border-radius: 8px;
-            transition: all 0.2s;
         }
-        .posted-toggle input[type="checkbox"] {
-            width: 14px;
-            height: 14px;
-            accent-color: #34c759;
-            cursor: pointer;
-            margin: 0;
-        }
-        .posted-toggle input[type="checkbox"]:checked + span {
-            color: #34c759;
-            text-decoration: line-through;
-        }
-
-        .result-body {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 14px;
-        }
+        .posted-toggle input[type="checkbox"] { accent-color: var(--md-primary); width: 16px; height: 16px; }
+        .posted-toggle input[type="checkbox"]:checked + span { color: var(--md-primary); text-decoration: line-through; }
 
         .result-text {
-            flex: 1;
-            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            font-family: ui-monospace, monospace;
             font-size: 13px;
-            line-height: 28px;
-            color: #333;
-            background: #f5f5f7;
-            padding: 12px 14px;
-            border-radius: 12px;
+            line-height: 24px;
+            color: var(--md-on-surface);
+            background: var(--md-secondary-container);
+            padding: 16px;
+            border-radius: 16px;
             white-space: pre-wrap;
             word-break: break-all;
-            margin: 0;
+            margin-bottom: 16px;
         }
 
         .post-x-btn {
             width: 100%;
-            padding: 12px;
-            background-color: #1da1f2; 
-            color: #ffffff;
+            padding: 16px;
+            background-color: var(--md-primary-container); 
+            color: var(--md-on-primary-container);
             border: none;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 700;
+            border-radius: 100px;
+            font-size: 15px;
+            font-weight: 500;
             cursor: pointer;
-            transition: transform 0.1s;
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 8px;
         }
-        .post-x-btn:active { transform: scale(0.96); background-color: #1a91da; }
+        .post-x-btn .material-symbols-rounded { font-size: 20px; }
 
         .copy-btn {
-            background-color: #007aff;
-            color: #ffffff;
+            background-color: var(--md-secondary-container);
+            color: var(--md-on-surface);
             border: none;
-            border-radius: 20px; 
-            padding: 6px 16px;
-            font-size: 12px;
-            font-weight: 600;
+            border-radius: 100px; 
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
             position: absolute;
-            top: 18px;
+            top: 20px;
             right: 20px;
-            transition: all 0.15s;
-            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
-        .copy-btn:active { transform: scale(0.92); }
+        .copy-btn .material-symbols-rounded { font-size: 16px; }
 
-        .history-section { margin-top: 40px; border-top: 1px solid #d1d1d6; padding-top: 24px; }
+        /* History Tab Styles */
         .history-item {
-            background: #ffffff;
-            padding: 16px;
-            border-radius: 14px;
-            margin-bottom: 12px;
+            background: var(--md-surface);
+            padding: 20px;
+            border-radius: 24px;
+            margin-bottom: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.02);
         }
-        .history-info { font-size: 14px; font-weight: 500; color: #1d1d1f; }
-        .history-date { font-size: 11px; color: #86868b; margin-top: 4px; }
+        .history-info { font-size: 16px; font-weight: 500; color: var(--md-on-surface); }
+        .history-date { font-size: 13px; color: var(--md-on-surface-variant); margin-top: 6px; }
         .history-actions { display: flex; gap: 8px; }
         .hist-btn {
-            border: none; padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer;
+            border: none; padding: 10px; border-radius: 100px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
         }
-        .load-h { background-color: #f2f4f7; color: #007aff; }
-        .del-h { background-color: #ffe5e5; color: #ff3b30; }
+        .load-h { background-color: var(--md-secondary-container); color: var(--md-on-surface); }
+        .del-h { background-color: #59191f; color: #ffb4ab; }
+
+        /* Bottom Navigation (Google Ecosystem Style) */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background-color: var(--md-bg);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            width: 64px;
+            cursor: pointer;
+            color: var(--md-on-surface-variant);
+        }
+
+        .nav-icon-wrapper {
+            width: 64px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px; /* Pill shape for active icon */
+            transition: background-color 0.2s;
+        }
+
+        .nav-item .material-symbols-rounded { font-size: 24px; }
+        .nav-item span { font-size: 12px; font-weight: 500; }
+
+        /* Active State for Nav */
+        .nav-item.active { color: var(--md-on-surface); }
+        .nav-item.active .nav-icon-wrapper { background-color: var(--md-primary-container); color: var(--md-on-primary-container); }
+        .nav-item.active .material-symbols-rounded { font-variation-settings: 'FILL' 1; } /* Filled icon when active */
+
     </style>
 </head>
 <body>
 
-    <h2>Link AutoMixer</h2>
+    <header class="app-bar">
+        <h2>Link AutoMixer</h2>
+    </header>
 
-    <div class="box">
-        <div class="header-row">
-            <label>Shopee Links Configuration</label>
-            <button class="paste-btn" onclick="pasteToBox('inputShopee', this)">
-                <svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm7 18H5V5h2v3h10V5h2v16z"/></svg>
-                <span>Tempel</span>
-            </button>
+    <main class="main-content">
+        
+        <!-- BERANDA TAB -->
+        <div id="tab-home" class="tab-content active">
+            <div class="box">
+                <div class="header-row">
+                    <label>Shopee Links</label>
+                    <button class="paste-btn" onclick="pasteToBox('inputShopee', this)">
+                        <span class="material-symbols-rounded">content_paste</span>
+                        <span>Tempel</span>
+                    </button>
+                </div>
+                <textarea id="inputShopee" placeholder="Masukkan link Shopee di sini..."></textarea>
+            </div>
+
+            <div class="box">
+                <div class="header-row">
+                    <label>Source URLs (X)</label>
+                    <button class="paste-btn" onclick="pasteToBox('inputTweet', this)">
+                        <span class="material-symbols-rounded">content_paste</span>
+                        <span>Tempel</span>
+                    </button>
+                </div>
+                <textarea id="inputTweet" placeholder="Masukkan link cuitan di sini..."></textarea>
+            </div>
+
+            <div class="button-group">
+                <button class="action-btn" onclick="generateAll()">Proses Links</button>
+                <button class="reset-btn" onclick="resetForm()">Reset</button>
+            </div>
+
+            <div id="status"></div>
+
+            <button id="saveBtn" class="save-btn" onclick="saveCurrentToHistory()">Simpan ke File</button>
+
+            <div id="outputContainer"></div>
         </div>
-        <textarea id="inputShopee" placeholder="Enter Shopee links..."></textarea>
-    </div>
 
-    <div class="box">
-        <div class="header-row">
-            <label>Source URLs Extraction</label>
-            <button class="paste-btn" onclick="pasteToBox('inputTweet', this)">
-                <svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm7 18H5V5h2v3h10V5h2v16z"/></svg>
-                <span>Tempel</span>
-            </button>
+        <!-- HISTORI / FILE TAB -->
+        <div id="tab-history" class="tab-content">
+            <div id="historyContainer"></div>
         </div>
-        <textarea id="inputTweet" placeholder="Enter source URLs..."></textarea>
-    </div>
 
-    <div class="button-group">
-        <button class="action-btn" onclick="generateAll()">Process Links</button>
-        <button class="reset-btn" onclick="resetForm()">Reset</button>
-    </div>
+    </main>
 
-    <div id="status"></div>
-
-    <button id="saveBtn" class="save-btn" onclick="saveCurrentToHistory()">Save to History</button>
-
-    <div id="outputContainer"></div>
-
-    <div class="history-section">
-        <label>Saved History</label>
-        <div id="historyContainer"></div>
-    </div>
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('home')" id="nav-home">
+            <div class="nav-icon-wrapper">
+                <span class="material-symbols-rounded">home</span>
+            </div>
+            <span>Beranda</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('history')" id="nav-history">
+            <div class="nav-icon-wrapper">
+                <span class="material-symbols-rounded">folder</span>
+            </div>
+            <span>File</span>
+        </div>
+    </nav>
 
     <script>
+        // --- UI LOGIC (TAB SWITCHING) ---
+        function switchTab(tabName) {
+            // Sembunyikan semua tab
+            document.getElementById('tab-home').classList.remove('active');
+            document.getElementById('tab-history').classList.remove('active');
+            
+            // Reset navigasi bawah
+            document.getElementById('nav-home').classList.remove('active');
+            document.getElementById('nav-history').classList.remove('active');
+            
+            // Aktifkan tab yang dipilih
+            document.getElementById('tab-' + tabName).classList.add('active');
+            document.getElementById('nav-' + tabName).classList.add('active');
+
+            // Scroll ke atas saat ganti tab
+            window.scrollTo(0, 0);
+        }
+
+        // --- ORIGINAL APP LOGIC (TIDAK ADA YANG DIUBAH) ---
         let currentActiveResultHTML = '';
         let currentActiveItemsCount = 0;
         let lastLengthShopee = 0;
@@ -426,13 +518,18 @@
                     targetTextarea.dispatchEvent(new Event('input'));
 
                     let originalBg = btnElement.style.backgroundColor;
-                    let span = btnElement.querySelector('span');
+                    let span = btnElement.querySelectorAll('span')[1];
+                    let icon = btnElement.querySelectorAll('span')[0];
                     
-                    btnElement.style.backgroundColor = '#d4f5d6';
+                    btnElement.style.backgroundColor = 'var(--md-primary-container)';
+                    btnElement.style.color = 'var(--md-on-primary-container)';
+                    icon.innerText = 'check';
                     span.innerText = 'Masuk!';
                     
                     setTimeout(() => { 
                         btnElement.style.backgroundColor = originalBg; 
+                        btnElement.style.color = 'var(--md-on-surface)';
+                        icon.innerText = 'content_paste';
                         span.innerText = 'Tempel';
                     }, 800);
                 }
@@ -470,11 +567,11 @@
             let tweetUrls = rawTweetInput.match(/(https?:\/\/[^\s]+)/g) || [];
 
             if (shopeeRaw.length === 0 || tweetUrls.length === 0) {
-                alert("Please fill in both fields.");
+                alert("Silakan isi kedua kotak teks.");
                 return;
             }
 
-            status.innerHTML = "Processing data...";
+            status.innerHTML = "Memproses data...";
             outputDiv.innerHTML = '';
             saveBtn.style.display = 'none';
             currentActiveHistoryId = null; 
@@ -505,7 +602,6 @@
                     let urlRegex = /(https?:\/\/[^\s]+)/g;
                     let foundUrls = fullText.match(urlRegex) || [];
 
-                    // GABUNGKAN CAPTION: Hapus semua link dari teks asli cuitan buat ngambil judulnya doang
                     let caption = fullText.replace(urlRegex, '').trim();
 
                     if (foundUrls.length > 0) {
@@ -529,7 +625,6 @@
                         if (batchLinksData.length > 0) {
                             let plainTextArr = [];
 
-                            // MASUKIN CAPTION KE BARIS PALING ATAS KALAU ADA
                             if (caption !== '') {
                                 plainTextArr.push(caption);
                             }
@@ -553,15 +648,14 @@
                                             <span>Posted</span>
                                         </label>
                                     </h3>
-                                    <button class="copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)">Copy</button>
+                                    <button class="copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)">
+                                        <span class="material-symbols-rounded">content_copy</span> Copy
+                                    </button>
                                     
-                                    <div class="result-body">
-                                        <div class="result-text">${racikanText}</div>
-                                    </div>
+                                    <div class="result-text">${racikanText}</div>
                                     
                                     <button class="post-x-btn" onclick="shareToX(this)" data-text="${encodedTweetText}">
-                                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                                        Share ke X
+                                        <span class="material-symbols-rounded">share</span> Share ke X
                                     </button>
                                 </div>`;
                                 
@@ -575,11 +669,11 @@
             let totalBatches = dayCounter - 1;
 
             if (totalBatches === 0) {
-                status.innerHTML = "Process completed. No valid source URLs found.";
+                status.innerHTML = "Proses selesai. Tidak ada URL valid.";
                 return;
             }
 
-            status.innerHTML = `Process completed. Extracted ${totalBatches} batches.`;
+            status.innerHTML = `Proses selesai. Berhasil membuat ${totalBatches} batch.`;
             outputDiv.innerHTML = resultHTML;
             
             currentActiveResultHTML = resultHTML;
@@ -611,6 +705,9 @@
 
             document.getElementById('saveBtn').style.display = 'none';
             renderHistory();
+            
+            // Otomatis pindah ke tab File setelah save
+            switchTab('history');
         }
 
         function renderHistory() {
@@ -618,11 +715,16 @@
             let container = document.getElementById('historyContainer');
             
             if (history.length === 0) {
-                container.innerHTML = '<div style="color:#86868b; font-size:13px; text-align:center; padding:10px;">No saved history available.</div>';
+                container.innerHTML = `
+                    <div style="text-align:center; padding: 60px 20px; color: var(--md-on-surface-variant);">
+                        <span class="material-symbols-rounded" style="font-size: 64px; opacity: 0.5; margin-bottom: 16px; display:block;">folder_open</span>
+                        <h3 style="margin:0; font-size:18px; font-weight:500; color:var(--md-on-surface);">Tempat untuk file Anda</h3>
+                        <p style="font-size:14px; margin-top:8px;">Belum ada history racikan link yang disimpan.</p>
+                    </div>`;
                 return;
             }
             
-            let html = '';
+            let html = '<h2 style="font-size:18px; margin-bottom:20px; font-weight:500;">File History</h2>';
             history.forEach(item => {
                 html += `
                 <div class="history-item">
@@ -631,8 +733,12 @@
                         <div class="history-date">${item.date}</div>
                     </div>
                     <div class="history-actions">
-                        <button class="hist-btn load-h" onclick="loadHistoryItem(${item.id})">Open</button>
-                        <button class="hist-btn del-h" onclick="deleteHistoryItem(${item.id})">Delete</button>
+                        <button class="hist-btn load-h" onclick="loadHistoryItem(${item.id})">
+                            <span class="material-symbols-rounded">open_in_new</span>
+                        </button>
+                        <button class="hist-btn del-h" onclick="deleteHistoryItem(${item.id})">
+                            <span class="material-symbols-rounded">delete</span>
+                        </button>
                     </div>
                 </div>`;
             });
@@ -643,10 +749,9 @@
             let history = JSON.parse(localStorage.getItem('refal_history')) || [];
             let record = history.find(item => item.id === id);
             if (record) {
-                document.getElementById('status').innerHTML = `Viewing record from history (${record.date})`;
+                document.getElementById('status').innerHTML = `Membuka data dari File (${record.date})`;
                 document.getElementById('outputContainer').innerHTML = record.html;
                 document.getElementById('saveBtn').style.display = 'none';
-                document.getElementById('outputContainer').scrollIntoView({ behavior: 'smooth' });
                 
                 currentActiveResultHTML = record.html;
                 currentActiveItemsCount = record.count;
@@ -655,11 +760,19 @@
                 localStorage.setItem('draft_result', record.html);
                 localStorage.setItem('draft_count', record.count);
                 localStorage.setItem('draft_history_id', id);
+                
+                // Balik ke Beranda buat liat isinya
+                switchTab('home');
+                
+                // Kasih delay dikit biar mulus pas scroll
+                setTimeout(() => {
+                    document.getElementById('outputContainer').scrollIntoView({ behavior: 'smooth' });
+                }, 100);
             }
         }
 
         function deleteHistoryItem(id) {
-            if(confirm("Hapus catatan riwayat ini?")) {
+            if(confirm("Hapus file history ini secara permanen?")) {
                 let history = JSON.parse(localStorage.getItem('refal_history')) || [];
                 history = history.filter(item => item.id !== id);
                 localStorage.setItem('refal_history', JSON.stringify(history));
@@ -687,16 +800,16 @@
 
         function copyToClipboard(btn, text) {
             navigator.clipboard.writeText(text).then(() => {
-                let originalText = btn.innerText;
-                btn.innerText = "Copied ✓";
+                let originalHtml = btn.innerHTML;
+                btn.innerHTML = `<span class="material-symbols-rounded">check</span> Copied`;
                 
-                btn.style.backgroundColor = "#34c759"; 
-                btn.style.boxShadow = "0 2px 8px rgba(52, 199, 89, 0.3)";
+                btn.style.backgroundColor = "var(--md-primary)"; 
+                btn.style.color = "#3e001c";
                 
                 setTimeout(() => {
-                    btn.innerText = originalText;
+                    btn.innerHTML = originalHtml;
                     btn.style.backgroundColor = ""; 
-                    btn.style.boxShadow = "";
+                    btn.style.color = "";
                 }, 1500);
             });
         }
