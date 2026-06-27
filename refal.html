@@ -64,12 +64,13 @@
             color: var(--md-on-surface); 
         }
 
+        /* Desain Ikon Menu Garis 2 (Animasi Putar) */
         .menu-icon {
             color: var(--md-on-surface-variant);
             cursor: pointer;
             padding: 4px;
             border-radius: 50%;
-            transition: background-color 0.2s;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s;
         }
         .menu-icon:active { background-color: var(--md-secondary-container); }
 
@@ -158,43 +159,37 @@
         }
         textarea::placeholder { color: #80868b; }
 
-        /* Action Buttons */
+        /* Action Buttons (Ikon Polos & Rata Kanan) */
         .button-group { 
             display: flex; 
-            gap: 12px; 
-            margin-top: 16px; 
+            justify-content: flex-end; /* Rata kanan */
+            gap: 16px; 
+            margin-top: 8px; /* Dideketin ke kotak */
         }
 
-        button.action-btn {
-            flex: 1; 
-            padding: 16px;
-            background-color: var(--md-primary); 
-            color: var(--md-on-primary); 
-            border: none;
-            border-radius: 16px; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-        button.action-btn:active { opacity: 0.8; }
-        button.action-btn .material-symbols-rounded { font-size: 26px; } /* Ukuran ikon tombol proses */
-
-        button.reset-btn {
-            flex: 1;
-            padding: 16px;
+        button.action-btn, button.reset-btn {
             background-color: transparent; 
-            color: var(--md-on-surface-variant);
-            border: 1px solid var(--md-outline);
-            border-radius: 16px; 
+            border: none;
+            padding: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
         }
-        button.reset-btn:active { background-color: var(--md-secondary-container); }
-        button.reset-btn .material-symbols-rounded { font-size: 26px; } /* Ukuran ikon tombol reset */
+        
+        button.action-btn { color: var(--md-primary); } /* Biru Google */
+        button.reset-btn { color: var(--md-on-surface-variant); } /* Abu-abu */
+        
+        button.action-btn:active, button.reset-btn:active { 
+            opacity: 0.6; 
+            transform: scale(0.9);
+        }
+        
+        button.action-btn .material-symbols-rounded, 
+        button.reset-btn .material-symbols-rounded { 
+            font-size: 26px; 
+        }
 
         button.save-btn {
             width: 100%;
@@ -309,7 +304,7 @@
         .load-h { background-color: var(--md-bg); color: var(--md-on-surface); border: 1px solid var(--md-secondary-container); }
         .del-h { background-color: #fce8e6; color: #d93025; }
 
-        /* Bottom Navigation - Desain Tanpa Bulatan */
+        /* Bottom Navigation */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -343,20 +338,14 @@
             align-items: center;
             justify-content: center;
             border-radius: 16px; 
-            background-color: transparent; /* Pastikan transparan dari awal */
+            background-color: transparent; 
             transition: color 0.2s;
         }
 
         .nav-item .material-symbols-rounded { font-size: 24px; }
         
-        /* State Aktif - Warnanya jadi Biru, TANPA bulatan background */
-        .nav-item.active { 
-            color: var(--md-primary); 
-        }
-        .nav-item.active .nav-icon-wrapper { 
-            background-color: transparent; 
-            color: var(--md-primary); 
-        }
+        .nav-item.active { color: var(--md-primary); }
+        .nav-item.active .nav-icon-wrapper { background-color: transparent; color: var(--md-primary); }
         .nav-item.active .material-symbols-rounded { font-variation-settings: 'FILL' 1; }
 
     </style>
@@ -365,7 +354,7 @@
 
     <header class="app-bar">
         <div class="app-bar-left">
-            <span class="material-symbols-rounded menu-icon" onclick="switchTab('history')">menu</span>
+            <span class="material-symbols-rounded menu-icon" onclick="toggleHistory()">drag_handle</span>
             <h2>AutoMixer</h2>
         </div>
         <div class="app-bar-right">
@@ -392,11 +381,11 @@
             </div>
 
             <div class="button-group">
-                <button class="action-btn" onclick="generateAll()" title="Proses Links">
-                    <span class="material-symbols-rounded">auto_awesome</span>
-                </button>
                 <button class="reset-btn" onclick="resetForm()" title="Reset Form">
                     <span class="material-symbols-rounded">delete_outline</span>
+                </button>
+                <button class="action-btn" onclick="generateAll()" title="Proses Links">
+                    <span class="material-symbols-rounded">auto_awesome</span>
                 </button>
             </div>
         </div>
@@ -427,6 +416,20 @@
     </nav>
 
     <script>
+        let lastActiveMainTab = 'home'; // Menyimpan tab terakhir sblm buka History
+        let isHistoryOpen = false;
+
+        // Logika Pintar untuk Animasi Menu
+        function toggleHistory() {
+            if (isHistoryOpen) {
+                // Kalau lagi buka history, balik ke tab terakhir
+                switchTab(lastActiveMainTab);
+            } else {
+                // Buka tab history
+                switchTab('history');
+            }
+        }
+
         function switchTab(tabName) {
             document.getElementById('tab-home').classList.remove('active');
             document.getElementById('tab-result').classList.remove('active');
@@ -437,9 +440,23 @@
             
             document.getElementById('tab-' + tabName).classList.add('active');
             
+            const menuIcon = document.querySelector('.menu-icon');
+
             if(tabName === 'home' || tabName === 'result') {
                 document.getElementById('nav-' + tabName).classList.add('active');
+                lastActiveMainTab = tabName; // Simpan memori tab ini
+                
+                // Reset ikon kembali ke 2 Garis
+                isHistoryOpen = false;
+                menuIcon.innerText = 'drag_handle';
+                menuIcon.style.transform = 'rotate(0deg)';
+            } else if (tabName === 'history') {
+                // Ubah ikon jadi X dengan animasi putar
+                isHistoryOpen = true;
+                menuIcon.innerText = 'close';
+                menuIcon.style.transform = 'rotate(90deg)';
             }
+
             window.scrollTo(0, 0);
         }
 
@@ -697,7 +714,7 @@
             document.getElementById('saveBtn').style.display = 'none';
             renderHistory();
             
-            switchTab('history');
+            toggleHistory(); // Buka sejarah pakai animasi garis -> X
         }
 
         function renderHistory() {
@@ -751,7 +768,7 @@
                 localStorage.setItem('draft_count', record.count);
                 localStorage.setItem('draft_history_id', id);
                 
-                switchTab('result');
+                switchTab('result'); // Pindah ke tab Hasil
             }
         }
 
