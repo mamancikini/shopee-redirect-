@@ -64,7 +64,6 @@
             color: var(--md-on-surface); 
         }
 
-        /* Desain Ikon Menu Garis 2 (Animasi Putar) */
         .menu-icon {
             color: var(--md-on-surface-variant);
             cursor: pointer;
@@ -159,12 +158,12 @@
         }
         textarea::placeholder { color: #80868b; }
 
-        /* Action Buttons (Ikon Polos & Rata Kanan) */
+        /* Action Buttons */
         .button-group { 
             display: flex; 
-            justify-content: flex-end; /* Rata kanan */
+            justify-content: flex-end; 
             gap: 16px; 
-            margin-top: 8px; /* Dideketin ke kotak */
+            margin-top: 8px; 
         }
 
         button.action-btn, button.reset-btn {
@@ -178,8 +177,8 @@
             transition: transform 0.1s, opacity 0.2s;
         }
         
-        button.action-btn { color: var(--md-primary); } /* Biru Google */
-        button.reset-btn { color: var(--md-on-surface-variant); } /* Abu-abu */
+        button.action-btn { color: var(--md-primary); } 
+        button.reset-btn { color: var(--md-on-surface-variant); } 
         
         button.action-btn:active, button.reset-btn:active { 
             opacity: 0.6; 
@@ -191,36 +190,46 @@
             font-size: 26px; 
         }
 
+        /* Tombol Save Diubah Jadi Ikon Bulat Kotak (Squircle) */
         button.save-btn {
-            width: 100%;
-            padding: 16px;
+            width: 56px;
+            height: 56px;
             background-color: var(--md-primary); 
             color: var(--md-on-primary); 
             border: none;
             border-radius: 16px; 
-            font-size: 15px;
-            font-weight: 500;
-            font-family: 'Google Sans', 'Outfit', sans-serif;
             cursor: pointer;
-            margin-bottom: 20px;
-            display: none;
+            margin: 0 auto 20px auto; /* Buat nengahin tombolnya */
+            display: none; 
+            padding: 0;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+        button.save-btn:active {
+            transform: scale(0.9);
+            opacity: 0.8;
+        }
+        button.save-btn .material-symbols-rounded {
+            font-size: 28px;
+            line-height: 56px; /* Bikin ikon persis di tengah */
+            display: block;
+            text-align: center;
         }
 
         #status { font-weight: 400; color: var(--md-on-surface-variant); margin: 0 0 16px; font-size: 14px; text-align: center; }
 
-        /* Result Cards */
+        /* Result Cards - DIPERPENDEK PADDING & MARGINNYA */
         .result-day {
             background: var(--md-surface);
-            padding: 24px;
-            margin-bottom: 16px;
-            border-radius: 28px;
+            padding: 16px 20px; /* Atas-Bawah 16px (Lebih rapat) */
+            margin-bottom: 12px;
+            border-radius: 24px;
             position: relative;
         }
 
         .result-day h3 { 
             margin-top: 0; 
-            margin-bottom: 16px; 
-            font-size: 18px; 
+            margin-bottom: 12px; /* Dideketin ke kotak teks */
+            font-size: 17px; 
             font-weight: 500; 
             color: var(--md-on-surface); 
             display: flex;
@@ -229,8 +238,8 @@
 
         .posted-toggle {
             position: absolute;
-            top: 24px;
-            right: 24px;
+            top: 14px; /* Disesuaikan sama padding atas yang baru */
+            right: 20px;
             margin: 0;
             display: flex;
             align-items: center;
@@ -239,36 +248,37 @@
         }
         .posted-toggle input[type="checkbox"] { 
             accent-color: var(--md-primary); 
-            width: 22px; 
-            height: 22px; 
+            width: 20px; 
+            height: 20px; 
             margin: 0;
             cursor: pointer;
         }
 
+        /* Kotak Teks Racikan - DIPERPENDEK PADDINGNYA */
         .result-text {
             font-family: ui-monospace, monospace;
             font-size: 13px;
-            line-height: 24px;
+            line-height: 22px; /* Teks agak lebih rapat */
             color: var(--md-on-surface);
             background: var(--md-bg);
-            padding: 16px;
+            padding: 12px 16px; /* Padding dipangkas biar lebih compact */
             border-radius: 16px;
             white-space: pre-wrap;
             word-break: break-all;
-            margin-bottom: 16px;
+            margin-bottom: 8px; /* Dideketin ke ikon tombol */
             border: 1px solid var(--md-secondary-container);
         }
 
         .card-actions-bottom {
             display: flex;
             justify-content: flex-end;
-            gap: 16px;
-            margin-top: -4px; 
+            gap: 12px;
+            margin-top: 0; 
         }
         .action-icon-only {
             background: transparent;
             border: none;
-            padding: 8px;
+            padding: 6px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -392,7 +402,9 @@
 
         <div id="tab-result" class="tab-content">
             <div id="status"></div>
-            <button id="saveBtn" class="save-btn" onclick="saveCurrentToHistory()">Simpan ke File</button>
+            <button id="saveBtn" class="save-btn" onclick="saveCurrentToHistory()" title="Simpan ke File">
+                <span class="material-symbols-rounded">save</span>
+            </button>
             <div id="outputContainer"></div>
         </div>
 
@@ -416,16 +428,13 @@
     </nav>
 
     <script>
-        let lastActiveMainTab = 'home'; // Menyimpan tab terakhir sblm buka History
+        let lastActiveMainTab = 'home'; 
         let isHistoryOpen = false;
 
-        // Logika Pintar untuk Animasi Menu
         function toggleHistory() {
             if (isHistoryOpen) {
-                // Kalau lagi buka history, balik ke tab terakhir
                 switchTab(lastActiveMainTab);
             } else {
-                // Buka tab history
                 switchTab('history');
             }
         }
@@ -444,14 +453,12 @@
 
             if(tabName === 'home' || tabName === 'result') {
                 document.getElementById('nav-' + tabName).classList.add('active');
-                lastActiveMainTab = tabName; // Simpan memori tab ini
+                lastActiveMainTab = tabName; 
                 
-                // Reset ikon kembali ke 2 Garis
                 isHistoryOpen = false;
                 menuIcon.innerText = 'drag_handle';
                 menuIcon.style.transform = 'rotate(0deg)';
             } else if (tabName === 'history') {
-                // Ubah ikon jadi X dengan animasi putar
                 isHistoryOpen = true;
                 menuIcon.innerText = 'close';
                 menuIcon.style.transform = 'rotate(90deg)';
@@ -684,6 +691,7 @@
             
             currentActiveResultHTML = resultHTML;
             currentActiveItemsCount = totalBatches;
+            // Gunakan display block karena udah disetting tengah via margin otomatis
             saveBtn.style.display = 'block';
 
             localStorage.setItem('draft_result', resultHTML);
@@ -714,7 +722,7 @@
             document.getElementById('saveBtn').style.display = 'none';
             renderHistory();
             
-            toggleHistory(); // Buka sejarah pakai animasi garis -> X
+            toggleHistory(); 
         }
 
         function renderHistory() {
@@ -768,7 +776,7 @@
                 localStorage.setItem('draft_count', record.count);
                 localStorage.setItem('draft_history_id', id);
                 
-                switchTab('result'); // Pindah ke tab Hasil
+                switchTab('result');
             }
         }
 
