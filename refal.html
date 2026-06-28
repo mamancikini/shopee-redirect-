@@ -32,7 +32,7 @@
             padding: 0;
             margin: 0;
             -webkit-tap-highlight-color: transparent;
-            padding-bottom: 100px; /* Dikasih ruang dikit biar hasil paling bawah gak ketutup tombol melayang */
+            padding-bottom: 100px; 
         }
 
         h1, h2, h3, label, .nav-item span {
@@ -120,7 +120,7 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Google One Style Cards */
+        /* Google One Style Cards (Beranda Tetap Ada Kotaknya) */
         .box {
             background: var(--md-surface);
             padding: 24px;
@@ -190,20 +190,20 @@
             font-size: 26px; 
         }
 
-        /* Tombol Save Diubah Jadi FAB (Floating Action Button) Melayang */
+        /* FAB Save Button */
         button.save-btn {
             position: fixed;
-            bottom: 84px; /* Melayang di atas navigasi bawah */
-            right: 24px;  /* Nempel di kanan layar */
+            bottom: 84px; 
+            right: 24px;  
             width: 56px;
             height: 56px;
             background-color: var(--md-primary); 
             color: var(--md-on-primary); 
             border: none;
             border-radius: 16px; 
-            box-shadow: 0 4px 14px rgba(10, 86, 208, 0.35); /* Shadow biar keliatan melayang */
+            box-shadow: 0 4px 14px rgba(10, 86, 208, 0.35); 
             cursor: pointer;
-            z-index: 90; /* Selalu di atas konten racikan */
+            z-index: 90; 
             display: none; 
             padding: 0;
             transition: transform 0.1s, opacity 0.2s;
@@ -221,20 +221,29 @@
 
         #status { font-weight: 400; color: var(--md-on-surface-variant); margin: 0 0 16px; font-size: 14px; text-align: center; }
 
-        /* Result Cards */
+        /* ========================================================
+           UI BATCH ala TWITTER FEED (Modifikasi CSS)
+           ======================================================== */
+        
         .result-day {
-            background: var(--md-surface);
-            padding: 16px 20px; 
-            margin-bottom: 12px;
-            border-radius: 24px;
+            background: transparent; /* Ilangin kotak abu */
+            padding: 16px 0; /* Padding atas bawah aja */
+            margin-bottom: 0; /* Margin reset */
+            border-radius: 0; /* Ga perlu melengkung */
+            border-bottom: 1px solid var(--md-secondary-container); /* Garis batas ala feed */
             position: relative;
+        }
+        
+        /* Hapus garis di batch paling bawah biar clean */
+        .result-day:last-child {
+            border-bottom: none;
         }
 
         .result-day h3 { 
             margin-top: 0; 
-            margin-bottom: 12px; 
-            font-size: 17px; 
-            font-weight: 500; 
+            margin-bottom: 6px; /* Dideketin ke teks */
+            font-size: 16px; /* Ukuran font ala nama pengguna Twitter */
+            font-weight: 600; 
             color: var(--md-on-surface); 
             display: flex;
             align-items: center;
@@ -243,7 +252,7 @@
         .posted-toggle {
             position: absolute;
             top: 14px; 
-            right: 20px;
+            right: 0; /* Dirapetin ke kanan batas layar */
             margin: 0;
             display: flex;
             align-items: center;
@@ -252,50 +261,52 @@
         }
         .posted-toggle input[type="checkbox"] { 
             accent-color: var(--md-primary); 
-            width: 20px; 
-            height: 20px; 
+            width: 18px; /* Dikecilin dikit biar balance */
+            height: 18px; 
             margin: 0;
             cursor: pointer;
         }
 
         .result-text {
-            font-family: ui-monospace, monospace;
-            font-size: 13px;
-            line-height: 22px; 
+            font-family: 'Roboto', sans-serif; /* Teks natural ala Twitter */
+            font-size: 14px;
+            line-height: 1.5; 
             color: var(--md-on-surface);
-            background: var(--md-bg);
-            padding: 12px 16px; 
-            border-radius: 16px;
+            background: transparent; /* Ilangin background abu */
+            padding: 0; /* Ilangin padding dalem */
+            border-radius: 0; /* Ilangin border radius */
             white-space: pre-wrap;
             word-break: break-all;
-            margin-bottom: 8px; 
-            border: 1px solid var(--md-secondary-container);
+            margin-bottom: 12px; 
+            border: none; /* Ilangin garis pinggir */
         }
 
         .card-actions-bottom {
             display: flex;
-            justify-content: flex-end;
-            gap: 12px;
+            justify-content: flex-start; /* Diratain KIRI ala tombol Share/Retweet */
+            gap: 28px; /* Jarak antar ikon */
             margin-top: 0; 
         }
         .action-icon-only {
             background: transparent;
             border: none;
-            padding: 6px;
+            padding: 4px 8px 4px 0; /* Area sentuh dilebarin tanpa geser ikon */
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.1s, opacity 0.2s;
+            transition: transform 0.1s, color 0.2s;
+            color: var(--md-on-surface-variant); /* Warna abu-abu Twitter */
         }
         .action-icon-only:active {
             transform: scale(0.9);
-            opacity: 0.6;
+            color: var(--md-on-surface); /* Kalo ditekan agak gelap */
         }
-        .action-icon-only .material-symbols-rounded { font-size: 24px; }
-        
-        .copy-btn { color: var(--md-on-surface-variant); }
-        .share-btn { color: var(--md-primary); }
+        .action-icon-only .material-symbols-rounded { 
+            font-size: 18px; /* Ikon kecil imut ala Twitter */
+        }
+
+        /* ======================================================== */
 
         /* History Tab Styles */
         .history-item {
