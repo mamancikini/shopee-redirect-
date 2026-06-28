@@ -32,7 +32,7 @@
             padding: 0;
             margin: 0;
             -webkit-tap-highlight-color: transparent;
-            padding-bottom: 80px; 
+            padding-bottom: 100px; /* Dikasih ruang dikit biar hasil paling bawah gak ketutup tombol melayang */
         }
 
         h1, h2, h3, label, .nav-item span {
@@ -190,16 +190,20 @@
             font-size: 26px; 
         }
 
-        /* Tombol Save Diubah Jadi Ikon Bulat Kotak (Squircle) */
+        /* Tombol Save Diubah Jadi FAB (Floating Action Button) Melayang */
         button.save-btn {
+            position: fixed;
+            bottom: 84px; /* Melayang di atas navigasi bawah */
+            right: 24px;  /* Nempel di kanan layar */
             width: 56px;
             height: 56px;
             background-color: var(--md-primary); 
             color: var(--md-on-primary); 
             border: none;
             border-radius: 16px; 
+            box-shadow: 0 4px 14px rgba(10, 86, 208, 0.35); /* Shadow biar keliatan melayang */
             cursor: pointer;
-            margin: 0 auto 20px auto; /* Buat nengahin tombolnya */
+            z-index: 90; /* Selalu di atas konten racikan */
             display: none; 
             padding: 0;
             transition: transform 0.1s, opacity 0.2s;
@@ -210,17 +214,17 @@
         }
         button.save-btn .material-symbols-rounded {
             font-size: 28px;
-            line-height: 56px; /* Bikin ikon persis di tengah */
+            line-height: 56px; 
             display: block;
             text-align: center;
         }
 
         #status { font-weight: 400; color: var(--md-on-surface-variant); margin: 0 0 16px; font-size: 14px; text-align: center; }
 
-        /* Result Cards - DIPERPENDEK PADDING & MARGINNYA */
+        /* Result Cards */
         .result-day {
             background: var(--md-surface);
-            padding: 16px 20px; /* Atas-Bawah 16px (Lebih rapat) */
+            padding: 16px 20px; 
             margin-bottom: 12px;
             border-radius: 24px;
             position: relative;
@@ -228,7 +232,7 @@
 
         .result-day h3 { 
             margin-top: 0; 
-            margin-bottom: 12px; /* Dideketin ke kotak teks */
+            margin-bottom: 12px; 
             font-size: 17px; 
             font-weight: 500; 
             color: var(--md-on-surface); 
@@ -238,7 +242,7 @@
 
         .posted-toggle {
             position: absolute;
-            top: 14px; /* Disesuaikan sama padding atas yang baru */
+            top: 14px; 
             right: 20px;
             margin: 0;
             display: flex;
@@ -254,18 +258,17 @@
             cursor: pointer;
         }
 
-        /* Kotak Teks Racikan - DIPERPENDEK PADDINGNYA */
         .result-text {
             font-family: ui-monospace, monospace;
             font-size: 13px;
-            line-height: 22px; /* Teks agak lebih rapat */
+            line-height: 22px; 
             color: var(--md-on-surface);
             background: var(--md-bg);
-            padding: 12px 16px; /* Padding dipangkas biar lebih compact */
+            padding: 12px 16px; 
             border-radius: 16px;
             white-space: pre-wrap;
             word-break: break-all;
-            margin-bottom: 8px; /* Dideketin ke ikon tombol */
+            margin-bottom: 8px; 
             border: 1px solid var(--md-secondary-container);
         }
 
@@ -691,7 +694,6 @@
             
             currentActiveResultHTML = resultHTML;
             currentActiveItemsCount = totalBatches;
-            // Gunakan display block karena udah disetting tengah via margin otomatis
             saveBtn.style.display = 'block';
 
             localStorage.setItem('draft_result', resultHTML);
