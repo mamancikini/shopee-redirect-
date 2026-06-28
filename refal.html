@@ -298,7 +298,7 @@
         .action-icon-only .material-symbols-rounded { font-size: 18px; }
 
         /* ========================================================
-           DRAWER GMAIL STYLE - PERBAIKAN ANIMASI REAL-TIME
+           DRAWER GMAIL STYLE - MULUS VIA KLIK (SWIPE DIHAPUS)
            ======================================================== */
         #tab-history {
             display: block !important;
@@ -309,21 +309,20 @@
             height: 100vh;
             z-index: 1000;
             pointer-events: none; 
-            /* Diganti jadi background color biar gampang diatur opacity-nya pas digeser */
             background-color: rgba(0, 0, 0, 0); 
-            transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: background-color 0.3s ease;
         }
 
         #tab-history.active { 
             pointer-events: auto; 
-            background-color: rgba(0, 0, 0, 0.4); /* Backdrop gelap sempurna */
+            background-color: rgba(0, 0, 0, 0.4); 
         }
 
         #historyContainer {
             position: absolute;
             top: 0; 
-            left: 0; /* Ganti sistem dari left ke transform untuk animasi GPU murni */
-            transform: translateX(-100%); /* Sembunyi di kiri */
+            left: 0; 
+            transform: translateX(-100%); 
             width: 80%; 
             max-width: 320px; 
             height: 100%;
@@ -334,11 +333,10 @@
             padding: 24px 20px;
             box-sizing: border-box;
             z-index: 1001;
-            will-change: transform; /* Rahasia supaya swipe jadi super ringan dan anti ngelag */
         }
 
         #tab-history.active #historyContainer { 
-            transform: translateX(0); /* Terbuka */
+            transform: translateX(0); 
         }
 
         .history-item {
@@ -476,12 +474,11 @@
         let lastActiveMainTab = 'home'; 
         let isHistoryOpen = false;
 
-        // FUNGSI GMAIL DRAWER YANG DISAJAJI BUAT ANIMASI REAL-TIME
+        // FUNGSI GMAIL DRAWER (Murni by Click)
         function toggleHistory(forceOpen) {
             const menuIcon = document.querySelector('.menu-icon');
             const historyTab = document.getElementById('tab-history');
 
-            // Cek paksaan open/close dari gesekan (swipe logic)
             if (forceOpen !== undefined) {
                 isHistoryOpen = forceOpen;
             } else {
@@ -519,119 +516,15 @@
             window.scrollTo(0, 0);
         }
 
-        // ========================================================
-        // FITUR SWIPE (MESIN BARU - SUPER MULUS & REAL-TIME)
-        // ========================================================
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let isDraggingDrawer = false;
-        let isVerticalScroll = false;
-        let drawerWidth = 0;
-
-        document.addEventListener('touchstart', e => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            isVerticalScroll = false;
-            drawerWidth = document.getElementById('historyContainer').offsetWidth || 320;
-            
-            // Cek apakah posisi jari siap buat narik laci menu (History)
-            if (!isHistoryOpen && lastActiveMainTab === 'home' && touchStartX < 40) {
-                // Sentuhan dimulai dari kiri banget
-                isDraggingDrawer = true;
-                // Matiin transisi animasi sementara biar laci langsung nempel ke jari (100% real-time)
-                document.getElementById('tab-history').style.pointerEvents = 'auto';
-                document.getElementById('historyContainer').style.transition = 'none';
-                document.getElementById('tab-history').style.transition = 'none';
-            } else if (isHistoryOpen) {
-                // Sentuhan buat nutup laci
-                isDraggingDrawer = true;
-                document.getElementById('historyContainer').style.transition = 'none';
-                document.getElementById('tab-history').style.transition = 'none';
-            }
-        }, {passive: true});
-
-        document.addEventListener('touchmove', e => {
-            if (!touchStartX) return;
-            let touchMoveX = e.touches[0].clientX;
-            let touchMoveY = e.touches[0].clientY;
-            let diffX = touchMoveX - touchStartX;
-            let diffY = touchMoveY - touchStartY;
-
-            // Kalau lu cuma scroll ke atas/bawah doang pas laci kebuka, batalkan tarikan laci
-            if (isDraggingDrawer && !isVerticalScroll) {
-                if (Math.abs(diffY) > Math.abs(diffX)) {
-                    isVerticalScroll = true;
-                    isDraggingDrawer = false;
-                    return;
-                }
-            }
-
-            // MESIN REAL-TIME: Posisi laci bakal persis di bawah jari lu pas ditahan
-            if (isDraggingDrawer && Math.abs(diffX) > Math.abs(diffY)) {
-                let container = document.getElementById('historyContainer');
-                let backdrop = document.getElementById('tab-history');
-                
-                if (!isHistoryOpen && diffX > 0) {
-                    // Posisi Narik Laci
-                    let moveX = Math.min(0, -100 + (diffX / drawerWidth) * 100);
-                    container.style.transform = `translateX(${moveX}%)`;
-                    backdrop.style.backgroundColor = `rgba(0,0,0,${Math.min(0.4, (diffX/drawerWidth)*0.4)})`;
-                } else if (isHistoryOpen && diffX < 0) {
-                    // Posisi Ngedorong Laci ke dalem
-                    let moveX = Math.max(-100, (diffX / drawerWidth) * 100);
-                    container.style.transform = `translateX(${moveX}%)`;
-                    backdrop.style.backgroundColor = `rgba(0,0,0,${Math.max(0, 0.4 - (Math.abs(diffX)/drawerWidth)*0.4)})`;
-                }
-            }
-        }, {passive: true});
-
-        document.addEventListener('touchend', e => {
-            if (!touchStartX) return;
-            // Gunakan changedTouches karena jari udah diangkat dari layar
-            let touchEndX = e.changedTouches[0].clientX;
-            let touchEndY = e.changedTouches[0].clientY;
-            let diffX = touchEndX - touchStartX;
-            let diffY = touchEndY - touchStartY;
-
-            let container = document.getElementById('historyContainer');
-            let backdrop = document.getElementById('tab-history');
-
-            if (isDraggingDrawer) {
-                isDraggingDrawer = false;
-                
-                // Nyalain sistem transisi otomatisnya lagi biar pas lepas jari, nutup/bukanya mulus
-                container.style.transition = '';
-                container.style.transform = '';
-                backdrop.style.transition = '';
-                backdrop.style.backgroundColor = '';
-                backdrop.style.pointerEvents = '';
-                
-                // Pengecekan cerdas: Kalau udah ditarik melebihi sepertiga layar, otomatis buka full. Kalau nggak, tutup lagi.
-                if (!isHistoryOpen && diffX > drawerWidth / 3) {
-                    toggleHistory(true);
-                } else if (isHistoryOpen && diffX < -(drawerWidth / 4)) {
-                    toggleHistory(false);
-                }
-            } else {
-                // Ini sistem swipe biasa buat pindah Beranda <-> Hasil (Dibikin lebih sensitif/ringan)
-                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) { 
-                    if (diffX < 0 && lastActiveMainTab === 'home' && !isHistoryOpen) {
-                        switchTab('result'); // Geser kiri buka hasil
-                    } else if (diffX > 0 && lastActiveMainTab === 'result' && !isHistoryOpen) {
-                        switchTab('home'); // Geser kanan balik ke beranda
-                    }
-                }
-            }
-            touchStartX = 0;
-            touchStartY = 0;
-        }, {passive: true});
-
         // Nutup laci kalau lu klik di area gelap (Backdrop)
         document.getElementById('tab-history').addEventListener('click', function(e) {
             if (e.target === this && isHistoryOpen) {
                 toggleHistory(false);
             }
         });
+
+        // ========================================================
+        // (Semua fitur sensor sentuh jari / swipe udah dihapus bersih di sini)
         // ========================================================
 
         let currentActiveResultHTML = '';
@@ -888,7 +781,7 @@
             document.getElementById('saveBtn').style.display = 'none';
             renderHistory();
             
-            toggleHistory(true); // Langsung tarik laci kebuka dengan mulus pas simpan
+            toggleHistory(true); 
         }
 
         function renderHistory() {
@@ -948,8 +841,8 @@
                 localStorage.setItem('draft_count', record.count);
                 localStorage.setItem('draft_history_id', id);
                 
-                toggleHistory(false); // Nutup laci pakai animasi mulus
-                switchTab('result'); // Pindah tab
+                toggleHistory(false); 
+                switchTab('result'); 
             }
         }
 
