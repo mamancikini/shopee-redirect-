@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Link AutoMixer</title>
     
-    <!-- Import Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
@@ -366,7 +365,7 @@
             height: 64px; 
             background-color: var(--md-bg);
             display: flex;
-            justify-content: space-around; /* Menyebarkan 3 tombol rata */
+            justify-content: space-around;
             align-items: center;
             z-index: 100;
             padding-bottom: env(safe-area-inset-bottom);
@@ -420,7 +419,6 @@
 
     <main class="main-content">
         
-        <!-- BERANDA TAB -->
         <div id="tab-home" class="tab-content active">
             <div class="hero">
                 <h1>Penyederhanaan dan<br>manajemen link Anda</h1>
@@ -446,40 +444,33 @@
             </div>
         </div>
 
-        <!-- HASIL TAB -->
         <div id="tab-result" class="tab-content">
             <div id="status"></div>
-            <!-- Tombol simpan FAB Melayang -->
             <button id="saveBtn" class="save-btn" onclick="saveCurrentToHistory()" title="Simpan ke File">
                 <span class="material-symbols-rounded">save</span>
             </button>
             <div id="outputContainer"></div>
         </div>
 
-        <!-- HISTORI / FILE TAB -->
         <div id="tab-history" class="tab-content">
             <div id="historyContainer"></div>
         </div>
 
     </main>
 
-    <!-- BOTTOM NAVIGATION DENGAN 3 TOMBOL -->
     <nav class="bottom-nav">
-        <!-- Tab Beranda (Kiri) -->
         <div class="nav-item active" onclick="switchTab('home')" id="nav-home">
             <div class="nav-icon-wrapper">
                 <span class="material-symbols-rounded">home</span>
             </div>
         </div>
         
-        <!-- Tombol Change Mode (Tengah) -->
         <div class="nav-item" onclick="toggleMode()" id="nav-mode">
             <div class="nav-icon-wrapper" style="color: var(--md-on-surface-variant);">
                 <span class="material-symbols-rounded" id="modeIcon">swap_horiz</span>
             </div>
         </div>
 
-        <!-- Tab Hasil (Kanan) -->
         <div class="nav-item" onclick="switchTab('result')" id="nav-result">
             <div class="nav-icon-wrapper">
                 <span class="material-symbols-rounded">article</span>
@@ -488,12 +479,10 @@
     </nav>
 
     <script>
-        // MESIN BARU: VARIABLE PENYIMPAN MODE (Mixer / Replacer)
-        let appMode = 'mixer'; // Default standar
+        let appMode = 'mixer'; 
         let lastActiveMainTab = 'home'; 
         let isHistoryOpen = false;
 
-        // FUNGSI GANTI MODE
         function toggleMode() {
             let modeIcon = document.getElementById('modeIcon');
             let statusDiv = document.getElementById('status');
@@ -501,14 +490,14 @@
             
             if (appMode === 'mixer') {
                 appMode = 'replacer';
-                modeIcon.innerText = 'sync_alt'; // Ikon berubah
-                modeIcon.style.color = 'var(--md-primary)'; // Nyala biru
+                modeIcon.innerText = 'sync_alt'; 
+                modeIcon.style.color = 'var(--md-primary)'; 
                 heroTitle.innerHTML = 'Clone Target dan<br>Ganti Link Shopee';
                 alert("MODE GANTI SHOPEE AKTIF!\nLink Aceimg target bakal dipertahankan murni, cuma link Shopee doang yang bakal diganti pake link lu bro.");
                 if(statusDiv) statusDiv.innerHTML = "Mode Aktif: Clone & Replace Shopee";
             } else {
                 appMode = 'mixer';
-                modeIcon.innerText = 'swap_horiz'; // Balik ke awal
+                modeIcon.innerText = 'swap_horiz'; 
                 modeIcon.style.color = 'var(--md-on-surface-variant)';
                 heroTitle.innerHTML = 'Penyederhanaan dan<br>manajemen link Anda';
                 alert("MODE STANDAR AKTIF!\nLink akan dimix normal (Aceimg ke Vercel + Shopee).");
@@ -718,9 +707,7 @@
                         foundUrls.forEach(u => {
                             let cleanUrl = u.replace(/["']/g, "").trim();
 
-                            // MESIN KEPUTUSAN (LOGIC SWITCHER)
                             if (appMode === 'mixer') {
-                                // MODE 1: OTOMATIS CONVERT ACEIMG KE VERCEL
                                 if (cleanUrl.includes('aceimg.com/upload/')) {
                                     let id = cleanUrl.split('?f=')[1]; 
                                     if(id) {
@@ -732,14 +719,11 @@
                                     shopeeIndex++; 
                                 }
                             } else {
-                                // MODE 2: REPLACER (CLONE TARGET)
-                                // Biarin aceimg tetep utuh, cuma replace link Shopee doang!
                                 if (cleanUrl.includes('shopee.co.id') || cleanUrl.includes('shp.ee')) {
                                     let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
                                     batchLinksData.push({ url: myShopee, type: "shop" });
                                     shopeeIndex++; 
                                 } else {
-                                    // Masukin URL aslinya (Aceimg) tanpa disentuh
                                     batchLinksData.push({ url: cleanUrl, type: "original" });
                                 }
                             }
@@ -753,7 +737,9 @@
                             }
 
                             batchLinksData.forEach((item, idx) => {
-                                plainTextArr.push(item.url);
+                                // Babat habis https:// atau http:// biar clean persis di Twitter
+                                let cleanDisplayUrl = item.url.replace(/^https?:\/\//i, '');
+                                plainTextArr.push(cleanDisplayUrl);
                             });
 
                             let racikanText = plainTextArr.join('\n'); 
