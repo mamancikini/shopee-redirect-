@@ -338,7 +338,7 @@
         }
         .action-icon-only .material-symbols-rounded { font-size: 18px; }
 
-        /* DRAWER GMAIL STYLE (DIUBAH BIAR ANIMASI SWIPE JALAN) */
+        /* DRAWER GMAIL STYLE */
         #tab-history {
             display: block !important;
             position: fixed;
@@ -372,7 +372,7 @@
             padding: 24px 20px;
             box-sizing: border-box;
             z-index: 1001;
-            will-change: transform; /* Bikin super enteng pas ditarik jari */
+            will-change: transform;
         }
 
         #tab-history.active #historyContainer { 
@@ -569,7 +569,7 @@
                 <span class="material-symbols-rounded">home</span>
             </div>
         </div>
-
+        
         <div class="nav-item" onclick="switchTab('result')" id="nav-result">
             <div class="nav-icon-wrapper">
                 <span class="material-symbols-rounded">article</span>
@@ -582,7 +582,6 @@
         let lastActiveMainTab = 'home'; 
         let isHistoryOpen = false;
 
-        // FUNGSI GANTI MODE LEWAT SAKLAR
         function toggleMode() {
             let isChecked = document.getElementById('modeSwitch').checked;
             let statusDiv = document.getElementById('status');
@@ -641,7 +640,6 @@
             window.scrollTo(0, 0);
         }
 
-        // Nutup laci kalau lu klik di area gelap (Backdrop)
         document.getElementById('tab-history').addEventListener('click', function(e) {
             if (e.target === this && isHistoryOpen) {
                 toggleHistory(false);
@@ -649,7 +647,7 @@
         });
 
         // ========================================================
-        // MESIN SWIPE REAL-TIME SUPER MULUS 
+        // MESIN SWIPE REAL-TIME (VERSI ULTRA SMOOTH & BEBAS KAKU)
         // ========================================================
         let touchStartX = 0;
         let touchStartY = 0;
@@ -665,6 +663,16 @@
             isDraggingDrawer = false;
             isSwipingTab = false;
             drawerWidth = document.getElementById('historyContainer').offsetWidth || 320;
+            
+            // PERBAIKAN: Kalau lagi buka drawer, kita langsung siap nerima gesture nutup
+            if (isHistoryOpen) {
+                let container = document.getElementById('historyContainer');
+                let backdrop = document.getElementById('tab-history');
+                
+                // Matiin animasi sementara biar nggak "ngelawan" gerakan jari
+                container.style.transition = 'none';
+                backdrop.style.transition = 'none';
+            }
         }, {passive: true});
 
         document.addEventListener('touchmove', e => {
@@ -705,10 +713,12 @@
                 let backdrop = document.getElementById('tab-history');
                 
                 if (!isHistoryOpen && diffX > 0) {
+                    // Posisi Narik Laci
                     let moveX = Math.min(0, -100 + (diffX / drawerWidth) * 100);
                     container.style.transform = `translateX(${moveX}%)`;
                     backdrop.style.backgroundColor = `rgba(0,0,0,${Math.min(0.4, (diffX/drawerWidth)*0.4)})`;
                 } else if (isHistoryOpen && diffX < 0) {
+                    // PERBAIKAN: Posisi Ngedorong Laci (Jauh lebih smooth sekarang)
                     let moveX = Math.max(-100, (diffX / drawerWidth) * 100);
                     container.style.transform = `translateX(${moveX}%)`;
                     backdrop.style.backgroundColor = `rgba(0,0,0,${Math.max(0, 0.4 - (Math.abs(diffX)/drawerWidth)*0.4)})`;
