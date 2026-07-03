@@ -161,7 +161,7 @@
         .button-group { 
             display: flex; 
             justify-content: flex-end; 
-            align-items: center; /* Ditengahin secara vertikal biar rapi sama saklar */
+            align-items: center; 
             gap: 16px; 
             margin-top: 16px; 
         }
@@ -190,15 +190,13 @@
             font-size: 26px; 
         }
 
-        /* ========================================================
-           TOGGLE SWITCH (SAKLAR) CSS
-           ======================================================== */
+        /* TOGGLE SWITCH (SAKLAR) CSS */
         .switch {
             position: relative;
             display: inline-block;
             width: 48px;
             height: 26px;
-            margin-right: auto; /* Otomatis geser ke kiri ngejauh dari ikon Hapus & Proses */
+            margin-right: auto; 
         }
         .switch input { 
             opacity: 0;
@@ -225,11 +223,11 @@
             border-radius: 50%;
         }
         input:checked + .slider {
-            background-color: var(--md-primary-container); /* Biru muda saat aktif */
+            background-color: var(--md-primary-container); 
         }
         input:checked + .slider:before {
             transform: translateX(22px);
-            background-color: var(--md-primary); /* Biru tua saat aktif */
+            background-color: var(--md-primary); 
         }
 
         /* FAB Save Button */
@@ -340,7 +338,7 @@
         }
         .action-icon-only .material-symbols-rounded { font-size: 18px; }
 
-        /* DRAWER GMAIL STYLE */
+        /* DRAWER GMAIL STYLE (DIUBAH BIAR ANIMASI SWIPE JALAN) */
         #tab-history {
             display: block !important;
             position: fixed;
@@ -374,6 +372,7 @@
             padding: 24px 20px;
             box-sizing: border-box;
             z-index: 1001;
+            will-change: transform; /* Bikin super enteng pas ditarik jari */
         }
 
         #tab-history.active #historyContainer { 
@@ -457,7 +456,7 @@
         .dropdown-menu button:active { background-color: var(--md-surface); }
         .dropdown-menu button.danger { color: #d93025; } 
 
-        /* Bottom Navigation (Sekarang cuma 2 menu) */
+        /* Bottom Navigation */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -466,7 +465,7 @@
             height: 64px; 
             background-color: var(--md-bg);
             display: flex;
-            justify-content: space-around; /* Rata sempurna berdua doang */
+            justify-content: space-around;
             align-items: center;
             z-index: 100;
             padding-bottom: env(safe-area-inset-bottom);
@@ -570,7 +569,7 @@
                 <span class="material-symbols-rounded">home</span>
             </div>
         </div>
-        
+
         <div class="nav-item" onclick="switchTab('result')" id="nav-result">
             <div class="nav-icon-wrapper">
                 <span class="material-symbols-rounded">article</span>
@@ -585,7 +584,6 @@
 
         // FUNGSI GANTI MODE LEWAT SAKLAR
         function toggleMode() {
-            // Cek posisi saklar (dicentang apa nggak)
             let isChecked = document.getElementById('modeSwitch').checked;
             let statusDiv = document.getElementById('status');
             let heroTitle = document.querySelector('.hero h1');
@@ -593,12 +591,10 @@
             if (isChecked) {
                 appMode = 'replacer';
                 heroTitle.innerHTML = 'Clone Target dan<br>Ganti Link Shopee';
-                alert("MODE GANTI SHOPEE AKTIF!\nLink Aceimg target bakal dipertahankan murni, cuma link Shopee doang yang bakal diganti pake link lu bro.");
                 if(statusDiv) statusDiv.innerHTML = "Mode Aktif: Clone & Replace Shopee";
             } else {
                 appMode = 'mixer';
                 heroTitle.innerHTML = 'Penyederhanaan dan<br>manajemen link Anda';
-                alert("MODE STANDAR AKTIF!\nLink akan dimix normal (Aceimg ke Vercel + Shopee).");
                 if(statusDiv) statusDiv.innerHTML = "Mode Aktif: AutoMixer Standar";
             }
         }
@@ -607,7 +603,6 @@
             const menuIcon = document.querySelector('.menu-icon');
             const historyTab = document.getElementById('tab-history');
 
-            // Cek kalau ada menu titik 3 yg lagi kebuka, tutup dulu
             document.querySelectorAll('.dropdown-menu').forEach(menu => menu.style.display = 'none');
 
             if (forceOpen !== undefined) {
@@ -646,6 +641,7 @@
             window.scrollTo(0, 0);
         }
 
+        // Nutup laci kalau lu klik di area gelap (Backdrop)
         document.getElementById('tab-history').addEventListener('click', function(e) {
             if (e.target === this && isHistoryOpen) {
                 toggleHistory(false);
@@ -653,12 +649,120 @@
         });
 
         // ========================================================
-        // LOGIKA MENU TITIK TIGA (DROPDOWN)
+        // MESIN SWIPE REAL-TIME SUPER MULUS 
         // ========================================================
-        function toggleMenu(id, event) {
-            event.stopPropagation(); // Mencegah load file pas ngeklik titik tiga
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let isDraggingDrawer = false;
+        let isSwipingTab = false;
+        let isVerticalScroll = false;
+        let drawerWidth = 0;
+
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            isVerticalScroll = false;
+            isDraggingDrawer = false;
+            isSwipingTab = false;
+            drawerWidth = document.getElementById('historyContainer').offsetWidth || 320;
+        }, {passive: true});
+
+        document.addEventListener('touchmove', e => {
+            if (!touchStartX) return;
+            let touchMoveX = e.touches[0].clientX;
+            let touchMoveY = e.touches[0].clientY;
+            let diffX = touchMoveX - touchStartX;
+            let diffY = touchMoveY - touchStartY;
+
+            // Nentuin niat jari user pas geser
+            if (!isDraggingDrawer && !isSwipingTab && !isVerticalScroll) {
+                if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 10) {
+                    isVerticalScroll = true; 
+                } else if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 10) {
+                    if (isHistoryOpen) {
+                        isDraggingDrawer = true; 
+                    } else if (lastActiveMainTab === 'home') {
+                        if (diffX > 0) {
+                            // Geser ke kanan dari Beranda -> Buka Laci Menu
+                            isDraggingDrawer = true;
+                            document.getElementById('tab-history').style.pointerEvents = 'auto';
+                            document.getElementById('historyContainer').style.transition = 'none';
+                            document.getElementById('tab-history').style.transition = 'none';
+                        } else {
+                            // Geser ke kiri dari Beranda -> Pindah ke Tab Hasil
+                            isSwipingTab = true;
+                        }
+                    } else if (lastActiveMainTab === 'result') {
+                        // Dari tab Hasil cuma bisa geser tab ke kiri/kanan
+                        isSwipingTab = true;
+                    }
+                }
+            }
+
+            // Eksekusi kalau niatnya narik Laci Menu (History)
+            if (isDraggingDrawer) {
+                let container = document.getElementById('historyContainer');
+                let backdrop = document.getElementById('tab-history');
+                
+                if (!isHistoryOpen && diffX > 0) {
+                    let moveX = Math.min(0, -100 + (diffX / drawerWidth) * 100);
+                    container.style.transform = `translateX(${moveX}%)`;
+                    backdrop.style.backgroundColor = `rgba(0,0,0,${Math.min(0.4, (diffX/drawerWidth)*0.4)})`;
+                } else if (isHistoryOpen && diffX < 0) {
+                    let moveX = Math.max(-100, (diffX / drawerWidth) * 100);
+                    container.style.transform = `translateX(${moveX}%)`;
+                    backdrop.style.backgroundColor = `rgba(0,0,0,${Math.max(0, 0.4 - (Math.abs(diffX)/drawerWidth)*0.4)})`;
+                }
+            }
+        }, {passive: true});
+
+        document.addEventListener('touchend', e => {
+            if (!touchStartX) return;
+            let touchEndX = e.changedTouches[0].clientX;
+            let touchEndY = e.changedTouches[0].clientY;
+            let diffX = touchEndX - touchStartX;
+            let diffY = touchEndY - touchStartY;
+
+            if (isDraggingDrawer) {
+                let container = document.getElementById('historyContainer');
+                let backdrop = document.getElementById('tab-history');
+                
+                // Balikin nyala animasi CSS-nya
+                container.style.transition = '';
+                container.style.transform = '';
+                backdrop.style.transition = '';
+                backdrop.style.backgroundColor = '';
+                backdrop.style.pointerEvents = '';
+                
+                // Buka kalau geseran ditarik lebih dari 1/3 layar
+                if (!isHistoryOpen && diffX > drawerWidth / 3) {
+                    toggleHistory(true);
+                } else if (isHistoryOpen && diffX < -(drawerWidth / 4)) {
+                    toggleHistory(false);
+                } else {
+                    toggleHistory(isHistoryOpen); // Kalo nanggung, balikin kondisi awal
+                }
+            } else if (isSwipingTab) {
+                // Eksekusi Pindah Tab Beranda <-> Hasil
+                if (diffX < -40 && lastActiveMainTab === 'home' && !isHistoryOpen) {
+                    switchTab('result'); 
+                } else if (diffX > 40 && lastActiveMainTab === 'result' && !isHistoryOpen) {
+                    switchTab('home'); 
+                }
+            }
             
-            // Tutup menu lain yang mungkin kebuka
+            touchStartX = 0;
+            touchStartY = 0;
+            isDraggingDrawer = false;
+            isSwipingTab = false;
+            isVerticalScroll = false;
+        }, {passive: true});
+        // ========================================================
+
+
+        function toggleMenu(id, event) {
+            event.stopPropagation(); 
+            
             document.querySelectorAll('.dropdown-menu').forEach(menu => {
                 if(menu.id !== `menu-${id}`) menu.style.display = 'none';
             });
@@ -667,7 +771,6 @@
             menu.style.display = menu.style.display === 'none' ? 'flex' : 'none';
         }
 
-        // Kalau ngeklik area lain, tutup menu dropdownnya
         document.addEventListener('click', function(e) {
             if(!e.target.closest('.history-actions')) {
                 document.querySelectorAll('.dropdown-menu').forEach(menu => {
@@ -688,13 +791,12 @@
                 if (newTitle !== null && newTitle.trim() !== "") {
                     history[index].title = newTitle.trim();
                     localStorage.setItem('refal_history', JSON.stringify(history));
-                    renderHistory(); // Refresh tampilan laci
+                    renderHistory(); 
                 } else {
                     document.getElementById(`menu-${id}`).style.display = 'none';
                 }
             }
         }
-        // ========================================================
 
         let currentActiveResultHTML = '';
         let currentActiveItemsCount = 0;
@@ -852,7 +954,6 @@
                         foundUrls.forEach(u => {
                             let cleanUrl = u.replace(/["']/g, "").trim();
 
-                            // MESIN KEPUTUSAN (LOGIC SWITCHER)
                             if (appMode === 'mixer') {
                                 if (cleanUrl.includes('aceimg.com/upload/')) {
                                     let id = cleanUrl.split('?f=')[1]; 
