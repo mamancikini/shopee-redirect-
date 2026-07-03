@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Link AutoMixer</title>
     
-    <!-- Import Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
@@ -162,6 +161,7 @@
         .button-group { 
             display: flex; 
             justify-content: flex-end; 
+            align-items: center; /* Ditengahin secara vertikal biar rapi sama saklar */
             gap: 16px; 
             margin-top: 16px; 
         }
@@ -188,6 +188,48 @@
         button.action-btn .material-symbols-rounded, 
         button.reset-btn .material-symbols-rounded { 
             font-size: 26px; 
+        }
+
+        /* ========================================================
+           TOGGLE SWITCH (SAKLAR) CSS
+           ======================================================== */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+            margin-right: auto; /* Otomatis geser ke kiri ngejauh dari ikon Hapus & Proses */
+        }
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--md-secondary-container);
+            transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 26px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--md-on-surface-variant);
+            transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: var(--md-primary-container); /* Biru muda saat aktif */
+        }
+        input:checked + .slider:before {
+            transform: translateX(22px);
+            background-color: var(--md-primary); /* Biru tua saat aktif */
         }
 
         /* FAB Save Button */
@@ -338,9 +380,7 @@
             transform: translateX(0); 
         }
 
-        /* ========================================================
-           UPDATE DESAIN LIST HISTORY (Bisa diklik, Menu Titik 3)
-           ======================================================== */
+        /* UPDATE DESAIN LIST HISTORY */
         .history-item {
             background: var(--md-surface);
             padding: 16px 20px;
@@ -349,12 +389,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            cursor: pointer; /* Kursor jari (bisa diklik semua) */
-            position: relative; /* Buat nempelin menu dropdown */
+            cursor: pointer; 
+            position: relative; 
             transition: background-color 0.2s;
         }
         .history-item:active {
-            background-color: var(--md-secondary-container); /* Efek pas diklik */
+            background-color: var(--md-secondary-container); 
         }
         .history-info { 
             font-size: 15px; 
@@ -374,7 +414,6 @@
             position: relative;
         }
         
-        /* Tombol Titik Tiga Baru */
         .more-btn {
             background: transparent;
             border: none;
@@ -389,7 +428,7 @@
         }
         .more-btn:active { background-color: var(--md-secondary-container); }
 
-        /* Dropdown Menu buat Ubah Nama & Hapus */
+        /* Dropdown Menu */
         .dropdown-menu {
             position: absolute;
             right: 0;
@@ -397,7 +436,7 @@
             background: var(--md-bg);
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            display: none; /* Disembunyikan dulu */
+            display: none; 
             flex-direction: column;
             overflow: hidden;
             z-index: 1002;
@@ -416,9 +455,9 @@
             transition: background-color 0.2s;
         }
         .dropdown-menu button:active { background-color: var(--md-surface); }
-        .dropdown-menu button.danger { color: #d93025; } /* Warna merah buat hapus */
+        .dropdown-menu button.danger { color: #d93025; } 
 
-        /* Bottom Navigation */
+        /* Bottom Navigation (Sekarang cuma 2 menu) */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -427,7 +466,7 @@
             height: 64px; 
             background-color: var(--md-bg);
             display: flex;
-            justify-content: space-around;
+            justify-content: space-around; /* Rata sempurna berdua doang */
             align-items: center;
             z-index: 100;
             padding-bottom: env(safe-area-inset-bottom);
@@ -481,7 +520,6 @@
 
     <main class="main-content">
         
-        <!-- BERANDA TAB -->
         <div id="tab-home" class="tab-content active">
             <div class="hero">
                 <h1>Penyederhanaan dan<br>manajemen link Anda</h1>
@@ -498,6 +536,11 @@
             </div>
 
             <div class="button-group">
+                <label class="switch" title="Ganti Mode (Mixer / Replacer)">
+                    <input type="checkbox" id="modeSwitch" onchange="toggleMode()">
+                    <span class="slider"></span>
+                </label>
+                
                 <button class="reset-btn" onclick="resetForm()" title="Reset Form">
                     <span class="material-symbols-rounded">delete_outline</span>
                 </button>
@@ -507,40 +550,27 @@
             </div>
         </div>
 
-        <!-- HASIL TAB -->
         <div id="tab-result" class="tab-content">
             <div id="status"></div>
-            <!-- Tombol simpan FAB Melayang -->
             <button id="saveBtn" class="save-btn" onclick="saveCurrentToHistory()" title="Simpan ke File">
                 <span class="material-symbols-rounded">save</span>
             </button>
             <div id="outputContainer"></div>
         </div>
 
-        <!-- HISTORI / FILE TAB -->
         <div id="tab-history" class="tab-content">
             <div id="historyContainer"></div>
         </div>
 
     </main>
 
-    <!-- BOTTOM NAVIGATION -->
     <nav class="bottom-nav">
-        <!-- Tab Beranda (Kiri) -->
         <div class="nav-item active" onclick="switchTab('home')" id="nav-home">
             <div class="nav-icon-wrapper">
                 <span class="material-symbols-rounded">home</span>
             </div>
         </div>
         
-        <!-- Tombol Change Mode (Tengah) -->
-        <div class="nav-item" onclick="toggleMode()" id="nav-mode">
-            <div class="nav-icon-wrapper" style="color: var(--md-on-surface-variant);">
-                <span class="material-symbols-rounded" id="modeIcon">swap_horiz</span>
-            </div>
-        </div>
-
-        <!-- Tab Hasil (Kanan) -->
         <div class="nav-item" onclick="switchTab('result')" id="nav-result">
             <div class="nav-icon-wrapper">
                 <span class="material-symbols-rounded">article</span>
@@ -553,22 +583,20 @@
         let lastActiveMainTab = 'home'; 
         let isHistoryOpen = false;
 
+        // FUNGSI GANTI MODE LEWAT SAKLAR
         function toggleMode() {
-            let modeIcon = document.getElementById('modeIcon');
+            // Cek posisi saklar (dicentang apa nggak)
+            let isChecked = document.getElementById('modeSwitch').checked;
             let statusDiv = document.getElementById('status');
             let heroTitle = document.querySelector('.hero h1');
             
-            if (appMode === 'mixer') {
+            if (isChecked) {
                 appMode = 'replacer';
-                modeIcon.innerText = 'sync_alt'; 
-                modeIcon.style.color = 'var(--md-primary)'; 
                 heroTitle.innerHTML = 'Clone Target dan<br>Ganti Link Shopee';
                 alert("MODE GANTI SHOPEE AKTIF!\nLink Aceimg target bakal dipertahankan murni, cuma link Shopee doang yang bakal diganti pake link lu bro.");
                 if(statusDiv) statusDiv.innerHTML = "Mode Aktif: Clone & Replace Shopee";
             } else {
                 appMode = 'mixer';
-                modeIcon.innerText = 'swap_horiz'; 
-                modeIcon.style.color = 'var(--md-on-surface-variant)';
                 heroTitle.innerHTML = 'Penyederhanaan dan<br>manajemen link Anda';
                 alert("MODE STANDAR AKTIF!\nLink akan dimix normal (Aceimg ke Vercel + Shopee).");
                 if(statusDiv) statusDiv.innerHTML = "Mode Aktif: AutoMixer Standar";
@@ -824,6 +852,7 @@
                         foundUrls.forEach(u => {
                             let cleanUrl = u.replace(/["']/g, "").trim();
 
+                            // MESIN KEPUTUSAN (LOGIC SWITCHER)
                             if (appMode === 'mixer') {
                                 if (cleanUrl.includes('aceimg.com/upload/')) {
                                     let id = cleanUrl.split('?f=')[1]; 
@@ -919,7 +948,7 @@
             
             let newRecord = {
                 id: Date.now(),
-                title: `Batch Record (${currentActiveItemsCount} Items)`, // <-- Title Default
+                title: `Batch Record (${currentActiveItemsCount} Items)`,
                 date: timestamp,
                 count: currentActiveItemsCount,
                 html: currentActiveResultHTML
@@ -959,10 +988,8 @@
                 </div>`;
                 
             history.forEach(item => {
-                // Gunakan title custom jika ada, kalau ga pakai default
                 let displayTitle = item.title || `Batch Record (${item.count} Items)`;
                 
-                // Card item sekarang ditempel onclick buat load
                 html += `
                 <div class="history-item" onclick="loadHistoryItem(${item.id})">
                     <div>
@@ -974,7 +1001,6 @@
                             <span class="material-symbols-rounded">more_vert</span>
                         </button>
                         
-                        <!-- Dropdown Menu -->
                         <div class="dropdown-menu" id="menu-${item.id}">
                             <button onclick="renameHistoryItem(${item.id}, event)">Ubah Nama</button>
                             <button class="danger" onclick="deleteHistoryItem(${item.id}, event)">Hapus</button>
@@ -1008,7 +1034,7 @@
         }
 
         function deleteHistoryItem(id, event) {
-            event.stopPropagation(); // Mencegah file keload pas hapus
+            event.stopPropagation();
             if(confirm("Hapus file history ini secara permanen?")) {
                 let history = JSON.parse(localStorage.getItem('refal_history')) || [];
                 history = history.filter(item => item.id !== id);
