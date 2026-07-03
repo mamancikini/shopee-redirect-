@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Link AutoMixer</title>
     
+    <!-- Import Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
@@ -337,24 +338,85 @@
             transform: translateX(0); 
         }
 
+        /* ========================================================
+           UPDATE DESAIN LIST HISTORY (Bisa diklik, Menu Titik 3)
+           ======================================================== */
         .history-item {
             background: var(--md-surface);
-            padding: 20px;
+            padding: 16px 20px;
             border-radius: 20px;
             margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            cursor: pointer; /* Kursor jari (bisa diklik semua) */
+            position: relative; /* Buat nempelin menu dropdown */
+            transition: background-color 0.2s;
         }
-        .history-info { font-size: 15px; font-weight: 500; color: var(--md-on-surface); font-family: 'Google Sans', 'Outfit', sans-serif; }
-        .history-date { font-size: 12px; color: var(--md-on-surface-variant); margin-top: 4px; }
-        .history-actions { display: flex; gap: 8px; }
-        .hist-btn {
-            border: none; padding: 10px; border-radius: 50%; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+        .history-item:active {
+            background-color: var(--md-secondary-container); /* Efek pas diklik */
         }
-        .load-h { background-color: var(--md-bg); color: var(--md-on-surface); border: 1px solid var(--md-secondary-container); }
-        .del-h { background-color: #fce8e6; color: #d93025; }
+        .history-info { 
+            font-size: 15px; 
+            font-weight: 500; 
+            color: var(--md-on-surface); 
+            font-family: 'Google Sans', 'Outfit', sans-serif; 
+            margin-bottom: 4px;
+        }
+        .history-date { 
+            font-size: 12px; 
+            color: var(--md-on-surface-variant); 
+        }
+        
+        .history-actions { 
+            display: flex; 
+            align-items: center; 
+            position: relative;
+        }
+        
+        /* Tombol Titik Tiga Baru */
+        .more-btn {
+            background: transparent;
+            border: none;
+            color: var(--md-on-surface-variant);
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+        .more-btn:active { background-color: var(--md-secondary-container); }
+
+        /* Dropdown Menu buat Ubah Nama & Hapus */
+        .dropdown-menu {
+            position: absolute;
+            right: 0;
+            top: 40px;
+            background: var(--md-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: none; /* Disembunyikan dulu */
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1002;
+            min-width: 140px;
+        }
+        .dropdown-menu button {
+            background: transparent;
+            border: none;
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Google Sans', 'Outfit', sans-serif;
+            color: var(--md-on-surface);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .dropdown-menu button:active { background-color: var(--md-surface); }
+        .dropdown-menu button.danger { color: #d93025; } /* Warna merah buat hapus */
 
         /* Bottom Navigation */
         .bottom-nav {
@@ -419,6 +481,7 @@
 
     <main class="main-content">
         
+        <!-- BERANDA TAB -->
         <div id="tab-home" class="tab-content active">
             <div class="hero">
                 <h1>Penyederhanaan dan<br>manajemen link Anda</h1>
@@ -444,33 +507,40 @@
             </div>
         </div>
 
+        <!-- HASIL TAB -->
         <div id="tab-result" class="tab-content">
             <div id="status"></div>
+            <!-- Tombol simpan FAB Melayang -->
             <button id="saveBtn" class="save-btn" onclick="saveCurrentToHistory()" title="Simpan ke File">
                 <span class="material-symbols-rounded">save</span>
             </button>
             <div id="outputContainer"></div>
         </div>
 
+        <!-- HISTORI / FILE TAB -->
         <div id="tab-history" class="tab-content">
             <div id="historyContainer"></div>
         </div>
 
     </main>
 
+    <!-- BOTTOM NAVIGATION -->
     <nav class="bottom-nav">
+        <!-- Tab Beranda (Kiri) -->
         <div class="nav-item active" onclick="switchTab('home')" id="nav-home">
             <div class="nav-icon-wrapper">
                 <span class="material-symbols-rounded">home</span>
             </div>
         </div>
         
+        <!-- Tombol Change Mode (Tengah) -->
         <div class="nav-item" onclick="toggleMode()" id="nav-mode">
             <div class="nav-icon-wrapper" style="color: var(--md-on-surface-variant);">
                 <span class="material-symbols-rounded" id="modeIcon">swap_horiz</span>
             </div>
         </div>
 
+        <!-- Tab Hasil (Kanan) -->
         <div class="nav-item" onclick="switchTab('result')" id="nav-result">
             <div class="nav-icon-wrapper">
                 <span class="material-symbols-rounded">article</span>
@@ -508,6 +578,9 @@
         function toggleHistory(forceOpen) {
             const menuIcon = document.querySelector('.menu-icon');
             const historyTab = document.getElementById('tab-history');
+
+            // Cek kalau ada menu titik 3 yg lagi kebuka, tutup dulu
+            document.querySelectorAll('.dropdown-menu').forEach(menu => menu.style.display = 'none');
 
             if (forceOpen !== undefined) {
                 isHistoryOpen = forceOpen;
@@ -550,6 +623,50 @@
                 toggleHistory(false);
             }
         });
+
+        // ========================================================
+        // LOGIKA MENU TITIK TIGA (DROPDOWN)
+        // ========================================================
+        function toggleMenu(id, event) {
+            event.stopPropagation(); // Mencegah load file pas ngeklik titik tiga
+            
+            // Tutup menu lain yang mungkin kebuka
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                if(menu.id !== `menu-${id}`) menu.style.display = 'none';
+            });
+            
+            let menu = document.getElementById(`menu-${id}`);
+            menu.style.display = menu.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        // Kalau ngeklik area lain, tutup menu dropdownnya
+        document.addEventListener('click', function(e) {
+            if(!e.target.closest('.history-actions')) {
+                document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                    menu.style.display = 'none';
+                });
+            }
+        });
+
+        function renameHistoryItem(id, event) {
+            event.stopPropagation();
+            let history = JSON.parse(localStorage.getItem('refal_history')) || [];
+            let index = history.findIndex(item => item.id === id);
+            
+            if (index !== -1) {
+                let currentTitle = history[index].title || `Batch Record (${history[index].count} Items)`;
+                let newTitle = prompt("Masukkan nama baru untuk file ini:", currentTitle);
+                
+                if (newTitle !== null && newTitle.trim() !== "") {
+                    history[index].title = newTitle.trim();
+                    localStorage.setItem('refal_history', JSON.stringify(history));
+                    renderHistory(); // Refresh tampilan laci
+                } else {
+                    document.getElementById(`menu-${id}`).style.display = 'none';
+                }
+            }
+        }
+        // ========================================================
 
         let currentActiveResultHTML = '';
         let currentActiveItemsCount = 0;
@@ -737,7 +854,6 @@
                             }
 
                             batchLinksData.forEach((item, idx) => {
-                                // Babat habis https:// atau http:// biar clean persis di Twitter
                                 let cleanDisplayUrl = item.url.replace(/^https?:\/\//i, '');
                                 plainTextArr.push(cleanDisplayUrl);
                             });
@@ -803,6 +919,7 @@
             
             let newRecord = {
                 id: Date.now(),
+                title: `Batch Record (${currentActiveItemsCount} Items)`, // <-- Title Default
                 date: timestamp,
                 count: currentActiveItemsCount,
                 html: currentActiveResultHTML
@@ -842,19 +959,26 @@
                 </div>`;
                 
             history.forEach(item => {
+                // Gunakan title custom jika ada, kalau ga pakai default
+                let displayTitle = item.title || `Batch Record (${item.count} Items)`;
+                
+                // Card item sekarang ditempel onclick buat load
                 html += `
-                <div class="history-item">
+                <div class="history-item" onclick="loadHistoryItem(${item.id})">
                     <div>
-                        <div class="history-info">Batch Record (${item.count} Items)</div>
+                        <div class="history-info">${displayTitle}</div>
                         <div class="history-date">${item.date}</div>
                     </div>
                     <div class="history-actions">
-                        <button class="hist-btn load-h" onclick="loadHistoryItem(${item.id})">
-                            <span class="material-symbols-rounded">open_in_new</span>
+                        <button class="more-btn" onclick="toggleMenu(${item.id}, event)">
+                            <span class="material-symbols-rounded">more_vert</span>
                         </button>
-                        <button class="hist-btn del-h" onclick="deleteHistoryItem(${item.id})">
-                            <span class="material-symbols-rounded">delete</span>
-                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div class="dropdown-menu" id="menu-${item.id}">
+                            <button onclick="renameHistoryItem(${item.id}, event)">Ubah Nama</button>
+                            <button class="danger" onclick="deleteHistoryItem(${item.id}, event)">Hapus</button>
+                        </div>
                     </div>
                 </div>`;
             });
@@ -865,7 +989,8 @@
             let history = JSON.parse(localStorage.getItem('refal_history')) || [];
             let record = history.find(item => item.id === id);
             if (record) {
-                document.getElementById('status').innerHTML = `Membuka data dari File (${record.date})`;
+                let displayTitle = record.title || `Batch Record (${record.count} Items)`;
+                document.getElementById('status').innerHTML = `Membuka data dari File: ${displayTitle}`;
                 document.getElementById('outputContainer').innerHTML = record.html;
                 document.getElementById('saveBtn').style.display = 'none';
                 
@@ -882,12 +1007,15 @@
             }
         }
 
-        function deleteHistoryItem(id) {
+        function deleteHistoryItem(id, event) {
+            event.stopPropagation(); // Mencegah file keload pas hapus
             if(confirm("Hapus file history ini secara permanen?")) {
                 let history = JSON.parse(localStorage.getItem('refal_history')) || [];
                 history = history.filter(item => item.id !== id);
                 localStorage.setItem('refal_history', JSON.stringify(history));
                 renderHistory();
+            } else {
+                document.getElementById(`menu-${id}`).style.display = 'none';
             }
         }
 
