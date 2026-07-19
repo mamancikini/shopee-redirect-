@@ -536,10 +536,10 @@
                 <textarea id="inputTweet" placeholder="Tempel link cuitan Anda di sini..."></textarea>
             </div>
 
-            <!-- KOTAK 3 BARU: DIKEMBALIKAN DENGAN SEMPURNA -->
+            <!-- KOTAK 3 BARU: DIUBAH LABELNYA SAJA JADI 2x2 -->
             <div class="box" style="border-bottom: none;">
-                <label style="color: var(--md-primary);">URLs (Gabung 3x3)</label>
-                <textarea id="inputMultiTweet" placeholder="Tempel banyak link cuitan khusus untuk digabung jadi 3x3..."></textarea>
+                <label style="color: var(--md-primary);">URLs (Gabung 2x2)</label>
+                <textarea id="inputMultiTweet" placeholder="Tempel teks judul dan link video mentah untuk digabung jadi 2x2..."></textarea>
             </div>
 
             <div class="button-group">
@@ -958,7 +958,7 @@
             let tweetUrls = rawTweetInput.match(/(https?:\/\/[^\s]+)/g) || [];
             let multiUrls = rawMultiInput.match(/(https?:\/\/[^\s]+)/g) || [];
 
-            if (shopeeRaw.length === 0 || (tweetUrls.length === 0 && multiUrls.length === 0)) {
+            if (shopeeRaw.length === 0 || (tweetUrls.length === 0 && rawMultiInput.trim() === '')) {
                 alert("Silakan isi Shopee Links dan salah satu kotak URLs.");
                 return;
             }
@@ -1065,64 +1065,50 @@
             }
 
             // ======================================================
-            // PROSES KOTAK 3 (MULTI-URLs GABUNG 3x3 DGN ROTASI JUDUL)
+            // PROSES KOTAK 3 (MULTI-URLs GABUNG 2x2 TANPA API TWITTER)
             // ======================================================
-            if (multiUrls.length > 0) {
+            if (rawMultiInput.trim() !== '') {
                 let allCaptions = [];
-                let allAceimgLinks = [];
+                let allVideoLinks = [];
 
-                // TAHAP 1: Kumpulin semua judul dan link aceimg
-                for (let url of multiUrls) {
-                    try {
-                        let apiUrl = url.trim().replace(/(https?:\/\/)?(www\.)?(twitter\.com|x\.com)/, 'https://api.vxtwitter.com').split('?')[0];
-                        let response;
-                        
-                        try {
-                            response = await fetch(apiUrl);
-                            if (!response.ok) throw new Error("Gagal jalur utama");
-                        } catch (err) {
-                            let proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
-                            response = await fetch(proxyUrl);
-                        }
-
-                        if (!response || !response.ok) continue;
-                        
-                        let data = await response.json();
-                        let fullText = data.text;
-                        let urlRegex = /(https?:\/\/[^\s]+)/g;
-                        let foundUrls = fullText.match(urlRegex) || [];
-                        let caption = fullText.replace(urlRegex, '').trim();
-
-                        // Kumpulin semua judul yang gak kosong ke dalem array
-                        if (caption !== '') {
-                            allCaptions.push(caption);
-                        }
-
+                // TAHAP 1: Ekstrak judul dan link video langsung dari teks mentah
+                let multiLines = rawMultiInput.split('\n').map(s => s.trim()).filter(s => s !== '');
+                
+                multiLines.forEach(line => {
+                    let urlRegex = /(https?:\/\/[^\s]+)/g;
+                    let foundUrls = line.match(urlRegex);
+                    
+                    if (foundUrls) {
                         foundUrls.forEach(u => {
-                            let cleanUrl = u.replace(/["']/g, "").trim();
-                            // HANYA ambil link aceimg murni
-                            if (cleanUrl.includes('aceimg.com/upload/')) {
-                                allAceimgLinks.push(cleanUrl);
+                            // Ambil semua link selain shopee untuk dijadikan list video
+                            if (!u.includes('shopee.co.id')) {
+                                allVideoLinks.push(u.replace(/["']/g, "").trim());
                             }
                         });
-                    } catch (e) { console.log("Failed to process multi: " + url); }
-                }
+                        // Sisa teks di baris itu dijadikan caption
+                        let captionText = line.replace(urlRegex, '').trim();
+                        if (captionText !== '') allCaptions.push(captionText);
+                    } else {
+                        // Jika tidak ada URL sama sekali, anggap murni sebagai judul/caption
+                        allCaptions.push(line);
+                    }
+                });
 
-                // TAHAP 2: Pecah jadi 3 link video per batch
-                let batchIndex = 0; // Buat ngitung urutan pembagian judul
-                for (let i = 0; i < allAceimgLinks.length; i += 3) {
-                    let chunk = allAceimgLinks.slice(i, i + 3);
+                // TAHAP 2: Pecah jadi 2 link video per batch (Format 2x2)
+                let batchIndex = 0; 
+                for (let i = 0; i < allVideoLinks.length; i += 2) {
+                    let chunk = allVideoLinks.slice(i, i + 2);
                     let plainTextArr = [];
                     
-                    // KASIH JUDUL BEDA-BEDA TIAP BATCH (Digilir dari daftar judul yg kekumpul)
+                    // KASIH JUDUL BEDA-BEDA TIAP BATCH
                     if (allCaptions.length > 0) {
                         let currentCaption = allCaptions[batchIndex % allCaptions.length];
                         plainTextArr.push(currentCaption);
                     }
 
-                    chunk.forEach(aceUrl => {
+                    chunk.forEach(vidUrl => {
                         // Masukin Link Video Murni (tanpa https)
-                        plainTextArr.push(aceUrl.replace(/^https?:\/\//i, ''));
+                        plainTextArr.push(vidUrl.replace(/^https?:\/\//i, ''));
                         
                         // Masukin Link Shopee (tanpa https)
                         if (shopeeRaw.length > 0) {
@@ -1139,7 +1125,7 @@
                         seenBatches.add(racikanText);
                         resultHTML += `
                         <div class="result-day">
-                            <h3 style="color: var(--md-primary);">Batch ${dayCounter} (Gabung)</h3>
+                            <h3 style="color: var(--md-primary);">Batch ${dayCounter} (Gabung 2x2)</h3>
                             <label class="posted-toggle" title="Tandai sudah diposting">
                                 <input type="checkbox" onchange="toggleDone(this)">
                             </label>
@@ -1155,7 +1141,7 @@
                         </div>`;
                         dayCounter++;
                     }
-                    batchIndex++; // Lanjut ke judul berikutnya buat batch selanjutnya
+                    batchIndex++; 
                 }
             }
 
