@@ -539,7 +539,7 @@
             <!-- KOTAK 3 -->
             <div class="box" style="border-bottom: none;">
                 <label style="color: var(--md-primary);">URLs (Gabung 2x2)</label>
-                <textarea id="inputMultiTweet" placeholder="Tempel teks judul dan link video mentah di sini..."></textarea>
+                <textarea id="inputMultiTweet" placeholder="Tempel kumpulan link cuitan Twitter di sini..."></textarea>
             </div>
 
             <div class="button-group">
@@ -955,15 +955,15 @@
             let rawTweetInput = tInput.value;
             let rawMultiInput = mInput.value;
             
-            // Regex standar yang mewajibkan awalan URL buat Kotak 2
             let tweetUrls = rawTweetInput.match(/(https?:\/\/[^\s]+)/g) || [];
+            let multiUrls = rawMultiInput.match(/(https?:\/\/[^\s]+)/g) || [];
 
-            if (shopeeRaw.length === 0 || (tweetUrls.length === 0 && rawMultiInput.trim() === '')) {
+            if (shopeeRaw.length === 0 || (tweetUrls.length === 0 && multiUrls.length === 0)) {
                 alert("Silakan isi Shopee Links dan salah satu kotak URLs.");
                 return;
             }
 
-            status.innerHTML = "Memproses data...";
+            status.innerHTML = "Memproses data (harap tunggu)...";
             outputDiv.innerHTML = '';
             saveBtn.style.display = 'none';
             currentActiveHistoryId = null; 
@@ -975,7 +975,7 @@
             let seenBatches = new Set(); 
 
             // ======================================================
-            // PROSES KOTAK 2 (URL STANDAR / REPLACER) DENGAN API TWITTER
+            // PROSES KOTAK 2 (URL STANDAR / REPLACER) 
             // ======================================================
             for (let url of tweetUrls) {
                 try {
@@ -1065,42 +1065,61 @@
             }
 
             // ======================================================
-            // PROSES KOTAK 3 (GABUNG 2x2 TANPA WAJIB HTTPS)
+            // PROSES KOTAK 3 (GABUNG 2x2 DENGAN API TWITTER KEMBALI)
             // ======================================================
-            if (rawMultiInput.trim() !== '') {
+            if (multiUrls.length > 0) {
                 let allCaptions = [];
                 let allVideoLinks = [];
 
-                let multiLines = rawMultiInput.split('\n').map(s => s.trim()).filter(s => s !== '');
-                
-                // REGEX SAKTI: Bisa deteksi URL walaupun tanpa https:// di depannya
-                let looseUrlRegex = /(?:https?:\/\/)?(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{2,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/gi;
-
-                multiLines.forEach(line => {
-                    let foundUrls = line.match(looseUrlRegex);
-                    
-                    if (foundUrls) {
-                        foundUrls.forEach(u => {
-                            if (!u.includes('shopee.co.id')) {
-                                allVideoLinks.push(u.replace(/["']/g, "").trim());
+                // TAHAP 1: EKSTRAK DATA (Sedot dari Twitter pakai API)
+                for (let url of multiUrls) {
+                    if (url.includes('x.com') || url.includes('twitter.com')) {
+                        try {
+                            let apiUrl = url.trim().replace(/(https?:\/\/)?(www\.)?(twitter\.com|x\.com)/, 'https://api.vxtwitter.com').split('?')[0];
+                            let response;
+                            
+                            try {
+                                response = await fetch(apiUrl);
+                                if (!response.ok) throw new Error("Gagal jalur utama");
+                            } catch (err) {
+                                let proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
+                                response = await fetch(proxyUrl);
                             }
-                        });
-                        // Hapus URL dari kalimat untuk menyisakan judul/caption
-                        let captionText = line.replace(looseUrlRegex, '').trim();
-                        if (captionText !== '') allCaptions.push(captionText);
-                    } else {
-                        // Kalau di baris itu murni teks (gak ada URL sama sekali)
-                        allCaptions.push(line);
-                    }
-                });
 
-                // Proses pemecahan menjadi 2 Video per batch
+                            if (!response || !response.ok) continue;
+                            
+                            let data = await response.json();
+                            let fullText = data.text;
+                            let urlRegex = /(https?:\/\/[^\s]+)/g;
+                            let foundUrls = fullText.match(urlRegex) || [];
+
+                            // Ambil Caption
+                            let captionText = fullText.replace(urlRegex, '').trim();
+                            if (captionText !== '') allCaptions.push(captionText);
+
+                            // Saring URL: Hanya ambil link video (kayak aceimg/vdko) yg ada di DALEM cuitan
+                            foundUrls.forEach(u => {
+                                let cleanUrl = u.replace(/["']/g, "").trim();
+                                if (!cleanUrl.includes('x.com') && !cleanUrl.includes('twitter.com') && !cleanUrl.includes('shopee.co.id') && !cleanUrl.includes('t.co')) {
+                                    allVideoLinks.push(cleanUrl);
+                                }
+                            });
+                        } catch (e) { console.log("Gagal proses link twitter di Kotak 3: " + url); }
+                    } else {
+                        // Jaga-jaga kalau user iseng masukin link aceimg mentah juga di Kotak 3
+                        if (!url.includes('shopee.co.id')) {
+                            allVideoLinks.push(url.replace(/["']/g, "").trim());
+                        }
+                    }
+                }
+
+                // TAHAP 2: PECAH JADI 2x2
                 let batchIndex = 0; 
                 for (let i = 0; i < allVideoLinks.length; i += 2) {
-                    let chunk = allVideoLinks.slice(i, i + 2); // Ambil 2 video (atau sisa 1)
+                    let chunk = allVideoLinks.slice(i, i + 2); 
                     let plainTextArr = [];
                     
-                    // Putar-putar daftar judul sesuai antrean batch
+                    // Rotasi Judul/Caption
                     if (allCaptions.length > 0) {
                         let currentCaption = allCaptions[batchIndex % allCaptions.length];
                         plainTextArr.push(currentCaption);
@@ -1110,7 +1129,7 @@
                         // Masukin Link Video
                         plainTextArr.push(vidUrl.replace(/^https?:\/\//i, ''));
                         
-                        // Masukin Link Shopee sebagai pasangannya
+                        // Masukin Link Shopee (Pasangan)
                         if (shopeeRaw.length > 0) {
                             let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
                             plainTextArr.push(myShopee.replace(/^https?:\/\//i, ''));
