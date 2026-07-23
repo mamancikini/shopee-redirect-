@@ -1,19 +1,226 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Link AutoMixer</title>
+    <title>Meme Generator & AutoMixer Hub</title>
     
-    <!-- Import Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Import Font dari Google (Gabungan Meme Gen & AutoMixer) -->
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bangers&family=Bebas+Neue&family=Black+Ops+One&family=Bungee&family=Carter+One&family=Caveat+Brush&family=Chewy&family=Creepster&family=Knewave&family=Lobster&family=Luckiest+Guy&family=Montserrat:wght@900&family=Oswald:wght@700&family=Pacifico&family=Permanent+Marker&family=Press+Start+2P&family=Righteous&family=Russo+One&family=Shrikhand&family=Titan+One&family=VT323&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet" />
-
+    
     <style>
+        /* ========================================================
+           BAGIAN 1: CSS MEME GENERATOR (TETAP UTUH)
+           ======================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        body {
+            background-color: #0b0f19;
+            color: #e2e8f0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            flex-direction: column; 
+        }
+        
+        .preview-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            background-color: #070b14;
+            height: 55vh; 
+            flex-shrink: 0;
+        }
+        
+        canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 100%; 
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            background-color: white;
+            cursor: pointer;
+        }
+        
+        .status-text {
+            margin-top: 10px;
+            color: #64748b;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .sidebar {
+            width: 100%;
+            flex-grow: 1;
+            background-color: #111827;
+            padding: 20px;
+            border-top: 1px solid #1f2937;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .header-action {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+        }
+        
+        .header-action h2 {
+            font-size: 1.3rem;
+            color: #f8fafc;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        
+        .btn-icon svg { width: 20px; height: 20px; }
+        .btn-generate { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .btn-generate:hover { background: linear-gradient(135deg, #2563eb, #1d4ed8); transform: translateY(-2px); }
+        .btn-random-font { background: linear-gradient(135deg, #a855f7, #9333ea); }
+        .btn-random-font:hover { background: linear-gradient(135deg, #9333ea, #7e22ce); transform: translateY(-2px); }
+        .btn-download { background: linear-gradient(135deg, #10b981, #059669); }
+        .btn-download:hover { background: linear-gradient(135deg, #059669, #047857); transform: translateY(-2px); }
+
+        .tab-nav {
+            display: flex;
+            gap: 20px;
+            border-bottom: 1px solid #374151;
+            padding-bottom: 10px;
+            margin-bottom: 5px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            color: #64748b;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 5px 0;
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        .tab-btn:hover { color: #94a3b8; }
+        .tab-btn.active { color: #3b82f6; }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -11px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #3b82f6;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .tab-content {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active { display: flex; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .control-group { display: flex; flex-direction: column; gap: 8px; }
+        
+        label {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        textarea {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #374151;
+            background-color: #1f2937;
+            color: white;
+            font-size: 1.1rem;
+            resize: vertical;
+            min-height: 90px;
+            text-align: center;
+            transition: 0.2s;
+        }
+        
+        textarea:focus { outline: none; border-color: #3b82f6; }
+
+        select {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #374151;
+            background-color: #1f2937;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+            accent-color: #3b82f6;
+            height: 6px;
+            background: #374151;
+            border-radius: 5px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+        }
+
+        @media (min-width: 769px) {
+            body { flex-direction: row; }
+            .preview-area { height: 100vh; flex-grow: 1; }
+            canvas { max-height: 85vh; }
+            .sidebar { width: 380px; flex-grow: 0; border-top: none; border-left: 1px solid #1f2937; box-shadow: -2px 0 10px rgba(0,0,0,0.2); }
+        }
+
+        /* ========================================================
+           BAGIAN 2: CSS AUTOMIXER (TERISOLASI DENGAN ID WRAPPER)
+           ======================================================== */
         :root {
-            /* Tema Putih (Light Theme) ala Ekosistem Google */
             --md-bg: #ffffff;
             --md-surface: #f1f3f4; 
             --md-on-surface: #1f1f1f;
@@ -26,930 +233,729 @@
             --md-outline: #747775;
         }
 
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--md-bg); 
+        #automixer-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 650px; /* Bikin layarnya fixed kayak HP */
+            background-color: var(--md-bg);
             color: var(--md-on-surface);
-            padding: 0;
-            margin: 0;
-            -webkit-tap-highlight-color: transparent;
-            padding-bottom: 100px; 
-            overflow-x: hidden; 
+            border-radius: 12px;
+            overflow: hidden;
+            font-family: 'Roboto', sans-serif;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
-        h1, h2, h3, label, .nav-item span {
+        #automixer-wrapper h1, #automixer-wrapper h2, #automixer-wrapper h3, 
+        #automixer-wrapper .am-label, #automixer-wrapper .am-nav-item span {
             font-family: 'Google Sans', 'Outfit', sans-serif;
         }
 
-        /* Top App Bar */
-        .app-bar {
+        #automixer-wrapper .am-label {
+            text-transform: none;
+            letter-spacing: normal;
+            font-weight: 600; 
+            font-size: 16px; 
+            color: var(--md-on-surface); 
+            margin-bottom: 6px; 
+            display: block;
+        }
+
+        #automixer-wrapper .am-app-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 12px 20px;
-            position: sticky;
-            top: 0;
             background-color: var(--md-bg);
             z-index: 10;
+            flex-shrink: 0;
+            border-bottom: 1px solid var(--md-secondary-container);
         }
 
-        .app-bar-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .app-bar h2 { 
-            font-size: 22px; 
-            font-weight: 500; 
-            margin: 0; 
-            color: var(--md-on-surface); 
-        }
-
-        .menu-icon {
+        #automixer-wrapper .am-app-bar-left { display: flex; align-items: center; gap: 16px; }
+        #automixer-wrapper .am-app-bar h2 { font-size: 20px; font-weight: 500; margin: 0; color: var(--md-on-surface); }
+        
+        #automixer-wrapper .am-menu-icon {
             color: var(--md-on-surface-variant);
             cursor: pointer;
             padding: 4px;
             border-radius: 50%;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s;
         }
-        .menu-icon:active { background-color: var(--md-secondary-container); }
+        #automixer-wrapper .am-menu-icon:active { background-color: var(--md-secondary-container); }
 
-        .app-bar-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .profile-pic {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background-color: var(--md-primary-container);
-            color: var(--md-on-primary-container);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 16px;
-            font-family: 'Google Sans', 'Outfit', sans-serif;
+        #automixer-wrapper .am-profile-pic {
+            width: 30px; height: 30px; border-radius: 50%;
+            background-color: var(--md-primary-container); color: var(--md-on-primary-container);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 14px; font-family: 'Google Sans', 'Outfit', sans-serif;
         }
 
-        /* Main Container */
-        .main-content {
-            padding: 10px 24px 20px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        /* Hero Text */
-        .hero {
-            text-align: center;
-            margin-bottom: 32px;
-            margin-top: 16px;
-            animation: fadeIn 0.4s ease;
-        }
-        .hero h1 {
-            font-size: 26px;
-            font-weight: 500;
-            line-height: 1.3;
-            margin: 0;
-            color: var(--md-on-surface);
-        }
-
-        /* Tab System */
-        #tab-home, #tab-result { display: none; animation: fadeIn 0.3s ease; }
-        #tab-home.active, #tab-result.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* KOTAK BERANDA */
-        .box {
-            background: transparent; 
-            padding: 16px 0; 
-            border-radius: 0; 
-            margin-bottom: 0;
-            border-bottom: 1px solid var(--md-secondary-container); 
-            display: flex;
-            flex-direction: column;
-        }
-
-        .box label { 
-            font-weight: 600; 
-            font-size: 16px; 
-            color: var(--md-on-surface); 
-            margin-bottom: 6px; 
-        }
-
-        textarea {
-            width: 100%;
-            height: 120px; 
-            background: transparent; 
-            color: var(--md-on-surface);
-            border: none; 
-            font-family: 'Roboto', sans-serif; 
-            font-size: 14px; 
-            line-height: 1.5; 
-            resize: none; 
-            padding: 0; 
-            border-radius: 0; 
-            box-sizing: border-box;
-            transition: all 0.2s ease;
-        }
-        textarea:focus { outline: none; }
-        textarea::placeholder { color: #80868b; }
-
-        /* Action Buttons */
-        .button-group { 
-            display: flex; 
-            justify-content: flex-end; 
-            align-items: center; 
-            gap: 16px; 
-            margin-top: 16px; 
-        }
-
-        button.action-btn, button.reset-btn {
-            background-color: transparent; 
-            border: none;
-            padding: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
-        }
-        
-        button.action-btn { color: var(--md-primary); } 
-        button.reset-btn { color: var(--md-on-surface-variant); } 
-        
-        button.action-btn:active, button.reset-btn:active { 
-            opacity: 0.6; 
-            transform: scale(0.9);
-        }
-        
-        button.action-btn .material-symbols-rounded, 
-        button.reset-btn .material-symbols-rounded { 
-            font-size: 26px; 
-        }
-
-        /* TOGGLE SWITCH (SAKLAR) CSS */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 48px;
-            height: 26px;
-            margin-right: auto; 
-        }
-        .switch input { 
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: var(--md-secondary-container);
-            transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 26px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 20px;
-            width: 20px;
-            left: 3px;
-            bottom: 3px;
-            background-color: var(--md-on-surface-variant);
-            transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 50%;
-        }
-        input:checked + .slider {
-            background-color: var(--md-primary-container); 
-        }
-        input:checked + .slider:before {
-            transform: translateX(22px);
-            background-color: var(--md-primary); 
-        }
-
-        /* FAB Save Button */
-        button.save-btn {
-            position: fixed;
-            bottom: 84px; 
-            right: 24px;  
-            width: 56px;
-            height: 56px;
-            background-color: var(--md-primary); 
-            color: var(--md-on-primary); 
-            border: none;
-            border-radius: 16px; 
-            box-shadow: 0 4px 14px rgba(10, 86, 208, 0.35); 
-            cursor: pointer;
-            z-index: 90; 
-            display: none; 
-            padding: 0;
-            transition: transform 0.1s, opacity 0.2s;
-        }
-        button.save-btn:active {
-            transform: scale(0.9);
-            opacity: 0.8;
-        }
-        button.save-btn .material-symbols-rounded {
-            font-size: 28px;
-            line-height: 56px; 
-            display: block;
-            text-align: center;
-        }
-
-        #status { font-weight: 400; color: var(--md-on-surface-variant); margin: 0 0 16px; font-size: 14px; text-align: center; }
-
-        /* UI BATCH ala TWITTER FEED */
-        .result-day {
-            background: transparent; 
-            padding: 16px 0; 
-            margin-bottom: 0; 
-            border-radius: 0; 
-            border-bottom: 1px solid var(--md-secondary-container); 
-            position: relative;
-        }
-        
-        .result-day:last-child { border-bottom: none; }
-
-        .result-day h3 { 
-            margin-top: 0; 
-            margin-bottom: 6px; 
-            font-size: 16px; 
-            font-weight: 600; 
-            color: var(--md-on-surface); 
-            display: flex;
-            align-items: center;
-        }
-
-        .posted-toggle {
-            position: absolute;
-            top: 14px; 
-            right: 0; 
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-        .posted-toggle input[type="checkbox"] { 
-            accent-color: var(--md-primary); 
-            width: 18px; 
-            height: 18px; 
-            margin: 0;
-            cursor: pointer;
-        }
-
-        .result-text {
-            font-family: 'Roboto', sans-serif; 
-            font-size: 14px;
-            line-height: 1.5; 
-            color: var(--md-on-surface);
-            background: transparent; 
-            padding: 0; 
-            border-radius: 0; 
-            white-space: pre-wrap;
-            word-break: break-all;
-            margin-bottom: 12px; 
-            border: none; 
-        }
-
-        .card-actions-bottom {
-            display: flex;
-            justify-content: flex-start; 
-            gap: 28px; 
-            margin-top: 0; 
-        }
-        .action-icon-only {
-            background: transparent;
-            border: none;
-            padding: 4px 8px 4px 0; 
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.1s, color 0.2s;
-            color: var(--md-on-surface-variant); 
-        }
-        .action-icon-only:active {
-            transform: scale(0.9);
-            color: var(--md-on-surface); 
-        }
-        .action-icon-only .material-symbols-rounded { font-size: 18px; }
-
-        /* DRAWER GMAIL STYLE */
-        #tab-history {
-            display: block !important;
-            position: fixed;
-            top: 0; 
-            left: 0;
-            width: 100vw; 
-            height: 100vh;
-            z-index: 1000;
-            pointer-events: none; 
-            background-color: rgba(0, 0, 0, 0); 
-            transition: background-color 0.25s ease-out; 
-        }
-
-        #tab-history.active { 
-            pointer-events: auto; 
-            background-color: rgba(0, 0, 0, 0.4); 
-        }
-
-        #historyContainer {
-            position: absolute;
-            top: 0; 
-            left: 0; 
-            transform: translateX(-100%); 
-            width: 80%; 
-            max-width: 320px; 
-            height: 100%;
-            background-color: var(--md-bg);
-            box-shadow: 2px 0 12px rgba(0,0,0,0.15);
-            transition: transform 0.25s ease-out; 
+        #automixer-wrapper .am-main-content {
+            flex-grow: 1;
             overflow-y: auto;
-            padding: 24px 20px;
-            box-sizing: border-box;
-            z-index: 1001;
-            will-change: transform;
+            padding: 10px 24px 80px; /* Padding bawah buat ngindarin bottom nav */
         }
 
-        #tab-history.active #historyContainer { 
-            transform: translateX(0); 
+        #automixer-wrapper .am-hero { text-align: center; margin-bottom: 24px; margin-top: 16px; animation: amFadeIn 0.4s ease; }
+        #automixer-wrapper .am-hero h1 { font-size: 22px; font-weight: 500; line-height: 1.3; margin: 0; color: var(--md-on-surface); }
+
+        #automixer-wrapper .am-tab-content { display: none; animation: amFadeIn 0.3s ease; }
+        #automixer-wrapper .am-tab-content.active { display: block; }
+        @keyframes amFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        #automixer-wrapper .am-box {
+            background: transparent; padding: 16px 0; border-radius: 0; margin-bottom: 0;
+            border-bottom: 1px solid var(--md-secondary-container); display: flex; flex-direction: column;
         }
 
-        /* UPDATE DESAIN LIST HISTORY */
-        .history-item {
-            background: var(--md-surface);
-            padding: 16px 20px;
-            border-radius: 20px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer; 
-            position: relative; 
-            transition: background-color 0.2s;
+        #automixer-wrapper textarea.am-textarea {
+            width: 100%; height: 100px; background: transparent; color: var(--md-on-surface);
+            border: none; font-family: 'Roboto', sans-serif; font-size: 14px; line-height: 1.5; 
+            resize: none; padding: 0; border-radius: 0; box-sizing: border-box; transition: all 0.2s ease;
+            text-align: left; /* Timpa gaya text-align center dari Meme Gen */
         }
-        .history-item:active {
-            background-color: var(--md-secondary-container); 
+        #automixer-wrapper textarea.am-textarea:focus { outline: none; border: none; }
+        #automixer-wrapper textarea.am-textarea::placeholder { color: #80868b; }
+
+        #automixer-wrapper .am-button-group { display: flex; justify-content: flex-end; align-items: center; gap: 16px; margin-top: 16px; }
+
+        #automixer-wrapper button.am-action-btn, #automixer-wrapper button.am-reset-btn {
+            background-color: transparent; border: none; padding: 8px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s, opacity 0.2s;
         }
-        .history-info { 
-            font-size: 15px; 
-            font-weight: 500; 
-            color: var(--md-on-surface); 
-            font-family: 'Google Sans', 'Outfit', sans-serif; 
-            margin-bottom: 4px;
+        #automixer-wrapper button.am-action-btn { color: var(--md-primary); } 
+        #automixer-wrapper button.am-reset-btn { color: var(--md-on-surface-variant); } 
+        #automixer-wrapper button.am-action-btn:active, #automixer-wrapper button.am-reset-btn:active { opacity: 0.6; transform: scale(0.9); }
+        #automixer-wrapper button.am-action-btn .material-symbols-rounded, #automixer-wrapper button.am-reset-btn .material-symbols-rounded { font-size: 26px; }
+
+        #automixer-wrapper .am-switch { position: relative; display: inline-block; width: 48px; height: 26px; margin-right: auto; }
+        #automixer-wrapper .am-switch input { opacity: 0; width: 0; height: 0; }
+        #automixer-wrapper .am-slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--md-secondary-container); transition: .3s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 26px;
         }
-        .history-date { 
-            font-size: 12px; 
-            color: var(--md-on-surface-variant); 
+        #automixer-wrapper .am-slider:before {
+            position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px;
+            background-color: var(--md-on-surface-variant); transition: .3s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%;
         }
+        #automixer-wrapper .am-switch input:checked + .am-slider { background-color: var(--md-primary-container); }
+        #automixer-wrapper .am-switch input:checked + .am-slider:before { transform: translateX(22px); background-color: var(--md-primary); }
+
+        #automixer-wrapper button.am-save-btn {
+            position: absolute; bottom: 84px; right: 24px; width: 56px; height: 56px;
+            background-color: var(--md-primary); color: var(--md-on-primary); border: none;
+            border-radius: 16px; box-shadow: 0 4px 14px rgba(10, 86, 208, 0.35); cursor: pointer;
+            z-index: 90; display: none; padding: 0; transition: transform 0.1s, opacity 0.2s;
+        }
+        #automixer-wrapper button.am-save-btn:active { transform: scale(0.9); opacity: 0.8; }
+        #automixer-wrapper button.am-save-btn .material-symbols-rounded { font-size: 28px; line-height: 56px; display: block; text-align: center; }
+
+        #automixer-wrapper #am-status { font-weight: 400; color: var(--md-on-surface-variant); margin: 0 0 16px; font-size: 14px; text-align: center; }
+
+        #automixer-wrapper .am-result-day {
+            background: transparent; padding: 16px 0; margin-bottom: 0; border-radius: 0; 
+            border-bottom: 1px solid var(--md-secondary-container); position: relative;
+        }
+        #automixer-wrapper .am-result-day:last-child { border-bottom: none; }
+        #automixer-wrapper .am-result-day h3 { margin-top: 0; margin-bottom: 6px; font-size: 16px; font-weight: 600; color: var(--md-on-surface); display: flex; align-items: center; }
+
+        #automixer-wrapper .am-posted-toggle { position: absolute; top: 14px; right: 0; margin: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        #automixer-wrapper .am-posted-toggle input[type="checkbox"] { accent-color: var(--md-primary); width: 18px; height: 18px; margin: 0; cursor: pointer; }
+
+        #automixer-wrapper .am-result-text {
+            font-family: 'Roboto', sans-serif; font-size: 14px; line-height: 1.5; color: var(--md-on-surface);
+            background: transparent; padding: 0; border-radius: 0; white-space: pre-wrap; word-break: break-all; margin-bottom: 12px; border: none; 
+        }
+
+        #automixer-wrapper .am-card-actions-bottom { display: flex; justify-content: flex-start; gap: 28px; margin-top: 0; }
+        #automixer-wrapper .am-action-icon-only {
+            background: transparent; border: none; padding: 4px 8px 4px 0; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: transform 0.1s, color 0.2s; color: var(--md-on-surface-variant); 
+        }
+        #automixer-wrapper .am-action-icon-only:active { transform: scale(0.9); color: var(--md-on-surface); }
+        #automixer-wrapper .am-action-icon-only .material-symbols-rounded { font-size: 18px; }
+
+        /* Drawer Overlay */
+        #automixer-wrapper #am-tab-history {
+            display: block !important; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1000; pointer-events: none; background-color: rgba(0, 0, 0, 0); transition: background-color 0.25s ease-out; 
+        }
+        #automixer-wrapper #am-tab-history.active { pointer-events: auto; background-color: rgba(0, 0, 0, 0.4); }
+
+        #automixer-wrapper #am-historyContainer {
+            position: absolute; top: 0; left: 0; transform: translateX(-100%); width: 85%; max-width: 320px; height: 100%;
+            background-color: var(--md-bg); box-shadow: 2px 0 12px rgba(0,0,0,0.15); transition: transform 0.25s ease-out; 
+            overflow-y: auto; padding: 24px 20px; box-sizing: border-box; z-index: 1001; will-change: transform;
+        }
+        #automixer-wrapper #am-tab-history.active #am-historyContainer { transform: translateX(0); }
+
+        #automixer-wrapper .am-history-item {
+            background: var(--md-surface); padding: 16px 20px; border-radius: 20px; margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer; position: relative; transition: background-color 0.2s;
+        }
+        #automixer-wrapper .am-history-item:active { background-color: var(--md-secondary-container); }
+        #automixer-wrapper .am-history-info { font-size: 14px; font-weight: 500; color: var(--md-on-surface); font-family: 'Google Sans', 'Outfit', sans-serif; margin-bottom: 4px; }
+        #automixer-wrapper .am-history-date { font-size: 11px; color: var(--md-on-surface-variant); }
         
-        .history-actions { 
-            display: flex; 
-            align-items: center; 
-            position: relative;
+        #automixer-wrapper .am-history-actions { display: flex; align-items: center; position: relative; }
+        #automixer-wrapper .am-more-btn {
+            background: transparent; border: none; color: var(--md-on-surface-variant); padding: 8px;
+            border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s;
         }
-        
-        .more-btn {
-            background: transparent;
-            border: none;
-            color: var(--md-on-surface-variant);
-            padding: 8px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s;
-        }
-        .more-btn:active { background-color: var(--md-secondary-container); }
+        #automixer-wrapper .am-more-btn:active { background-color: var(--md-secondary-container); }
 
-        /* Dropdown Menu */
-        .dropdown-menu {
-            position: absolute;
-            right: 0;
-            top: 40px;
-            background: var(--md-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            display: none; 
-            flex-direction: column;
-            overflow: hidden;
-            z-index: 1002;
-            min-width: 140px;
+        #automixer-wrapper .am-dropdown-menu {
+            position: absolute; right: 0; top: 40px; background: var(--md-bg); border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15); display: none; flex-direction: column; overflow: hidden; z-index: 1002; min-width: 140px;
         }
-        .dropdown-menu button {
-            background: transparent;
-            border: none;
-            padding: 14px 16px;
-            text-align: left;
-            font-size: 14px;
-            font-weight: 500;
-            font-family: 'Google Sans', 'Outfit', sans-serif;
-            color: var(--md-on-surface);
-            cursor: pointer;
-            transition: background-color 0.2s;
+        #automixer-wrapper .am-dropdown-menu button {
+            background: transparent; border: none; padding: 14px 16px; text-align: left; font-size: 14px;
+            font-weight: 500; font-family: 'Google Sans', 'Outfit', sans-serif; color: var(--md-on-surface); cursor: pointer; transition: background-color 0.2s;
         }
-        .dropdown-menu button:active { background-color: var(--md-surface); }
-        .dropdown-menu button.danger { color: #d93025; } 
+        #automixer-wrapper .am-dropdown-menu button:active { background-color: var(--md-surface); }
+        #automixer-wrapper .am-dropdown-menu button.am-danger { color: #d93025; } 
 
-        /* Bottom Navigation */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 64px; 
-            background-color: var(--md-bg);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 100;
-            padding-bottom: env(safe-area-inset-bottom);
-            border-top: 1px solid var(--md-secondary-container);
+        /* Bottom Nav */
+        #automixer-wrapper .am-bottom-nav {
+            position: absolute; bottom: 0; left: 0; right: 0; height: 64px; 
+            background-color: var(--md-bg); display: flex; justify-content: space-around; align-items: center;
+            z-index: 100; border-top: 1px solid var(--md-secondary-container); flex-shrink: 0;
         }
 
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 64px;
-            cursor: pointer;
-            color: var(--md-on-surface-variant);
-            transition: color 0.2s, transform 0.1s;
+        #automixer-wrapper .am-nav-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; width: 64px;
+            cursor: pointer; color: var(--md-on-surface-variant); transition: color 0.2s, transform 0.1s;
         }
-        .nav-item:active {
-            transform: scale(0.9);
+        #automixer-wrapper .am-nav-item:active { transform: scale(0.9); }
+
+        #automixer-wrapper .am-nav-icon-wrapper {
+            width: 64px; height: 32px; display: flex; align-items: center; justify-content: center;
+            border-radius: 16px; background-color: transparent; transition: color 0.2s;
         }
 
-        .nav-icon-wrapper {
-            width: 64px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 16px; 
-            background-color: transparent; 
-            transition: color 0.2s;
-        }
-
-        .nav-item .material-symbols-rounded { font-size: 24px; }
-        
-        .nav-item.active { color: var(--md-primary); }
-        .nav-item.active .nav-icon-wrapper { background-color: transparent; color: var(--md-primary); }
-        .nav-item.active .material-symbols-rounded { font-variation-settings: 'FILL' 1; }
-
+        #automixer-wrapper .am-nav-item .material-symbols-rounded { font-size: 24px; }
+        #automixer-wrapper .am-nav-item.active { color: var(--md-primary); }
+        #automixer-wrapper .am-nav-item.active .am-nav-icon-wrapper { background-color: transparent; color: var(--md-primary); }
+        #automixer-wrapper .am-nav-item.active .material-symbols-rounded { font-variation-settings: 'FILL' 1; }
     </style>
 </head>
 <body>
 
-    <header class="app-bar">
-        <div class="app-bar-left">
-            <span class="material-symbols-rounded menu-icon" onclick="toggleHistory()">drag_handle</span>
-            <h2>AutoMixer</h2>
-        </div>
-        <div class="app-bar-right">
-            <div class="profile-pic">R</div>
-        </div>
-    </header>
+    <div class="preview-area">
+        <canvas id="memeCanvas" width="1080" height="1440" title="Tap gambar untuk edit"></canvas>
+        <div class="status-text" id="statusLog">Menunggu generate...</div>
+    </div>
 
-    <main class="main-content">
-        
-        <!-- BERANDA TAB -->
-        <div id="tab-home" class="tab-content active">
-            <div class="hero">
-                <h1>Penyederhanaan dan<br>manajemen link Anda</h1>
-            </div>
-
-            <div class="box">
-                <label>Shopee Links</label>
-                <textarea id="inputShopee" placeholder="Tempel link Shopee Anda di sini..."></textarea>
-            </div>
-
-            <div class="box">
-                <label>URLs (Standar / Replace)</label>
-                <textarea id="inputTweet" placeholder="Tempel link cuitan Anda di sini..."></textarea>
-            </div>
-
-            <!-- KOTAK 3 -->
-            <div class="box" style="border-bottom: none;">
-                <label style="color: var(--md-primary);">URLs (Gabung 2x2)</label>
-                <textarea id="inputMultiTweet" placeholder="Tempel kumpulan link cuitan Twitter di sini..."></textarea>
-            </div>
-
-            <div class="button-group">
-                <label class="switch" title="Ganti Mode (Mixer / Replacer)">
-                    <input type="checkbox" id="modeSwitch" onchange="toggleMode()">
-                    <span class="slider"></span>
-                </label>
-                
-                <button class="reset-btn" onclick="resetForm()" title="Reset Form">
-                    <span class="material-symbols-rounded">delete_outline</span>
+    <div class="sidebar">
+        <div class="header-action">
+            <h2>✨ Editor</h2>
+            <div class="btn-group">
+                <button class="btn-icon btn-generate" onclick="generateNewBackground()" title="Ganti Background">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
+                    </svg>
                 </button>
-                <button class="action-btn" onclick="generateAll()" title="Proses Links">
-                    <span class="material-symbols-rounded">auto_awesome</span>
+                <button class="btn-icon btn-random-font" onclick="randomizeFont()" title="Acak Font Teks">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="4 7 4 4 20 4 20 7"></polyline>
+                        <line x1="9" y1="20" x2="15" y2="20"></line>
+                        <line x1="12" y1="4" x2="12" y2="20"></line>
+                    </svg>
+                </button>
+                <button class="btn-icon btn-download" onclick="downloadImage()" title="Download Gambar">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                    </svg>
                 </button>
             </div>
         </div>
 
-        <!-- HASIL TAB -->
-        <div id="tab-result" class="tab-content">
-            <div id="status"></div>
-            <!-- Tombol simpan FAB Melayang -->
-            <button id="saveBtn" class="save-btn" onclick="saveCurrentToHistory()" title="Simpan ke File">
-                <span class="material-symbols-rounded">save</span>
-            </button>
-            <div id="outputContainer"></div>
+        <!-- NAVIGASI TAB UTAMA -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('tab-teks', this)">Teks & Font</button>
+            <button class="tab-btn" onclick="switchTab('tab-automixer', this)">AutoMixer</button>
         </div>
 
-        <!-- HISTORI / FILE TAB -->
-        <div id="tab-history" class="tab-content">
-            <div id="historyContainer"></div>
-        </div>
-
-    </main>
-
-    <!-- BOTTOM NAVIGATION -->
-    <nav class="bottom-nav">
-        <!-- Tab Beranda (Kiri) -->
-        <div class="nav-item active" onclick="switchTab('home')" id="nav-home">
-            <div class="nav-icon-wrapper">
-                <span class="material-symbols-rounded">home</span>
+        <!-- ISI TAB 1: KONTROL TEKS MEME -->
+        <div id="tab-teks" class="tab-content active">
+            <div class="control-group">
+                <label>Edit Teks (Real-time):</label>
+                <textarea id="customText" spellcheck="false">📁📁📁📁📁📁
+Kebutuhanmu prat 135</textarea>
+            </div>
+            <div class="control-group">
+                <label>Ukuran Font:</label>
+                <input type="range" id="fontSize" min="30" max="150" value="75">
+            </div>
+            <div class="control-group">
+                <label>Jenis Font:</label>
+                <select id="fontFamily">
+                    <optgroup label="Standar & Meme Klasik">
+                        <option value="'Impact', sans-serif">Impact</option>
+                        <option value="'Arial Black', sans-serif">Arial Black</option>
+                    </optgroup>
+                    <optgroup label="Gaya Komik & Fun">
+                        <option value="'Bangers', cursive">Bangers</option>
+                        <option value="'Chewy', cursive">Chewy</option>
+                        <option value="'Luckiest Guy', cursive">Luckiest Guy</option>
+                    </optgroup>
+                    <optgroup label="Tebal & Agresif (Bold)">
+                        <option value="'Anton', sans-serif">Anton</option>
+                        <option value="'Bebas Neue', sans-serif">Bebas Neue</option>
+                    </optgroup>
+                    <optgroup label="Unik & Tulisan Tangan">
+                        <option value="'Permanent Marker', cursive">Permanent Marker</option>
+                        <option value="'Lobster', cursive">Lobster</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Gaya Teks:</label>
+                <select id="textStyle">
+                    <option value="retro">Retro Outline</option>
+                    <option value="metallic">Metallic 3D</option>
+                    <option value="neon">Neon Glow</option>
+                </select>
             </div>
         </div>
-        
-        <!-- Tab Hasil (Kanan) -->
-        <div class="nav-item" onclick="switchTab('result')" id="nav-result">
-            <div class="nav-icon-wrapper">
-                <span class="material-symbols-rounded">article</span>
+
+        <!-- ISI TAB 2: AUTOMIXER TERTANAM DISINI -->
+        <div id="tab-automixer" class="tab-content">
+            <!-- BUNGKUS PELINDUNG AUTOMIXER -->
+            <div id="automixer-wrapper">
+                <header class="am-app-bar">
+                    <div class="am-app-bar-left">
+                        <span class="material-symbols-rounded am-menu-icon" onclick="amToggleHistory()">drag_handle</span>
+                        <h2>AutoMixer</h2>
+                    </div>
+                    <div class="am-app-bar-right">
+                        <div class="am-profile-pic">R</div>
+                    </div>
+                </header>
+
+                <main class="am-main-content">
+                    <!-- BERANDA AUTOMIXER -->
+                    <div id="am-tab-home" class="am-tab-content active">
+                        <div class="am-hero">
+                            <h1>Penyederhanaan dan<br>manajemen link Anda</h1>
+                        </div>
+                        <div class="am-box">
+                            <label class="am-label">Shopee Links</label>
+                            <textarea id="am-inputShopee" class="am-textarea" placeholder="Tempel link Shopee Anda di sini..."></textarea>
+                        </div>
+                        <div class="am-box">
+                            <label class="am-label">URLs (Standar / Replace)</label>
+                            <textarea id="am-inputTweet" class="am-textarea" placeholder="Tempel link cuitan Anda di sini..."></textarea>
+                        </div>
+                        <div class="am-box" style="border-bottom: none;">
+                            <label class="am-label" style="color: var(--md-primary);">URLs (Gabung 2x2)</label>
+                            <textarea id="am-inputMultiTweet" class="am-textarea" placeholder="Tempel kumpulan link cuitan Twitter di sini..."></textarea>
+                        </div>
+                        <div class="am-button-group">
+                            <label class="am-switch" title="Ganti Mode (Mixer / Replacer)">
+                                <input type="checkbox" id="am-modeSwitch" onchange="amToggleMode()">
+                                <span class="am-slider"></span>
+                            </label>
+                            <button class="am-reset-btn" onclick="amResetForm()" title="Reset Form">
+                                <span class="material-symbols-rounded">delete_outline</span>
+                            </button>
+                            <button class="am-action-btn" onclick="amGenerateAll()" title="Proses Links">
+                                <span class="material-symbols-rounded">auto_awesome</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- HASIL AUTOMIXER -->
+                    <div id="am-tab-result" class="am-tab-content">
+                        <div id="am-status"></div>
+                        <button id="am-saveBtn" class="am-save-btn" onclick="amSaveCurrentToHistory()" title="Simpan ke File">
+                            <span class="material-symbols-rounded">save</span>
+                        </button>
+                        <div id="am-outputContainer"></div>
+                    </div>
+                </main>
+
+                <!-- BOTTOM NAV AUTOMIXER -->
+                <nav class="am-bottom-nav">
+                    <div class="am-nav-item active" onclick="amSwitchTab('home')" id="am-nav-home">
+                        <div class="am-nav-icon-wrapper"><span class="material-symbols-rounded">home</span></div>
+                    </div>
+                    <div class="am-nav-item" onclick="amSwitchTab('result')" id="am-nav-result">
+                        <div class="am-nav-icon-wrapper"><span class="material-symbols-rounded">article</span></div>
+                    </div>
+                </nav>
+
+                <!-- DRAWER HISTORY AUTOMIXER -->
+                <div id="am-tab-history">
+                    <div id="am-historyContainer"></div>
+                </div>
             </div>
+            <!-- AKHIR BUNGKUS PELINDUNG -->
         </div>
-    </nav>
+
+    </div>
 
     <script>
-        let appMode = 'mixer'; 
-        let lastActiveMainTab = 'home'; 
-        let isHistoryOpen = false;
+        /* ========================================================
+           JAVASCRIPT 1: MEME GENERATOR
+           ======================================================== */
+        const canvas = document.getElementById('memeCanvas');
+        const ctx = canvas.getContext('2d');
+        const customTextInput = document.getElementById('customText');
+        const fontSizeInput = document.getElementById('fontSize');
+        
+        const bgCanvas = document.createElement('canvas');
+        bgCanvas.width = 1080;
+        bgCanvas.height = 1440;
+        const bgCtx = bgCanvas.getContext('2d');
+        
+        canvas.addEventListener('click', () => { customTextInput.focus(); });
 
-        function toggleMode() {
-            let isChecked = document.getElementById('modeSwitch').checked;
-            let statusDiv = document.getElementById('status');
-            let heroTitle = document.querySelector('.hero h1');
+        customTextInput.addEventListener('input', updateCanvasLive);
+        fontSizeInput.addEventListener('input', updateCanvasLive);
+        document.getElementById('fontFamily').addEventListener('change', updateCanvasLive);
+        document.getElementById('textStyle').addEventListener('change', updateCanvasLive);
+        
+        // FUNGSI SWITCH TAB MEME GENERATOR (LUAR)
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            btnElement.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function randomizeFont() {
+            const fontSelect = document.getElementById('fontFamily');
+            const options = fontSelect.querySelectorAll('option'); 
+            const randomIndex = Math.floor(Math.random() * options.length);
+            fontSelect.selectedIndex = randomIndex;
+            updateCanvasLive();
+        }
+
+        function getRandomHslColor() {
+            const h = Math.floor(Math.random() * 360);
+            const s = Math.floor(Math.random() * 40) + 60; 
+            const l = Math.floor(Math.random() * 30) + 50; 
+            return `hsl(${h}, ${s}%, ${l}%)`;
+        }
+
+        function generateRandomBackground() {
+            const width = bgCanvas.width;
+            const height = bgCanvas.height;
+            const directions = [ [0, 0, width, height], [width, 0, 0, height], [0, 0, 0, height], [0, height, width, 0] ];
+            const dir = directions[Math.floor(Math.random() * directions.length)];
+            const gradient = bgCtx.createLinearGradient(dir[0], dir[1], dir[2], dir[3]);
+            
+            const colorStops = Math.floor(Math.random() * 2) + 2; 
+            for (let i = 0; i < colorStops; i++) {
+                gradient.addColorStop(i / (colorStops - 1), getRandomHslColor());
+            }
+
+            bgCtx.fillStyle = gradient;
+            bgCtx.fillRect(0, 0, width, height);
+
+            for (let i = 0; i < 6000; i++) {
+                bgCtx.fillStyle = "rgba(255, 255, 255, 0.04)"; 
+                bgCtx.fillRect(Math.random() * width, Math.random() * height, 4, 4);
+            }
+        }
+
+        function drawTextLive() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const font = document.getElementById('fontFamily').value;
+            const style = document.getElementById('textStyle').value;
+            const dynamicFontSize = parseInt(fontSizeInput.value);
+            
+            const rawText = customTextInput.value;
+            const textLines = rawText.split('\n'); 
+            
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.font = `${dynamicFontSize}px ${font}`;
+            ctx.letterSpacing = "6px"; 
+            
+            const gap = dynamicFontSize + 25; 
+            const totalHeight = textLines.length * gap;
+            const startY = (height - totalHeight) / 2 + (gap / 2); 
+
+            textLines.forEach((text, index) => {
+                const yPos = startY + (index * gap);
+
+                if (style === 'metallic') {
+                    ctx.miterLimit = 2; ctx.lineJoin = 'round'; ctx.shadowBlur = 0;
+                    ctx.strokeStyle = "rgba(0,0,0,0.8)"; ctx.lineWidth = 20; ctx.strokeText(text, width / 2, yPos + 5);
+                    ctx.strokeStyle = "#222"; ctx.lineWidth = 14; ctx.strokeText(text, width / 2, yPos);
+                    ctx.strokeStyle = "#ddd"; ctx.lineWidth = 6; ctx.strokeText(text, width / 2, yPos);
+                    
+                    const txtGradient = ctx.createLinearGradient(0, yPos - 40, 0, yPos + 40);
+                    txtGradient.addColorStop(0, "#fff"); txtGradient.addColorStop(0.5, "#aaa"); txtGradient.addColorStop(1, "#f2f2f2");
+                    ctx.fillStyle = txtGradient; ctx.fillText(text, width / 2, yPos);
+                } else if (style === 'neon') {
+                    ctx.shadowColor = "black"; ctx.shadowBlur = 20; ctx.lineWidth = 10;
+                    ctx.strokeStyle = "black"; ctx.strokeText(text, width / 2, yPos);
+                    ctx.shadowColor = "cyan"; ctx.shadowBlur = 25; ctx.fillStyle = "white";
+                    ctx.fillText(text, width / 2, yPos); ctx.fillText(text, width / 2, yPos); 
+                    ctx.shadowBlur = 0; 
+                } else {
+                    ctx.shadowBlur = 0; ctx.lineWidth = 16; ctx.strokeStyle = "black"; ctx.strokeText(text, width / 2, yPos);
+                    ctx.fillStyle = "white"; ctx.fillText(text, width / 2, yPos);
+                }
+            });
+            ctx.letterSpacing = "0px";
+        }
+
+        function updateCanvasLive() {
+            document.fonts.ready.then(function () {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(bgCanvas, 0, 0); 
+                drawTextLive(); 
+            });
+        }
+
+        function generateNewBackground() {
+            generateRandomBackground();
+            updateCanvasLive();
+            const uniqueId = Math.random().toString(36).substr(2, 6).toUpperCase();
+            document.getElementById('statusLog').innerHTML = `✅ Sukses! [Hash: ${uniqueId}]`;
+        }
+
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = `AntiSpam_Meme_${Date.now()}.png`; 
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            document.getElementById('statusLog').innerText = '💾 Gambar berhasil didownload!';
+        }
+
+        /* ========================================================
+           JAVASCRIPT 2: AUTOMIXER (TERISOLASI DGN PREFIX 'am')
+           ======================================================== */
+        let amAppMode = 'mixer'; 
+        let amLastActiveMainTab = 'home'; 
+        let amIsHistoryOpen = false;
+
+        function amToggleMode() {
+            let isChecked = document.getElementById('am-modeSwitch').checked;
+            let statusDiv = document.getElementById('am-status');
+            let heroTitle = document.querySelector('.am-hero h1');
             
             if (isChecked) {
-                appMode = 'replacer';
-                heroTitle.innerHTML = 'Clone Target dan<br>Ganti Link Shopee';
+                amAppMode = 'replacer';
+                if(heroTitle) heroTitle.innerHTML = 'Clone Target dan<br>Ganti Link Shopee';
                 if(statusDiv) statusDiv.innerHTML = "Mode Aktif: Clone & Replace Shopee";
             } else {
-                appMode = 'mixer';
-                heroTitle.innerHTML = 'Penyederhanaan dan<br>manajemen link Anda';
+                amAppMode = 'mixer';
+                if(heroTitle) heroTitle.innerHTML = 'Penyederhanaan dan<br>manajemen link Anda';
                 if(statusDiv) statusDiv.innerHTML = "Mode Aktif: AutoMixer Standar";
             }
         }
 
-        function toggleHistory(forceOpen) {
-            const menuIcon = document.querySelector('.menu-icon');
-            const historyTab = document.getElementById('tab-history');
+        function amToggleHistory(forceOpen) {
+            const menuIcon = document.querySelector('.am-menu-icon');
+            const historyTab = document.getElementById('am-tab-history');
 
-            document.querySelectorAll('.dropdown-menu').forEach(menu => menu.style.display = 'none');
+            document.querySelectorAll('.am-dropdown-menu').forEach(menu => menu.style.display = 'none');
 
             if (forceOpen !== undefined) {
-                isHistoryOpen = forceOpen;
+                amIsHistoryOpen = forceOpen;
             } else {
-                isHistoryOpen = !isHistoryOpen;
+                amIsHistoryOpen = !amIsHistoryOpen;
             }
 
-            if (!isHistoryOpen) {
+            if (!amIsHistoryOpen) {
                 historyTab.classList.remove('active');
-                menuIcon.innerText = 'drag_handle';
-                menuIcon.style.transform = 'rotate(0deg)';
+                if(menuIcon) { menuIcon.innerText = 'drag_handle'; menuIcon.style.transform = 'rotate(0deg)'; }
             } else {
                 historyTab.classList.add('active');
-                menuIcon.innerText = 'close';
-                menuIcon.style.transform = 'rotate(90deg)';
+                if(menuIcon) { menuIcon.innerText = 'close'; menuIcon.style.transform = 'rotate(90deg)'; }
             }
         }
 
-        function switchTab(tabName) {
+        function amSwitchTab(tabName) {
             if (tabName === 'history') {
-                if(!isHistoryOpen) toggleHistory(true);
+                if(!amIsHistoryOpen) amToggleHistory(true);
                 return;
             }
-
-            document.getElementById('tab-home').classList.remove('active');
-            document.getElementById('tab-result').classList.remove('active');
+            document.getElementById('am-tab-home').classList.remove('active');
+            document.getElementById('am-tab-result').classList.remove('active');
+            document.getElementById('am-nav-home').classList.remove('active');
+            document.getElementById('am-nav-result').classList.remove('active');
             
-            document.getElementById('nav-home').classList.remove('active');
-            document.getElementById('nav-result').classList.remove('active');
+            document.getElementById('am-tab-' + tabName).classList.add('active');
+            document.getElementById('am-nav-' + tabName).classList.add('active');
             
-            document.getElementById('tab-' + tabName).classList.add('active');
-            document.getElementById('nav-' + tabName).classList.add('active');
-            
-            lastActiveMainTab = tabName; 
-            window.scrollTo(0, 0);
+            amLastActiveMainTab = tabName; 
+            document.getElementById('automixer-wrapper').scrollTo(0, 0);
         }
 
-        document.getElementById('tab-history').addEventListener('click', function(e) {
-            if (e.target === this && isHistoryOpen) {
-                toggleHistory(false);
-            }
+        document.getElementById('am-tab-history').addEventListener('click', function(e) {
+            if (e.target === this && amIsHistoryOpen) { amToggleHistory(false); }
         });
 
-        // ========================================================
-        // MESIN SWIPE REAL-TIME
-        // ========================================================
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let dragStartX = 0;
-        let startTime = 0;
-        let isDraggingDrawer = false;
-        let isSwipingTab = false;
-        let isVerticalScroll = false;
-        let drawerWidth = 0;
+        // MESIN SWIPE REAL-TIME KHUSUS AUTOMIXER
+        let touchStartX = 0; let touchStartY = 0; let dragStartX = 0;
+        let startTime = 0; let isDraggingDrawer = false; let isSwipingTab = false;
+        let isVerticalScroll = false; let drawerWidth = 0;
+        const amWrapper = document.getElementById('automixer-wrapper');
 
-        document.addEventListener('touchstart', e => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            startTime = Date.now();
-            isVerticalScroll = false;
-            isDraggingDrawer = false;
-            isSwipingTab = false;
-            drawerWidth = document.getElementById('historyContainer').offsetWidth || 320;
-            
-            if (isHistoryOpen) {
-                let container = document.getElementById('historyContainer');
-                let backdrop = document.getElementById('tab-history');
-                container.style.transition = 'none';
-                backdrop.style.transition = 'none';
-            }
-        }, {passive: true});
+        if(amWrapper) {
+            amWrapper.addEventListener('touchstart', e => {
+                touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY;
+                startTime = Date.now(); isVerticalScroll = false; isDraggingDrawer = false; isSwipingTab = false;
+                drawerWidth = document.getElementById('am-historyContainer').offsetWidth || 320;
+                if (amIsHistoryOpen) {
+                    document.getElementById('am-historyContainer').style.transition = 'none';
+                    document.getElementById('am-tab-history').style.transition = 'none';
+                }
+            }, {passive: true});
 
-        document.addEventListener('touchmove', e => {
-            if (!touchStartX) return;
-            let currentX = e.touches[0].clientX;
-            let currentY = e.touches[0].clientY;
-            let diffX = currentX - touchStartX;
-            let diffY = currentY - touchStartY;
+            amWrapper.addEventListener('touchmove', e => {
+                if (!touchStartX) return;
+                let currentX = e.touches[0].clientX; let currentY = e.touches[0].clientY;
+                let diffX = currentX - touchStartX; let diffY = currentY - touchStartY;
 
-            if (!isDraggingDrawer && !isSwipingTab && !isVerticalScroll) {
-                if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 8) {
-                    isVerticalScroll = true; 
-                } else if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 8) {
-                    if (isHistoryOpen) {
-                        if (diffX < 0) { 
-                            isDraggingDrawer = true; 
-                            dragStartX = currentX;
-                        }
-                    } else if (lastActiveMainTab === 'home') {
-                        if (diffX > 0) {
-                            isDraggingDrawer = true;
-                            dragStartX = currentX;
-                            document.getElementById('tab-history').style.pointerEvents = 'auto';
-                            document.getElementById('historyContainer').style.transition = 'none';
-                            document.getElementById('tab-history').style.transition = 'none';
-                        } else {
+                if (!isDraggingDrawer && !isSwipingTab && !isVerticalScroll) {
+                    if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 8) {
+                        isVerticalScroll = true; 
+                    } else if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 8) {
+                        if (amIsHistoryOpen) {
+                            if (diffX < 0) { isDraggingDrawer = true; dragStartX = currentX; }
+                        } else if (amLastActiveMainTab === 'home') {
+                            if (diffX > 0) {
+                                isDraggingDrawer = true; dragStartX = currentX;
+                                document.getElementById('am-tab-history').style.pointerEvents = 'auto';
+                                document.getElementById('am-historyContainer').style.transition = 'none';
+                                document.getElementById('am-tab-history').style.transition = 'none';
+                            } else { isSwipingTab = true; }
+                        } else if (amLastActiveMainTab === 'result') {
                             isSwipingTab = true;
                         }
-                    } else if (lastActiveMainTab === 'result') {
-                        isSwipingTab = true;
                     }
                 }
-            }
 
-            if (isDraggingDrawer) {
-                let container = document.getElementById('historyContainer');
-                let backdrop = document.getElementById('tab-history');
-                let dragDiff = currentX - dragStartX;
-                
-                if (!isHistoryOpen) {
-                    let moveX = Math.min(0, -100 + (dragDiff / drawerWidth) * 100);
-                    container.style.transform = `translateX(${moveX}%)`;
-                    backdrop.style.backgroundColor = `rgba(0,0,0,${Math.min(0.4, (dragDiff/drawerWidth)*0.4)})`;
-                } else {
-                    let moveX = Math.max(-100, Math.min(0, (dragDiff / drawerWidth) * 100));
-                    container.style.transform = `translateX(${moveX}%)`;
-                    let opacity = 0.4 + (moveX / 100) * 0.4;
-                    backdrop.style.backgroundColor = `rgba(0,0,0,${Math.max(0, opacity)})`;
-                }
-            }
-        }, {passive: true});
-
-        document.addEventListener('touchend', e => {
-            if (!touchStartX) return;
-            let currentX = e.changedTouches[0].clientX;
-            let diffX = currentX - touchStartX;
-            let dragDiff = currentX - dragStartX;
-            
-            let timeTaken = Date.now() - startTime;
-            let velocityX = dragDiff / timeTaken;
-
-            if (isDraggingDrawer) {
-                let container = document.getElementById('historyContainer');
-                let backdrop = document.getElementById('tab-history');
-                
-                container.style.transition = 'transform 0.25s ease-out';
-                backdrop.style.transition = 'background-color 0.25s ease-out';
-                
-                container.style.transform = '';
-                backdrop.style.backgroundColor = '';
-                backdrop.style.pointerEvents = '';
-                
-                if (!isHistoryOpen) {
-                    if (dragDiff > drawerWidth * 0.25 || velocityX > 0.5) {
-                        toggleHistory(true);
+                if (isDraggingDrawer) {
+                    let container = document.getElementById('am-historyContainer');
+                    let backdrop = document.getElementById('am-tab-history');
+                    let dragDiff = currentX - dragStartX;
+                    
+                    if (!amIsHistoryOpen) {
+                        let moveX = Math.min(0, -100 + (dragDiff / drawerWidth) * 100);
+                        container.style.transform = `translateX(${moveX}%)`;
+                        backdrop.style.backgroundColor = `rgba(0,0,0,${Math.min(0.4, (dragDiff/drawerWidth)*0.4)})`;
                     } else {
-                        toggleHistory(false);
-                    }
-                } else {
-                    if (dragDiff < -(drawerWidth * 0.25) || velocityX < -0.5) {
-                        toggleHistory(false);
-                    } else {
-                        toggleHistory(true);
+                        let moveX = Math.max(-100, Math.min(0, (dragDiff / drawerWidth) * 100));
+                        container.style.transform = `translateX(${moveX}%)`;
+                        let opacity = 0.4 + (moveX / 100) * 0.4;
+                        backdrop.style.backgroundColor = `rgba(0,0,0,${Math.max(0, opacity)})`;
                     }
                 }
-            } else if (isSwipingTab) {
-                if (diffX < -40 && lastActiveMainTab === 'home' && !isHistoryOpen) {
-                    switchTab('result'); 
-                } else if (diffX > 40 && lastActiveMainTab === 'result' && !isHistoryOpen) {
-                    switchTab('home'); 
-                }
-            }
-            
-            touchStartX = 0;
-            touchStartY = 0;
-            isDraggingDrawer = false;
-            isSwipingTab = false;
-            isVerticalScroll = false;
-        }, {passive: true});
+            }, {passive: true});
 
-        function toggleMenu(id, event) {
+            amWrapper.addEventListener('touchend', e => {
+                if (!touchStartX) return;
+                let currentX = e.changedTouches[0].clientX;
+                let diffX = currentX - touchStartX; let dragDiff = currentX - dragStartX;
+                let timeTaken = Date.now() - startTime; let velocityX = dragDiff / timeTaken;
+
+                if (isDraggingDrawer) {
+                    let container = document.getElementById('am-historyContainer');
+                    let backdrop = document.getElementById('am-tab-history');
+                    
+                    container.style.transition = 'transform 0.25s ease-out';
+                    backdrop.style.transition = 'background-color 0.25s ease-out';
+                    container.style.transform = ''; backdrop.style.backgroundColor = ''; backdrop.style.pointerEvents = '';
+                    
+                    if (!amIsHistoryOpen) {
+                        if (dragDiff > drawerWidth * 0.25 || velocityX > 0.5) amToggleHistory(true);
+                        else amToggleHistory(false);
+                    } else {
+                        if (dragDiff < -(drawerWidth * 0.25) || velocityX < -0.5) amToggleHistory(false);
+                        else amToggleHistory(true);
+                    }
+                } else if (isSwipingTab) {
+                    if (diffX < -40 && amLastActiveMainTab === 'home' && !amIsHistoryOpen) amSwitchTab('result'); 
+                    else if (diffX > 40 && amLastActiveMainTab === 'result' && !amIsHistoryOpen) amSwitchTab('home'); 
+                }
+                
+                touchStartX = 0; touchStartY = 0; isDraggingDrawer = false; isSwipingTab = false; isVerticalScroll = false;
+            }, {passive: true});
+        }
+
+        function amToggleMenu(id, event) {
             event.stopPropagation(); 
-            
-            document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                if(menu.id !== `menu-${id}`) menu.style.display = 'none';
+            document.querySelectorAll('.am-dropdown-menu').forEach(menu => {
+                if(menu.id !== `am-menu-${id}`) menu.style.display = 'none';
             });
-            
-            let menu = document.getElementById(`menu-${id}`);
-            menu.style.display = menu.style.display === 'none' ? 'flex' : 'none';
+            let menu = document.getElementById(`am-menu-${id}`);
+            if(menu) menu.style.display = menu.style.display === 'none' ? 'flex' : 'none';
         }
 
         document.addEventListener('click', function(e) {
-            if(!e.target.closest('.history-actions')) {
-                document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                    menu.style.display = 'none';
-                });
+            if(!e.target.closest('.am-history-actions')) {
+                document.querySelectorAll('.am-dropdown-menu').forEach(menu => { menu.style.display = 'none'; });
             }
         });
 
-        function renameHistoryItem(id, event) {
+        function amRenameHistoryItem(id, event) {
             event.stopPropagation();
             let history = JSON.parse(localStorage.getItem('refal_history')) || [];
             let index = history.findIndex(item => item.id === id);
-            
             if (index !== -1) {
                 let currentTitle = history[index].title || `Batch Record (${history[index].count} Items)`;
                 let newTitle = prompt("Masukkan nama baru untuk file ini:", currentTitle);
-                
                 if (newTitle !== null && newTitle.trim() !== "") {
                     history[index].title = newTitle.trim();
                     localStorage.setItem('refal_history', JSON.stringify(history));
-                    renderHistory(); 
+                    amRenderHistory(); 
                 } else {
-                    document.getElementById(`menu-${id}`).style.display = 'none';
+                    document.getElementById(`am-menu-${id}`).style.display = 'none';
                 }
             }
         }
 
-        let currentActiveResultHTML = '';
-        let currentActiveItemsCount = 0;
-        let lastLengthShopee = 0;
-        let lastLengthTweet = 0;
-        let lastLengthMulti = 0;
-        let currentActiveHistoryId = null;
+        let amCurrentActiveResultHTML = '';
+        let amCurrentActiveItemsCount = 0;
+        let amCurrentActiveHistoryId = null;
 
-        window.onload = function() {
-            renderHistory();
-            
-            let sInput = document.getElementById('inputShopee');
-            let tInput = document.getElementById('inputTweet');
-            let mInput = document.getElementById('inputMultiTweet');
+        function amToggleDone(checkbox) {
+            if (checkbox.checked) checkbox.setAttribute('checked', 'checked'); 
+            else checkbox.removeAttribute('checked'); 
 
-            let draftShopee = localStorage.getItem('draft_shopee');
-            if(draftShopee && sInput) sInput.value = draftShopee;
+            amCurrentActiveResultHTML = document.getElementById('am-outputContainer').innerHTML;
+            localStorage.setItem('draft_result', amCurrentActiveResultHTML); 
 
-            let draftTweet = localStorage.getItem('draft_tweet');
-            if(draftTweet && tInput) tInput.value = draftTweet;
-
-            let draftMulti = localStorage.getItem('draft_multi_tweet');
-            if(draftMulti && mInput) mInput.value = draftMulti;
-
-            let draftResult = localStorage.getItem('draft_result');
-            let draftCount = localStorage.getItem('draft_count');
-            let savedHistoryId = localStorage.getItem('draft_history_id');
-
-            if(draftResult) {
-                document.getElementById('outputContainer').innerHTML = draftResult;
-                currentActiveResultHTML = draftResult;
-                currentActiveItemsCount = parseInt(draftCount || '0');
-                if (savedHistoryId) currentActiveHistoryId = parseInt(savedHistoryId);
-                
-                document.getElementById('saveBtn').style.display = 'block';
-                document.getElementById('status').innerHTML = "Data recovered from previous session.";
-            }
-
-            if (sInput) {
-                lastLengthShopee = sInput.value.length;
-                sInput.addEventListener('input', function() {
-                    let currentLength = this.value.length;
-                    if (currentLength - lastLengthShopee > 10) {
-                        if (!this.value.endsWith('\n')) this.value += '\n';
-                        this.scrollTop = this.scrollHeight;
-                    }
-                    lastLengthShopee = this.value.length;
-                    localStorage.setItem('draft_shopee', this.value);
-                });
-            }
-
-            if (tInput) {
-                lastLengthTweet = tInput.value.length;
-                tInput.addEventListener('input', function() {
-                    let currentLength = this.value.length;
-                    if (currentLength - lastLengthTweet > 10) {
-                        if (!this.value.endsWith('\n')) this.value += '\n';
-                        this.scrollTop = this.scrollHeight;
-                    }
-                    lastLengthTweet = this.value.length;
-                    localStorage.setItem('draft_tweet', this.value);
-                });
-            }
-
-            if (mInput) {
-                lastLengthMulti = mInput.value.length;
-                mInput.addEventListener('input', function() {
-                    let currentLength = this.value.length;
-                    if (currentLength - lastLengthMulti > 10) {
-                        if (!this.value.endsWith('\n')) this.value += '\n';
-                        this.scrollTop = this.scrollHeight;
-                    }
-                    lastLengthMulti = this.value.length;
-                    localStorage.setItem('draft_multi_tweet', this.value);
-                });
-            }
-        };
-
-        function toggleDone(checkbox) {
-            if (checkbox.checked) {
-                checkbox.setAttribute('checked', 'checked'); 
-            } else {
-                checkbox.removeAttribute('checked'); 
-            }
-
-            let outputContainer = document.getElementById('outputContainer');
-            currentActiveResultHTML = outputContainer.innerHTML;
-            localStorage.setItem('draft_result', currentActiveResultHTML); 
-
-            if (currentActiveHistoryId) {
+            if (amCurrentActiveHistoryId) {
                 let history = JSON.parse(localStorage.getItem('refal_history')) || [];
-                let index = history.findIndex(item => item.id === currentActiveHistoryId);
+                let index = history.findIndex(item => item.id === amCurrentActiveHistoryId);
                 if (index !== -1) {
-                    history[index].html = currentActiveResultHTML;
+                    history[index].html = amCurrentActiveResultHTML;
                     localStorage.setItem('refal_history', JSON.stringify(history));
                 }
             }
         }
 
-        function shareToX(btn) {
+        function amShareToX(btn) {
             let racikanText = decodeURIComponent(btn.getAttribute('data-text'));
             if (navigator.share) {
-                navigator.share({
-                    text: racikanText
-                }).catch((error) => console.log('Batal share:', error));
+                navigator.share({ text: racikanText }).catch(err => console.log('Batal share:', err));
             } else {
-                let intentUrl = `intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT=${btn.getAttribute('data-text')};end`;
-                window.location.href = intentUrl;
+                window.location.href = `intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT=${btn.getAttribute('data-text')};end`;
             }
         }
 
-        // ========================================================
-        // MESIN GENERATOR UTAMA
-        // ========================================================
-        async function generateAll() {
-            let status = document.getElementById('status');
-            let outputDiv = document.getElementById('outputContainer');
-            let saveBtn = document.getElementById('saveBtn');
-            let sInput = document.getElementById('inputShopee');
-            let tInput = document.getElementById('inputTweet');
-            let mInput = document.getElementById('inputMultiTweet');
+        // MESIN GENERATOR API TWITTER AUTOMIXER
+        async function amGenerateAll() {
+            let status = document.getElementById('am-status');
+            let outputDiv = document.getElementById('am-outputContainer');
+            let saveBtn = document.getElementById('am-saveBtn');
+            let sInput = document.getElementById('am-inputShopee');
+            let tInput = document.getElementById('am-inputTweet');
+            let mInput = document.getElementById('am-inputMultiTweet');
 
-            if (!sInput || !tInput || !mInput) {
-                alert("Error: Kotak teks tidak ditemukan.");
-                return;
-            }
+            if (!sInput || !tInput || !mInput) return;
 
             let shopeeRaw = sInput.value.split('\n').map(s => s.trim()).filter(s => s !== '');
             let rawTweetInput = tInput.value;
@@ -966,62 +972,45 @@
             status.innerHTML = "Memproses data (harap tunggu)...";
             outputDiv.innerHTML = '';
             saveBtn.style.display = 'none';
-            currentActiveHistoryId = null; 
+            amCurrentActiveHistoryId = null; 
             localStorage.removeItem('draft_history_id');
             
-            let resultHTML = '';
-            let dayCounter = 1;
-            let shopeeIndex = 0;
-            let seenBatches = new Set(); 
+            let resultHTML = ''; let dayCounter = 1; let shopeeIndex = 0; let seenBatches = new Set(); 
 
-            // ======================================================
-            // PROSES KOTAK 2 (URL STANDAR / REPLACER) 
-            // ======================================================
+            // KOTAK 2 (REPLACER)
             for (let url of tweetUrls) {
                 try {
                     let apiUrl = url.trim().replace(/(https?:\/\/)?(www\.)?(twitter\.com|x\.com)/, 'https://api.vxtwitter.com').split('?')[0];
                     let response;
-                    
                     try {
                         response = await fetch(apiUrl);
                         if (!response.ok) throw new Error("Gagal jalur utama");
                     } catch (err) {
-                        let proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
-                        response = await fetch(proxyUrl);
+                        response = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl));
                     }
-
                     if (!response || !response.ok) continue;
-                    
                     let data = await response.json();
-                    let fullText = data.text;
                     let urlRegex = /(https?:\/\/[^\s]+)/g;
-                    let foundUrls = fullText.match(urlRegex) || [];
-
-                    let caption = fullText.replace(urlRegex, '').trim();
+                    let foundUrls = data.text.match(urlRegex) || [];
+                    let caption = data.text.replace(urlRegex, '').trim();
 
                     if (foundUrls.length > 0) {
                         let batchLinksData = [];
-
                         foundUrls.forEach(u => {
                             let cleanUrl = u.replace(/["']/g, "").trim();
-
-                            if (appMode === 'mixer') {
+                            if (amAppMode === 'mixer') {
                                 if (cleanUrl.includes('aceimg.com/upload/')) {
                                     let id = cleanUrl.split('?f=')[1]; 
-                                    if(id) {
-                                        batchLinksData.push({ url: "cdnpro.vercel.app/a/" + id, type: "vid" }); 
-                                    }
+                                    if(id) batchLinksData.push({ url: "cdnpro.vercel.app/a/" + id, type: "vid" }); 
                                 } else {
-                                    let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
-                                    batchLinksData.push({ url: myShopee, type: "shop" });
+                                    batchLinksData.push({ url: shopeeRaw[shopeeIndex % shopeeRaw.length], type: "shop" });
                                     shopeeIndex++; 
                                 }
                             } else {
                                 if (cleanUrl.includes('aceimg.com/upload/')) {
                                     batchLinksData.push({ url: cleanUrl, type: "original" });
                                 } else {
-                                    let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
-                                    batchLinksData.push({ url: myShopee, type: "shop" });
+                                    batchLinksData.push({ url: shopeeRaw[shopeeIndex % shopeeRaw.length], type: "shop" });
                                     shopeeIndex++; 
                                 }
                             }
@@ -1030,134 +1019,69 @@
                         if (batchLinksData.length > 0) {
                             let plainTextArr = [];
                             if (caption !== '') plainTextArr.push(caption);
-
-                            batchLinksData.forEach((item, idx) => {
-                                let cleanDisplayUrl = item.url.replace(/^https?:\/\//i, '');
-                                plainTextArr.push(cleanDisplayUrl);
-                            });
-
+                            batchLinksData.forEach(item => plainTextArr.push(item.url.replace(/^https?:\/\//i, '')));
                             let racikanText = plainTextArr.join('\n'); 
-                            let encodedTweetText = encodeURIComponent(racikanText);
-
+                            
                             if (!seenBatches.has(racikanText)) {
                                 seenBatches.add(racikanText);
-                                resultHTML += `
-                                <div class="result-day">
-                                    <h3>Batch ${dayCounter}</h3>
-                                    <label class="posted-toggle" title="Tandai sudah diposting">
-                                        <input type="checkbox" onchange="toggleDone(this)">
-                                    </label>
-                                    <div class="result-text">${racikanText}</div>
-                                    <div class="card-actions-bottom">
-                                        <button class="action-icon-only copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)" title="Copy">
-                                            <span class="material-symbols-rounded">content_copy</span>
-                                        </button>
-                                        <button class="action-icon-only share-btn" onclick="shareToX(this)" data-text="${encodedTweetText}" title="Share ke X">
-                                            <span class="material-symbols-rounded">share</span>
-                                        </button>
-                                    </div>
-                                </div>`;
+                                let encodedTweetText = encodeURIComponent(racikanText);
+                                resultHTML += `<div class="am-result-day"><h3>Batch ${dayCounter}</h3><label class="am-posted-toggle" title="Tandai sudah diposting"><input type="checkbox" onchange="amToggleDone(this)"></label><div class="am-result-text">${racikanText}</div><div class="am-card-actions-bottom"><button class="am-action-icon-only copy-btn" onclick="amCopyToClipboard(this, \`${racikanText}\`)" title="Copy"><span class="material-symbols-rounded">content_copy</span></button><button class="am-action-icon-only share-btn" onclick="amShareToX(this)" data-text="${encodedTweetText}" title="Share ke X"><span class="material-symbols-rounded">share</span></button></div></div>`;
                                 dayCounter++;
                             }
                         }
                     }
-                } catch (e) { console.log("Failed to process: " + url); }
+                } catch (e) {}
             }
 
-            // ======================================================
-            // PROSES KOTAK 3 (GABUNG 2x2 DENGAN API TWITTER KEMBALI)
-            // ======================================================
+            // KOTAK 3 (2x2 API)
             if (multiUrls.length > 0) {
-                let allCaptions = [];
-                let allVideoLinks = [];
-
-                // TAHAP 1: EKSTRAK DATA (Sedot dari Twitter pakai API)
+                let allCaptions = []; let allVideoLinks = [];
                 for (let url of multiUrls) {
                     if (url.includes('x.com') || url.includes('twitter.com')) {
                         try {
                             let apiUrl = url.trim().replace(/(https?:\/\/)?(www\.)?(twitter\.com|x\.com)/, 'https://api.vxtwitter.com').split('?')[0];
                             let response;
+                            try { response = await fetch(apiUrl); if (!response.ok) throw new Error();
+                            } catch (err) { response = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl)); }
                             
-                            try {
-                                response = await fetch(apiUrl);
-                                if (!response.ok) throw new Error("Gagal jalur utama");
-                            } catch (err) {
-                                let proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
-                                response = await fetch(proxyUrl);
-                            }
-
                             if (!response || !response.ok) continue;
-                            
                             let data = await response.json();
-                            let fullText = data.text;
                             let urlRegex = /(https?:\/\/[^\s]+)/g;
-                            let foundUrls = fullText.match(urlRegex) || [];
-
-                            // Ambil Caption
-                            let captionText = fullText.replace(urlRegex, '').trim();
+                            let foundUrls = data.text.match(urlRegex) || [];
+                            let captionText = data.text.replace(urlRegex, '').trim();
+                            
                             if (captionText !== '') allCaptions.push(captionText);
-
-                            // Saring URL: Hanya ambil link video (kayak aceimg/vdko) yg ada di DALEM cuitan
                             foundUrls.forEach(u => {
                                 let cleanUrl = u.replace(/["']/g, "").trim();
                                 if (!cleanUrl.includes('x.com') && !cleanUrl.includes('twitter.com') && !cleanUrl.includes('shopee.co.id') && !cleanUrl.includes('t.co')) {
                                     allVideoLinks.push(cleanUrl);
                                 }
                             });
-                        } catch (e) { console.log("Gagal proses link twitter di Kotak 3: " + url); }
+                        } catch (e) {}
                     } else {
-                        // Jaga-jaga kalau user iseng masukin link aceimg mentah juga di Kotak 3
-                        if (!url.includes('shopee.co.id')) {
-                            allVideoLinks.push(url.replace(/["']/g, "").trim());
-                        }
+                        if (!url.includes('shopee.co.id')) allVideoLinks.push(url.replace(/["']/g, "").trim());
                     }
                 }
 
-                // TAHAP 2: PECAH JADI 2x2
                 let batchIndex = 0; 
                 for (let i = 0; i < allVideoLinks.length; i += 2) {
                     let chunk = allVideoLinks.slice(i, i + 2); 
                     let plainTextArr = [];
-                    
-                    // Rotasi Judul/Caption
-                    if (allCaptions.length > 0) {
-                        let currentCaption = allCaptions[batchIndex % allCaptions.length];
-                        plainTextArr.push(currentCaption);
-                    }
+                    if (allCaptions.length > 0) plainTextArr.push(allCaptions[batchIndex % allCaptions.length]);
 
                     chunk.forEach(vidUrl => {
-                        // Masukin Link Video
                         plainTextArr.push(vidUrl.replace(/^https?:\/\//i, ''));
-                        
-                        // Masukin Link Shopee (Pasangan)
                         if (shopeeRaw.length > 0) {
-                            let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
-                            plainTextArr.push(myShopee.replace(/^https?:\/\//i, ''));
+                            plainTextArr.push(shopeeRaw[shopeeIndex % shopeeRaw.length].replace(/^https?:\/\//i, ''));
                             shopeeIndex++;
                         }
                     });
 
                     let racikanText = plainTextArr.join('\n');
-                    let encodedTweetText = encodeURIComponent(racikanText);
-
                     if (!seenBatches.has(racikanText)) {
                         seenBatches.add(racikanText);
-                        resultHTML += `
-                        <div class="result-day">
-                            <h3 style="color: var(--md-primary);">Batch ${dayCounter} (Gabung 2x2)</h3>
-                            <label class="posted-toggle" title="Tandai sudah diposting">
-                                <input type="checkbox" onchange="toggleDone(this)">
-                            </label>
-                            <div class="result-text">${racikanText}</div>
-                            <div class="card-actions-bottom">
-                                <button class="action-icon-only copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)" title="Copy">
-                                    <span class="material-symbols-rounded">content_copy</span>
-                                </button>
-                                <button class="action-icon-only share-btn" onclick="shareToX(this)" data-text="${encodedTweetText}" title="Share ke X">
-                                    <span class="material-symbols-rounded">share</span>
-                                </button>
-                            </div>
-                        </div>`;
+                        let encodedTweetText = encodeURIComponent(racikanText);
+                        resultHTML += `<div class="am-result-day"><h3 style="color: var(--md-primary);">Batch ${dayCounter} (Gabung 2x2)</h3><label class="am-posted-toggle"><input type="checkbox" onchange="amToggleDone(this)"></label><div class="am-result-text">${racikanText}</div><div class="am-card-actions-bottom"><button class="am-action-icon-only copy-btn" onclick="amCopyToClipboard(this, \`${racikanText}\`)"><span class="material-symbols-rounded">content_copy</span></button><button class="am-action-icon-only share-btn" onclick="amShareToX(this)" data-text="${encodedTweetText}"><span class="material-symbols-rounded">share</span></button></div></div>`;
                         dayCounter++;
                     }
                     batchIndex++; 
@@ -1165,164 +1089,132 @@
             }
 
             let totalBatches = dayCounter - 1;
-
-            if (totalBatches === 0) {
-                status.innerHTML = "Proses selesai. Tidak ada URL valid.";
-                return;
-            }
+            if (totalBatches === 0) { status.innerHTML = "Proses selesai. Tidak ada URL valid."; return; }
 
             status.innerHTML = `Proses selesai. Berhasil membuat ${totalBatches} batch.`;
             outputDiv.innerHTML = resultHTML;
-            
-            currentActiveResultHTML = resultHTML;
-            currentActiveItemsCount = totalBatches;
+            amCurrentActiveResultHTML = resultHTML;
+            amCurrentActiveItemsCount = totalBatches;
             saveBtn.style.display = 'block';
 
             localStorage.setItem('draft_result', resultHTML);
             localStorage.setItem('draft_count', totalBatches);
-            
-            switchTab('result');
+            amSwitchTab('result');
         }
 
-        function saveCurrentToHistory() {
-            if (!currentActiveResultHTML) return;
-            
+        function amSaveCurrentToHistory() {
+            if (!amCurrentActiveResultHTML) return;
             let history = JSON.parse(localStorage.getItem('refal_history')) || [];
-            let timestamp = new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
-            
             let newRecord = {
                 id: Date.now(),
-                title: `Batch Record (${currentActiveItemsCount} Items)`,
-                date: timestamp,
-                count: currentActiveItemsCount,
-                html: currentActiveResultHTML
+                title: `Batch Record (${amCurrentActiveItemsCount} Items)`,
+                date: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }),
+                count: amCurrentActiveItemsCount,
+                html: amCurrentActiveResultHTML
             };
-            
             history.unshift(newRecord); 
             localStorage.setItem('refal_history', JSON.stringify(history));
-            
-            currentActiveHistoryId = newRecord.id; 
+            amCurrentActiveHistoryId = newRecord.id; 
             localStorage.setItem('draft_history_id', newRecord.id);
-
-            document.getElementById('saveBtn').style.display = 'none';
-            renderHistory();
-            
-            toggleHistory(true); 
+            document.getElementById('am-saveBtn').style.display = 'none';
+            amRenderHistory(); amToggleHistory(true); 
         }
 
-        function renderHistory() {
+        function amRenderHistory() {
             let history = JSON.parse(localStorage.getItem('refal_history')) || [];
-            let container = document.getElementById('historyContainer');
-            
+            let container = document.getElementById('am-historyContainer');
             if (history.length === 0) {
-                container.innerHTML = `
-                    <div style="padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--md-secondary-container);">
-                        <h2 style="margin:0; font-size:22px; font-weight:500; color:var(--md-on-surface); font-family: 'Google Sans', 'Outfit', sans-serif;">File Tersimpan</h2>
-                    </div>
-                    <div style="text-align:center; padding: 60px 20px; color: var(--md-on-surface-variant);">
-                        <span class="material-symbols-rounded" style="font-size: 80px; opacity: 0.3; margin-bottom: 16px; display:block;">folder_open</span>
-                        <p style="font-size:14px; margin-top:8px;">Belum ada history racikan link yang Anda simpan.</p>
-                    </div>`;
+                container.innerHTML = `<div style="padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--md-secondary-container);"><h2 style="margin:0; font-size:22px; font-weight:500; color:var(--md-on-surface); font-family: 'Google Sans', 'Outfit', sans-serif;">File Tersimpan</h2></div><div style="text-align:center; padding: 60px 20px; color: var(--md-on-surface-variant);"><span class="material-symbols-rounded" style="font-size: 80px; opacity: 0.3; margin-bottom: 16px; display:block;">folder_open</span><p style="font-size:14px; margin-top:8px;">Belum ada history racikan link yang Anda simpan.</p></div>`;
                 return;
             }
-            
-            let html = `
-                <div style="padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--md-secondary-container);">
-                    <h2 style="margin:0; font-size:22px; font-weight:500; color:var(--md-on-surface); font-family: 'Google Sans', 'Outfit', sans-serif;">File Tersimpan</h2>
-                </div>`;
-                
+            let html = `<div style="padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--md-secondary-container);"><h2 style="margin:0; font-size:22px; font-weight:500; color:var(--md-on-surface); font-family: 'Google Sans', 'Outfit', sans-serif;">File Tersimpan</h2></div>`;
             history.forEach(item => {
                 let displayTitle = item.title || `Batch Record (${item.count} Items)`;
-                
-                html += `
-                <div class="history-item" onclick="loadHistoryItem(${item.id})">
-                    <div>
-                        <div class="history-info">${displayTitle}</div>
-                        <div class="history-date">${item.date}</div>
-                    </div>
-                    <div class="history-actions">
-                        <button class="more-btn" onclick="toggleMenu(${item.id}, event)">
-                            <span class="material-symbols-rounded">more_vert</span>
-                        </button>
-                        
-                        <div class="dropdown-menu" id="menu-${item.id}">
-                            <button onclick="renameHistoryItem(${item.id}, event)">Ubah Nama</button>
-                            <button class="danger" onclick="deleteHistoryItem(${item.id}, event)">Hapus</button>
-                        </div>
-                    </div>
-                </div>`;
+                html += `<div class="am-history-item" onclick="amLoadHistoryItem(${item.id})"><div><div class="am-history-info">${displayTitle}</div><div class="am-history-date">${item.date}</div></div><div class="am-history-actions"><button class="am-more-btn" onclick="amToggleMenu(${item.id}, event)"><span class="material-symbols-rounded">more_vert</span></button><div class="am-dropdown-menu" id="am-menu-${item.id}"><button onclick="amRenameHistoryItem(${item.id}, event)">Ubah Nama</button><button class="am-danger" onclick="amDeleteHistoryItem(${item.id}, event)">Hapus</button></div></div></div>`;
             });
             container.innerHTML = html;
         }
 
-        function loadHistoryItem(id) {
+        function amLoadHistoryItem(id) {
             let history = JSON.parse(localStorage.getItem('refal_history')) || [];
             let record = history.find(item => item.id === id);
             if (record) {
-                let displayTitle = record.title || `Batch Record (${record.count} Items)`;
-                document.getElementById('status').innerHTML = `Membuka data dari File: ${displayTitle}`;
-                document.getElementById('outputContainer').innerHTML = record.html;
-                document.getElementById('saveBtn').style.display = 'none';
-                
-                currentActiveResultHTML = record.html;
-                currentActiveItemsCount = record.count;
-                currentActiveHistoryId = id; 
-                
-                localStorage.setItem('draft_result', record.html);
-                localStorage.setItem('draft_count', record.count);
-                localStorage.setItem('draft_history_id', id);
-                
-                toggleHistory(false); 
-                switchTab('result'); 
+                document.getElementById('am-status').innerHTML = `Membuka data dari File: ${record.title || 'Batch Record'}`;
+                document.getElementById('am-outputContainer').innerHTML = record.html;
+                document.getElementById('am-saveBtn').style.display = 'none';
+                amCurrentActiveResultHTML = record.html; amCurrentActiveItemsCount = record.count; amCurrentActiveHistoryId = id; 
+                localStorage.setItem('draft_result', record.html); localStorage.setItem('draft_count', record.count); localStorage.setItem('draft_history_id', id);
+                amToggleHistory(false); amSwitchTab('result'); 
             }
         }
 
-        function deleteHistoryItem(id, event) {
+        function amDeleteHistoryItem(id, event) {
             event.stopPropagation();
             if(confirm("Hapus file history ini secara permanen?")) {
                 let history = JSON.parse(localStorage.getItem('refal_history')) || [];
-                history = history.filter(item => item.id !== id);
-                localStorage.setItem('refal_history', JSON.stringify(history));
-                renderHistory();
-            } else {
-                document.getElementById(`menu-${id}`).style.display = 'none';
-            }
+                localStorage.setItem('refal_history', JSON.stringify(history.filter(item => item.id !== id)));
+                amRenderHistory();
+            } else { document.getElementById(`am-menu-${id}`).style.display = 'none'; }
         }
 
-        function resetForm() {
-            document.getElementById('inputShopee').value = '';
-            document.getElementById('inputTweet').value = '';
-            document.getElementById('inputMultiTweet').value = '';
-            document.getElementById('status').innerHTML = '';
-            document.getElementById('outputContainer').innerHTML = '';
-            document.getElementById('saveBtn').style.display = 'none';
-            
-            currentActiveResultHTML = '';
-            currentActiveItemsCount = 0;
-            currentActiveHistoryId = null; 
-            
-            localStorage.removeItem('draft_shopee');
-            localStorage.removeItem('draft_tweet');
-            localStorage.removeItem('draft_multi_tweet');
-            localStorage.removeItem('draft_result');
-            localStorage.removeItem('draft_count');
-            localStorage.removeItem('draft_history_id');
+        function amResetForm() {
+            document.getElementById('am-inputShopee').value = ''; document.getElementById('am-inputTweet').value = '';
+            document.getElementById('am-inputMultiTweet').value = ''; document.getElementById('am-status').innerHTML = '';
+            document.getElementById('am-outputContainer').innerHTML = ''; document.getElementById('am-saveBtn').style.display = 'none';
+            amCurrentActiveResultHTML = ''; amCurrentActiveItemsCount = 0; amCurrentActiveHistoryId = null; 
+            ['draft_shopee','draft_tweet','draft_multi_tweet','draft_result','draft_count','draft_history_id'].forEach(k => localStorage.removeItem(k));
         }
 
-        function copyToClipboard(btn, text) {
+        function amCopyToClipboard(btn, text) {
             navigator.clipboard.writeText(text).then(() => {
-                let iconSpan = btn.querySelector('.material-symbols-rounded');
-                let originalIcon = iconSpan.innerText;
-                
-                iconSpan.innerText = 'check';
-                iconSpan.style.color = 'var(--md-primary)';
-                
-                setTimeout(() => {
-                    iconSpan.innerText = originalIcon;
-                    iconSpan.style.color = '';
-                }, 1500);
+                let iconSpan = btn.querySelector('.material-symbols-rounded'); let originalIcon = iconSpan.innerText;
+                iconSpan.innerText = 'check'; iconSpan.style.color = 'var(--md-primary)';
+                setTimeout(() => { iconSpan.innerText = originalIcon; iconSpan.style.color = ''; }, 1500);
             });
         }
+
+        /* ========================================================
+           BAGIAN 3: INITIALIZER (GABUNGAN ONLOAD)
+           ======================================================== */
+        window.onload = () => {
+            // Init Meme Generator
+            setTimeout(generateNewBackground, 500); 
+            
+            // Init AutoMixer LocalStorage
+            amRenderHistory();
+            let sInput = document.getElementById('am-inputShopee');
+            let tInput = document.getElementById('am-inputTweet');
+            let mInput = document.getElementById('am-inputMultiTweet');
+
+            if(localStorage.getItem('draft_shopee') && sInput) sInput.value = localStorage.getItem('draft_shopee');
+            if(localStorage.getItem('draft_tweet') && tInput) tInput.value = localStorage.getItem('draft_tweet');
+            if(localStorage.getItem('draft_multi_tweet') && mInput) mInput.value = localStorage.getItem('draft_multi_tweet');
+
+            let draftResult = localStorage.getItem('draft_result');
+            if(draftResult) {
+                document.getElementById('am-outputContainer').innerHTML = draftResult;
+                amCurrentActiveResultHTML = draftResult;
+                amCurrentActiveItemsCount = parseInt(localStorage.getItem('draft_count') || '0');
+                if (localStorage.getItem('draft_history_id')) amCurrentActiveHistoryId = parseInt(localStorage.getItem('draft_history_id'));
+                document.getElementById('am-saveBtn').style.display = 'block';
+                document.getElementById('am-status').innerHTML = "Data recovered from previous session.";
+            }
+
+            [sInput, tInput, mInput].forEach((input, idx) => {
+                if(input) {
+                    let key = ['draft_shopee', 'draft_tweet', 'draft_multi_tweet'][idx];
+                    let lastLen = input.value.length;
+                    input.addEventListener('input', function() {
+                        if (this.value.length - lastLen > 10) {
+                            if (!this.value.endsWith('\n')) this.value += '\n';
+                            this.scrollTop = this.scrollHeight;
+                        }
+                        lastLen = this.value.length;
+                        localStorage.setItem(key, this.value);
+                    });
+                }
+            });
+        };
     </script>
 </body>
 </html>
