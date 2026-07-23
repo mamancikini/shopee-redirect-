@@ -940,12 +940,44 @@ Kebutuhanmu prat 135</textarea>
             document.getElementById('memeStatus').innerHTML = `✅ Sukses! [Hash: ${uniqueId}]`;
         }
 
+        // FUNGSI DOWNLOAD UPDATE TERBARU (ANTI-CRASH WEBVIEW)
         function downloadImage() {
+            document.getElementById('memeStatus').innerText = '⏳ Memproses gambar...';
+            
+            // Ubah canvas ke format file Blob
+            memeCanvas.toBlob(async function(blob) {
+                const fileName = `AntiSpam_Meme_${Date.now()}.png`;
+                const file = new File([blob], fileName, { type: 'image/png' });
+
+                // Panggil menu Share bawaan Android (Nembus batasan WebView)
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({
+                            files: [file],
+                            title: 'Meme Anti-Spam'
+                        });
+                        document.getElementById('memeStatus').innerText = '💾 Gambar berhasil disimpan / dibagikan!';
+                    } catch (error) {
+                        console.log('Share dibatalkan atau error:', error);
+                        forceDownloadBlob(blob, fileName);
+                    }
+                } else {
+                    // Kalau HP/aplikasi ga dukung Share API, pakai cara alternatif
+                    forceDownloadBlob(blob, fileName);
+                }
+            }, 'image/png');
+        }
+
+        function forceDownloadBlob(blob, fileName) {
+            const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
-            link.download = `AntiSpam_Meme_${Date.now()}.png`; 
-            link.href = memeCanvas.toDataURL('image/png');
+            link.download = fileName;
+            link.href = url;
+            document.body.appendChild(link);
             link.click();
-            document.getElementById('memeStatus').innerText = '💾 Gambar berhasil didownload!';
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            document.getElementById('memeStatus').innerText = '💾 Mencoba mengunduh via jalur standar...';
         }
 
 
