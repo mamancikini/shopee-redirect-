@@ -415,7 +415,7 @@
         .dropdown-menu button:active { background-color: var(--md-surface); }
         .dropdown-menu button.danger { color: #d93025; } 
 
-        /* Bottom Navigation (Sekarang ada 3 Menu) */
+        /* Bottom Navigation */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0; height: 64px; 
             background-color: var(--md-bg); display: flex; justify-content: space-around; align-items: center;
@@ -440,7 +440,7 @@
         .nav-item.active .material-symbols-rounded { font-variation-settings: 'FILL' 1; }
 
         /* =======================================================
-           GAYA SPESIFIK UNTUK TAB MEME GENERATOR (MATERIAL STYLE)
+           GAYA SPESIFIK UNTUK TAB MEME GENERATOR & MODAL
            ======================================================= */
         .canvas-container {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -450,7 +450,6 @@
             display: block; max-width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer;
         }
         
-        /* Modifikasi Elemen Form agar Sesuai Tema Light AutoMixer */
         select.ui-select, input[type="range"].ui-slider {
             width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--md-secondary-container);
             background-color: transparent; color: var(--md-on-surface); font-size: 14px; font-family: 'Roboto', sans-serif;
@@ -464,6 +463,65 @@
         input[type="range"].ui-slider::-webkit-slider-thumb {
             -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%;
             background: var(--md-primary); cursor: pointer;
+        }
+
+        /* MODAL KHUSUS WEBVIEW UNTUK DOWNLOAD GAMBAR */
+        .webview-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .webview-modal.show {
+            display: flex;
+            opacity: 1;
+        }
+        .webview-modal-content {
+            background: var(--md-bg);
+            padding: 24px;
+            border-radius: 20px;
+            width: 85%;
+            max-width: 400px;
+            text-align: center;
+            color: var(--md-on-surface);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .webview-modal-content h3 {
+            margin: 0 0 10px 0;
+            font-size: 20px;
+            font-family: 'Google Sans', sans-serif;
+        }
+        .webview-modal-content p {
+            margin: 0 0 16px 0;
+            font-size: 14px;
+            color: var(--md-on-surface-variant);
+            line-height: 1.5;
+        }
+        .webview-modal-content img {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .webview-close-btn {
+            background: var(--md-primary);
+            color: var(--md-on-primary);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+            font-family: 'Google Sans', sans-serif;
+            cursor: pointer;
+        }
+        .webview-close-btn:active {
+            background: #0842a0;
         }
 
     </style>
@@ -543,7 +601,7 @@
                 <button class="reset-btn" onclick="randomizeFont()" title="Acak Font Teks">
                     <span class="material-symbols-rounded">text_format</span>
                 </button>
-                <button class="action-btn" onclick="downloadImage()" title="Download Gambar">
+                <button class="action-btn" onclick="openDownloadModal()" title="Simpan Gambar">
                     <span class="material-symbols-rounded">download</span>
                 </button>
             </div>
@@ -618,7 +676,6 @@ Kebutuhanmu prat 135</textarea>
              ============================================== -->
         <div id="tab-result" class="tab-content">
             <div id="status"></div>
-            <!-- Tombol simpan FAB Melayang -->
             <button id="saveBtn" class="save-btn" onclick="saveCurrentToHistory()" title="Simpan ke File">
                 <span class="material-symbols-rounded">save</span>
             </button>
@@ -633,24 +690,19 @@ Kebutuhanmu prat 135</textarea>
     </main>
 
     <!-- ==============================================
-         BOTTOM NAVIGATION (SEKARANG 3 MENU)
+         BOTTOM NAVIGATION
          ============================================== -->
     <nav class="bottom-nav">
-        <!-- Tab 1: Home (Kiri) -->
         <div class="nav-item active" onclick="switchTab('home')" id="nav-home">
             <div class="nav-icon-wrapper">
                 <span class="material-symbols-rounded">home</span>
             </div>
         </div>
-        
-        <!-- Tab 2: Meme Gen (Tengah) -->
         <div class="nav-item" onclick="switchTab('meme')" id="nav-meme">
             <div class="nav-icon-wrapper">
                 <span class="material-symbols-rounded">palette</span>
             </div>
         </div>
-
-        <!-- Tab 3: Hasil (Kanan) -->
         <div class="nav-item" onclick="switchTab('result')" id="nav-result">
             <div class="nav-icon-wrapper">
                 <span class="material-symbols-rounded">article</span>
@@ -658,15 +710,25 @@ Kebutuhanmu prat 135</textarea>
         </div>
     </nav>
 
+    <!-- ==============================================
+         MODAL POP-UP KHUSUS WEBVIEW (UNTUK DOWNLOAD)
+         ============================================== -->
+    <div id="webviewModal" class="webview-modal">
+        <div class="webview-modal-content">
+            <h3>Simpan Gambar</h3>
+            <p>Tekan dan tahan (long-press) gambar di bawah ini, lalu pilih <b>"Simpan Gambar"</b> atau <b>"Save Image"</b>.</p>
+            <img id="webviewImage" src="" alt="Meme Image">
+            <button class="webview-close-btn" onclick="closeDownloadModal()">Mengerti, Tutup</button>
+        </div>
+    </div>
+
     <script>
         // ========================================================
-        // BAGIAN 1: SISTEM NAVIGASI & SWIPE (DIUPDATE UNTUK 3 TAB)
+        // BAGIAN 1: SISTEM NAVIGASI & SWIPE
         // ========================================================
         let appMode = 'mixer'; 
         let lastActiveMainTab = 'home'; 
         let isHistoryOpen = false;
-        
-        // Urutan tab untuk fitur swipe
         const mainTabsArray = ['home', 'meme', 'result']; 
 
         function toggleMode() {
@@ -691,11 +753,8 @@ Kebutuhanmu prat 135</textarea>
 
             document.querySelectorAll('.dropdown-menu').forEach(menu => menu.style.display = 'none');
 
-            if (forceOpen !== undefined) {
-                isHistoryOpen = forceOpen;
-            } else {
-                isHistoryOpen = !isHistoryOpen;
-            }
+            if (forceOpen !== undefined) { isHistoryOpen = forceOpen; } 
+            else { isHistoryOpen = !isHistoryOpen; }
 
             if (!isHistoryOpen) {
                 historyTab.classList.remove('active');
@@ -713,19 +772,14 @@ Kebutuhanmu prat 135</textarea>
                 if(!isHistoryOpen) toggleHistory(true);
                 return;
             }
-
-            // Hapus status active dari semua tab
             mainTabsArray.forEach(t => {
                 let tContent = document.getElementById('tab-' + t);
                 let tNav = document.getElementById('nav-' + t);
                 if(tContent) tContent.classList.remove('active');
                 if(tNav) tNav.classList.remove('active');
             });
-            
-            // Tambahkan active ke tab yang dipilih
             document.getElementById('tab-' + tabName).classList.add('active');
             document.getElementById('nav-' + tabName).classList.add('active');
-            
             lastActiveMainTab = tabName; 
             window.scrollTo(0, 0);
         }
@@ -734,7 +788,7 @@ Kebutuhanmu prat 135</textarea>
             if (e.target === this && isHistoryOpen) { toggleHistory(false); }
         });
 
-        // MESIN SWIPE REAL-TIME KHUSUS 3 TAB
+        // MESIN SWIPE REAL-TIME
         let touchStartX = 0; let touchStartY = 0; let dragStartX = 0;
         let startTime = 0; let isDraggingDrawer = false; let isSwipingTab = false;
         let isVerticalScroll = false; let drawerWidth = 0;
@@ -743,7 +797,6 @@ Kebutuhanmu prat 135</textarea>
             touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY;
             startTime = Date.now(); isVerticalScroll = false; isDraggingDrawer = false; isSwipingTab = false;
             drawerWidth = document.getElementById('historyContainer').offsetWidth || 320;
-            
             if (isHistoryOpen) {
                 document.getElementById('historyContainer').style.transition = 'none';
                 document.getElementById('tab-history').style.transition = 'none';
@@ -768,10 +821,7 @@ Kebutuhanmu prat 135</textarea>
                             document.getElementById('historyContainer').style.transition = 'none';
                             document.getElementById('tab-history').style.transition = 'none';
                         } else { isSwipingTab = true; }
-                    } else {
-                        // Kalau di tab Meme atau Result, murni fitur swipe antar tab
-                        isSwipingTab = true;
-                    }
+                    } else { isSwipingTab = true; }
                 }
             }
 
@@ -779,7 +829,6 @@ Kebutuhanmu prat 135</textarea>
                 let container = document.getElementById('historyContainer');
                 let backdrop = document.getElementById('tab-history');
                 let dragDiff = currentX - dragStartX;
-                
                 if (!isHistoryOpen) {
                     let moveX = Math.min(0, -100 + (dragDiff / drawerWidth) * 100);
                     container.style.transform = `translateX(${moveX}%)`;
@@ -811,21 +860,19 @@ Kebutuhanmu prat 135</textarea>
                     if (dragDiff < -(drawerWidth * 0.25) || velocityX < -0.5) toggleHistory(false); else toggleHistory(true);
                 }
             } else if (isSwipingTab) {
-                // Logika pindah antar 3 Tab pakai array index
                 let currentIndex = mainTabsArray.indexOf(lastActiveMainTab);
                 if (diffX < -40 && currentIndex < mainTabsArray.length - 1 && !isHistoryOpen) {
-                    switchTab(mainTabsArray[currentIndex + 1]); // Swipe Kiri (Next)
+                    switchTab(mainTabsArray[currentIndex + 1]); 
                 } else if (diffX > 40 && currentIndex > 0 && !isHistoryOpen) {
-                    switchTab(mainTabsArray[currentIndex - 1]); // Swipe Kanan (Prev)
+                    switchTab(mainTabsArray[currentIndex - 1]); 
                 }
             }
-            
             touchStartX = 0; touchStartY = 0; isDraggingDrawer = false; isSwipingTab = false; isVerticalScroll = false;
         }, {passive: true});
 
 
         // ========================================================
-        // BAGIAN 2: LOGIKA LOGIC MEME GENERATOR KANVAS
+        // BAGIAN 2: LOGIKA KANVAS & MODAL DOWNLOAD WEBVIEW
         // ========================================================
         const memeCanvas = document.getElementById('memeCanvas');
         const memeCtx = memeCanvas.getContext('2d');
@@ -940,44 +987,27 @@ Kebutuhanmu prat 135</textarea>
             document.getElementById('memeStatus').innerHTML = `✅ Sukses! [Hash: ${uniqueId}]`;
         }
 
-        // FUNGSI DOWNLOAD UPDATE TERBARU (ANTI-CRASH WEBVIEW)
-        function downloadImage() {
-            document.getElementById('memeStatus').innerText = '⏳ Memproses gambar...';
-            
-            // Ubah canvas ke format file Blob
-            memeCanvas.toBlob(async function(blob) {
-                const fileName = `AntiSpam_Meme_${Date.now()}.png`;
-                const file = new File([blob], fileName, { type: 'image/png' });
-
-                // Panggil menu Share bawaan Android (Nembus batasan WebView)
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    try {
-                        await navigator.share({
-                            files: [file],
-                            title: 'Meme Anti-Spam'
-                        });
-                        document.getElementById('memeStatus').innerText = '💾 Gambar berhasil disimpan / dibagikan!';
-                    } catch (error) {
-                        console.log('Share dibatalkan atau error:', error);
-                        forceDownloadBlob(blob, fileName);
-                    }
-                } else {
-                    // Kalau HP/aplikasi ga dukung Share API, pakai cara alternatif
-                    forceDownloadBlob(blob, fileName);
-                }
-            }, 'image/png');
+        // FUNGSI MODAL DOWNLOAD ANTI-CRASH UNTUK WEBVIEW
+        function openDownloadModal() {
+            document.getElementById('memeStatus').innerText = '⏳ Menyiapkan gambar...';
+            try {
+                // Tarik gambar dari kanvas jadi URL Base64
+                const dataUrl = memeCanvas.toDataURL('image/png');
+                
+                // Tempel di Modal
+                document.getElementById('webviewImage').src = dataUrl;
+                
+                // Tampilkan Modal
+                document.getElementById('webviewModal').classList.add('show');
+                document.getElementById('memeStatus').innerText = '✅ Silakan simpan gambar.';
+            } catch (error) {
+                document.getElementById('memeStatus').innerText = '❌ Gagal memproses gambar.';
+                console.error(error);
+            }
         }
 
-        function forceDownloadBlob(blob, fileName) {
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.download = fileName;
-            link.href = url;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-            document.getElementById('memeStatus').innerText = '💾 Mencoba mengunduh via jalur standar...';
+        function closeDownloadModal() {
+            document.getElementById('webviewModal').classList.remove('show');
         }
 
 
@@ -1252,13 +1282,11 @@ Kebutuhanmu prat 135</textarea>
 
 
         // ========================================================
-        // BAGIAN 4: INIT SAAT HALAMAN DIMUAT (GABUNGAN)
+        // BAGIAN 4: INIT SAAT HALAMAN DIMUAT
         // ========================================================
         window.onload = function() {
-            // Init Canvas Meme Generator
             setTimeout(generateNewBackground, 500); 
 
-            // Init History & Draft AutoMixer
             renderHistory();
             
             let sInput = document.getElementById('inputShopee');
