@@ -615,11 +615,12 @@
         let lastActiveMainTab = 'home'; 
         let isHistoryOpen = false;
 
-        // FUNGSI BARU: Generate vdko.lol ke Kotak 1
+        // FUNGSI BARU: Generate vdko.lol ke Kotak 1 dengan panjang 11 karakter (kembar dengan vdko.de)
         function generateVdko() {
             let links = [];
             for(let i=0; i<50; i++) {
-                let r = Math.random().toString(36).substring(2, 8); // Huruf acak
+                // Kombinasi dua acakan biar bisa dapat panjang persis 11 karakter
+                let r = (Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 6)).substring(0, 11);
                 links.push(`vdko.lol/f/${r}`);
             }
             let sInput = document.getElementById('inputShopee');
@@ -968,7 +969,7 @@
         }
 
         // ========================================================
-        // MESIN GENERATOR UTAMA DENGAN UPDATE ACAK POSISI & FOLDER
+        // MESIN GENERATOR UTAMA (UPDATE: CAPTION DIHAPUS, LINK DIPANJANGIN)
         // ========================================================
         async function generateAll() {
             let status = document.getElementById('status');
@@ -1007,7 +1008,7 @@
             let seenBatches = new Set(); 
 
             // ======================================================
-            // PROSES KOTAK 2 (URL STANDAR / REPLACER) - DIROMBAK
+            // PROSES KOTAK 2 (URL STANDAR / REPLACER) - VERSI MURNI FOLDER
             // ======================================================
             for (let url of tweetUrls) {
                 try {
@@ -1029,9 +1030,6 @@
                     let urlRegex = /(https?:\/\/[^\s]+)/g;
                     let foundUrls = fullText.match(urlRegex) || [];
 
-                    // Saring teks murni tanpa URL (buat caption asli)
-                    let caption = fullText.replace(urlRegex, '').trim();
-
                     if (foundUrls.length > 0) {
                         // Cari link vdko.de atau aceimg (kalau gaada, ambil link pertama aja)
                         let targetVidUrl = foundUrls.find(u => u.includes('vdko.de') || u.includes('aceimg') || u.includes('t.co')) || foundUrls[0];
@@ -1050,23 +1048,19 @@
                             myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length].replace(/^https?:\/\//i, '');
                             shopeeIndex++;
                         } else {
-                            let r = Math.random().toString(36).substring(2, 8);
+                            // Generate otomatis 11 karakter (sama persis dengan vdko.de)
+                            let r = (Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 6)).substring(0, 11);
                             myShopee = `vdko.lol/f/${r}`;
                         }
 
-                        // === BAGIAN INTI: ACAK POSISI ATAS-BAWAH ===
+                        // === BAGIAN INTI: ACAK POSISI ATAS-BAWAH (Murni) ===
                         let pair = [cleanVid, myShopee];
                         pair.sort(() => Math.random() - 0.5); // Perintah sakti pengacak posisi
 
-                        // Rangkai teks akhirnya
+                        // Rangkai teks akhirnya tanpa caption asli dari Twitter
                         let plainTextArr = [];
                         
-                        // Masukin caption bawaan (kalau ada)
-                        if (caption !== '') {
-                            plainTextArr.push(caption);
-                        }
-                        
-                        // Masukin link yang udah diacak posisinya dan dikasih emoji Folder
+                        // Masukin link yang udah diacak posisinya dan dikasih emoji Folder murni
                         plainTextArr.push('📁\n' + pair[0]);
                         plainTextArr.push('📁\n' + pair[1]);
 
@@ -1098,10 +1092,9 @@
             }
 
             // ======================================================
-            // PROSES KOTAK 3 (GABUNG 2x2) - IKUT DIROMBAK JUGA
+            // PROSES KOTAK 3 (GABUNG 2x2) - VERSI MURNI FOLDER JUGA
             // ======================================================
             if (multiUrls.length > 0) {
-                let allCaptions = [];
                 let allVideoLinks = [];
 
                 for (let url of multiUrls) {
@@ -1125,9 +1118,6 @@
                             let urlRegex = /(https?:\/\/[^\s]+)/g;
                             let foundUrls = fullText.match(urlRegex) || [];
 
-                            let captionText = fullText.replace(urlRegex, '').trim();
-                            if (captionText !== '') allCaptions.push(captionText);
-
                             foundUrls.forEach(u => {
                                 let cleanUrl = u.replace(/["']/g, "").trim();
                                 if (!cleanUrl.includes('x.com') && !cleanUrl.includes('twitter.com') && !cleanUrl.includes('shopee.co.id') && !cleanUrl.includes('t.co')) {
@@ -1147,17 +1137,14 @@
                     let chunk = allVideoLinks.slice(i, i + 2); 
                     let plainTextArr = [];
                     
-                    if (allCaptions.length > 0) {
-                        plainTextArr.push(allCaptions[batchIndex % allCaptions.length]);
-                    }
-
                     chunk.forEach(vidUrl => {
                         let myShopee = "";
                         if (shopeeRaw.length > 0) {
                             myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
                             shopeeIndex++;
                         } else {
-                            let r = Math.random().toString(36).substring(2, 8);
+                            // Generate otomatis 11 karakter
+                            let r = (Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 6)).substring(0, 11);
                             myShopee = `vdko.lol/f/${r}`;
                         }
 
