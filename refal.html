@@ -615,6 +615,9 @@
         let lastActiveMainTab = 'home'; 
         let isHistoryOpen = false;
 
+        // FUNGSI JEDA WAKTU (DELAY ANTI TILANG API)
+        const delay = ms => new Promise(res => setTimeout(res, ms));
+
         // FUNGSI BARU: Generate vdko.lol ke Kotak 1 dengan panjang 11 karakter (kembar dengan vdko.de)
         function generateVdko() {
             let links = [];
@@ -969,7 +972,7 @@
         }
 
         // ========================================================
-        // MESIN GENERATOR UTAMA (UPDATE: CAPTION DIHAPUS, LINK DIPANJANGIN)
+        // MESIN GENERATOR UTAMA (ANTI-DUPLIKAT DIMATIKAN & DITAMBAH JEDA API)
         // ========================================================
         async function generateAll() {
             let status = document.getElementById('status');
@@ -996,7 +999,7 @@
                 return;
             }
 
-            status.innerHTML = "Memproses data (harap tunggu)...";
+            status.innerHTML = "Lagi narik data bos, santai sambil ngopi... (Makin banyak link makin lama)";
             outputDiv.innerHTML = '';
             saveBtn.style.display = 'none';
             currentActiveHistoryId = null; 
@@ -1005,7 +1008,8 @@
             let resultHTML = '';
             let dayCounter = 1;
             let shopeeIndex = 0;
-            let seenBatches = new Set(); 
+            
+            // Catatan: Variabel seenBatches dihapus biar bisa nampilin kembaran.
 
             // ======================================================
             // PROSES KOTAK 2 (URL STANDAR / REPLACER) - VERSI MURNI FOLDER
@@ -1016,9 +1020,15 @@
                     let response;
                     
                     try {
+                        // JEDA 300ms BIAR API NGGAK NGOS-NGOSAN DITILANG SERVER
+                        await delay(300);
+                        
                         response = await fetch(apiUrl);
                         if (!response.ok) throw new Error("Gagal jalur utama");
                     } catch (err) {
+                        // JEDA JUGA KALAU LEWAT PROXY
+                        await delay(300);
+                        
                         let proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
                         response = await fetch(proxyUrl);
                     }
@@ -1067,26 +1077,26 @@
                         let racikanText = plainTextArr.join('\n'); 
                         let encodedTweetText = encodeURIComponent(racikanText);
 
-                        if (!seenBatches.has(racikanText)) {
-                            seenBatches.add(racikanText);
-                            resultHTML += `
-                            <div class="result-day">
-                                <h3>Batch ${dayCounter}</h3>
-                                <label class="posted-toggle" title="Tandai sudah diposting">
-                                    <input type="checkbox" onchange="toggleDone(this)">
-                                </label>
-                                <div class="result-text">${racikanText}</div>
-                                <div class="card-actions-bottom">
-                                    <button class="action-icon-only copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)" title="Copy">
-                                        <span class="material-symbols-rounded">content_copy</span>
-                                    </button>
-                                    <button class="action-icon-only share-btn" onclick="shareToX(this)" data-text="${encodedTweetText}" title="Share ke X">
-                                        <span class="material-symbols-rounded">share</span>
-                                    </button>
-                                </div>
-                            </div>`;
-                            dayCounter++;
-                        }
+                        // MESIN ANTI DUPLIKAT DIMATIKAN
+                        // Langsung hajar masukin ke hasil tanpa cek kembar
+                        resultHTML += `
+                        <div class="result-day">
+                            <h3>Batch ${dayCounter}</h3>
+                            <label class="posted-toggle" title="Tandai sudah diposting">
+                                <input type="checkbox" onchange="toggleDone(this)">
+                            </label>
+                            <div class="result-text">${racikanText}</div>
+                            <div class="card-actions-bottom">
+                                <button class="action-icon-only copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)" title="Copy">
+                                    <span class="material-symbols-rounded">content_copy</span>
+                                </button>
+                                <button class="action-icon-only share-btn" onclick="shareToX(this)" data-text="${encodedTweetText}" title="Share ke X">
+                                    <span class="material-symbols-rounded">share</span>
+                                </button>
+                            </div>
+                        </div>`;
+                        dayCounter++;
+                        
                     }
                 } catch (e) { console.log("Failed to process: " + url); }
             }
@@ -1104,9 +1114,11 @@
                             let response;
                             
                             try {
+                                await delay(300); // JEDA 300ms
                                 response = await fetch(apiUrl);
                                 if (!response.ok) throw new Error("Gagal");
                             } catch (err) {
+                                await delay(300); // JEDA 300ms
                                 let proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
                                 response = await fetch(proxyUrl);
                             }
@@ -1159,26 +1171,24 @@
                     let racikanText = plainTextArr.join('\n');
                     let encodedTweetText = encodeURIComponent(racikanText);
 
-                    if (!seenBatches.has(racikanText)) {
-                        seenBatches.add(racikanText);
-                        resultHTML += `
-                        <div class="result-day">
-                            <h3 style="color: var(--md-primary);">Batch ${dayCounter} (Gabung 2x2)</h3>
-                            <label class="posted-toggle" title="Tandai sudah diposting">
-                                <input type="checkbox" onchange="toggleDone(this)">
-                            </label>
-                            <div class="result-text">${racikanText}</div>
-                            <div class="card-actions-bottom">
-                                <button class="action-icon-only copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)" title="Copy">
-                                    <span class="material-symbols-rounded">content_copy</span>
-                                </button>
-                                <button class="action-icon-only share-btn" onclick="shareToX(this)" data-text="${encodedTweetText}" title="Share ke X">
-                                    <span class="material-symbols-rounded">share</span>
-                                </button>
-                            </div>
-                        </div>`;
-                        dayCounter++;
-                    }
+                    // MESIN ANTI DUPLIKAT DIMATIKAN
+                    resultHTML += `
+                    <div class="result-day">
+                        <h3 style="color: var(--md-primary);">Batch ${dayCounter} (Gabung 2x2)</h3>
+                        <label class="posted-toggle" title="Tandai sudah diposting">
+                            <input type="checkbox" onchange="toggleDone(this)">
+                        </label>
+                        <div class="result-text">${racikanText}</div>
+                        <div class="card-actions-bottom">
+                            <button class="action-icon-only copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)" title="Copy">
+                                <span class="material-symbols-rounded">content_copy</span>
+                            </button>
+                            <button class="action-icon-only share-btn" onclick="shareToX(this)" data-text="${encodedTweetText}" title="Share ke X">
+                                <span class="material-symbols-rounded">share</span>
+                            </button>
+                        </div>
+                    </div>`;
+                    dayCounter++;
                     batchIndex++; 
                 }
             }
@@ -1186,11 +1196,11 @@
             let totalBatches = dayCounter - 1;
 
             if (totalBatches === 0) {
-                status.innerHTML = "Proses selesai. Tidak ada URL valid.";
+                status.innerHTML = "Proses selesai. Tidak ada URL valid (atau API lagi ngambek).";
                 return;
             }
 
-            status.innerHTML = `Proses selesai. Berhasil membuat ${totalBatches} batch.`;
+            status.innerHTML = `Gas Berhasil! Ketarik ${totalBatches} batch sempurna.`;
             outputDiv.innerHTML = resultHTML;
             
             currentActiveResultHTML = resultHTML;
