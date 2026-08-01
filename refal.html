@@ -231,6 +231,21 @@
             background-color: var(--md-primary); 
         }
 
+        /* Tombol Auto vdko.lol */
+        .mini-btn {
+            font-size: 12px;
+            background: #d3e3fd;
+            color: #041e49;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: 'Google Sans', 'Outfit', sans-serif;
+            transition: opacity 0.2s;
+        }
+        .mini-btn:active { opacity: 0.7; }
+
         /* FAB Save Button */
         button.save-btn {
             position: fixed;
@@ -527,13 +542,17 @@
             </div>
 
             <div class="box">
-                <label>Shopee Links</label>
-                <textarea id="inputShopee" placeholder="Tempel link Shopee Anda di sini..."></textarea>
+                <!-- Label diupdate biar ada tombol sakti ✨ Auto vdko.lol -->
+                <label style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Shopee Links</span>
+                    <button type="button" class="mini-btn" onclick="generateVdko()" title="Bikin link vdko.lol otomatis">✨ Auto vdko.lol</button>
+                </label>
+                <textarea id="inputShopee" placeholder="Tempel link Shopee / biarkan kosong buat otomatis pakai vdko.lol"></textarea>
             </div>
 
             <div class="box">
                 <label>URLs (Standar / Replace)</label>
-                <textarea id="inputTweet" placeholder="Tempel link cuitan Anda di sini..."></textarea>
+                <textarea id="inputTweet" placeholder="Tempel link cuitan Twitter asupan di sini..."></textarea>
             </div>
 
             <!-- KOTAK 3 -->
@@ -595,6 +614,19 @@
         let appMode = 'mixer'; 
         let lastActiveMainTab = 'home'; 
         let isHistoryOpen = false;
+
+        // FUNGSI BARU: Generate vdko.lol ke Kotak 1
+        function generateVdko() {
+            let links = [];
+            for(let i=0; i<50; i++) {
+                let r = Math.random().toString(36).substring(2, 8); // Huruf acak
+                links.push(`vdko.lol/f/${r}`);
+            }
+            let sInput = document.getElementById('inputShopee');
+            sInput.value = links.join('\n');
+            localStorage.setItem('draft_shopee', sInput.value); // Simpan otomatis
+            sInput.scrollTop = sInput.scrollHeight; // Auto scroll ke bawah
+        }
 
         function toggleMode() {
             let isChecked = document.getElementById('modeSwitch').checked;
@@ -958,8 +990,9 @@
             let tweetUrls = rawTweetInput.match(/(https?:\/\/[^\s]+)/g) || [];
             let multiUrls = rawMultiInput.match(/(https?:\/\/[^\s]+)/g) || [];
 
-            if (shopeeRaw.length === 0 || (tweetUrls.length === 0 && multiUrls.length === 0)) {
-                alert("Silakan isi Shopee Links dan salah satu kotak URLs.");
+            // VALIDASI DIUBAH: Kalo kotak Shopee kosong tetep jalan, karena bakal pake vdko.lol otomatis
+            if (tweetUrls.length === 0 && multiUrls.length === 0) {
+                alert("Silakan isi salah satu kotak URLs (Kotak 2 atau 3) buat dapet asupan videonya bro.");
                 return;
             }
 
@@ -1004,6 +1037,17 @@
 
                         foundUrls.forEach(u => {
                             let cleanUrl = u.replace(/["']/g, "").trim();
+                            let myShopee = "";
+
+                            // SISTEM AUTO-PILOT VDKO.LOL
+                            if (shopeeRaw.length > 0) {
+                                myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
+                                shopeeIndex++;
+                            } else {
+                                // Kalau kotak Shopee kosong, otomatis bikin link vdko.lol acak
+                                let r = Math.random().toString(36).substring(2, 8);
+                                myShopee = `vdko.lol/f/${r}`;
+                            }
 
                             if (appMode === 'mixer') {
                                 if (cleanUrl.includes('aceimg.com/upload/')) {
@@ -1012,17 +1056,13 @@
                                         batchLinksData.push({ url: "cdnpro.vercel.app/a/" + id, type: "vid" }); 
                                     }
                                 } else {
-                                    let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
                                     batchLinksData.push({ url: myShopee, type: "shop" });
-                                    shopeeIndex++; 
                                 }
                             } else {
-                                if (cleanUrl.includes('aceimg.com/upload/')) {
+                                if (cleanUrl.includes('aceimg.com/upload/') || cleanUrl.includes('vdko.de')) {
                                     batchLinksData.push({ url: cleanUrl, type: "original" });
                                 } else {
-                                    let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
                                     batchLinksData.push({ url: myShopee, type: "shop" });
-                                    shopeeIndex++; 
                                 }
                             }
                         });
@@ -1097,7 +1137,7 @@
                             let captionText = fullText.replace(urlRegex, '').trim();
                             if (captionText !== '') allCaptions.push(captionText);
 
-                            // Saring URL: Hanya ambil link video (kayak aceimg/vdko) yg ada di DALEM cuitan
+                            // Saring URL
                             foundUrls.forEach(u => {
                                 let cleanUrl = u.replace(/["']/g, "").trim();
                                 if (!cleanUrl.includes('x.com') && !cleanUrl.includes('twitter.com') && !cleanUrl.includes('shopee.co.id') && !cleanUrl.includes('t.co')) {
@@ -1106,7 +1146,6 @@
                             });
                         } catch (e) { console.log("Gagal proses link twitter di Kotak 3: " + url); }
                     } else {
-                        // Jaga-jaga kalau user iseng masukin link aceimg mentah juga di Kotak 3
                         if (!url.includes('shopee.co.id')) {
                             allVideoLinks.push(url.replace(/["']/g, "").trim());
                         }
@@ -1129,11 +1168,14 @@
                         // Masukin Link Video
                         plainTextArr.push(vidUrl.replace(/^https?:\/\//i, ''));
                         
-                        // Masukin Link Shopee (Pasangan)
+                        // Masukin Link Shopee / Sistem Auto-Pilot vdko.lol
                         if (shopeeRaw.length > 0) {
                             let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
                             plainTextArr.push(myShopee.replace(/^https?:\/\//i, ''));
                             shopeeIndex++;
+                        } else {
+                            let r = Math.random().toString(36).substring(2, 8);
+                            plainTextArr.push(`vdko.lol/f/${r}`);
                         }
                     });
 
