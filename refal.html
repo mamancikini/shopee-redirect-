@@ -968,7 +968,7 @@
         }
 
         // ========================================================
-        // MESIN GENERATOR UTAMA
+        // MESIN GENERATOR UTAMA DENGAN UPDATE ACAK POSISI & FOLDER
         // ========================================================
         async function generateAll() {
             let status = document.getElementById('status');
@@ -990,9 +990,8 @@
             let tweetUrls = rawTweetInput.match(/(https?:\/\/[^\s]+)/g) || [];
             let multiUrls = rawMultiInput.match(/(https?:\/\/[^\s]+)/g) || [];
 
-            // VALIDASI DIUBAH: Kalo kotak Shopee kosong tetep jalan, karena bakal pake vdko.lol otomatis
             if (tweetUrls.length === 0 && multiUrls.length === 0) {
-                alert("Silakan isi salah satu kotak URLs (Kotak 2 atau 3) buat dapet asupan videonya bro.");
+                alert("Silakan isi Kotak 2 (URLs Standar) buat dapet asupan videonya bro.");
                 return;
             }
 
@@ -1008,7 +1007,7 @@
             let seenBatches = new Set(); 
 
             // ======================================================
-            // PROSES KOTAK 2 (URL STANDAR / REPLACER) 
+            // PROSES KOTAK 2 (URL STANDAR / REPLACER) - DIROMBAK
             // ======================================================
             for (let url of tweetUrls) {
                 try {
@@ -1030,88 +1029,81 @@
                     let urlRegex = /(https?:\/\/[^\s]+)/g;
                     let foundUrls = fullText.match(urlRegex) || [];
 
+                    // Saring teks murni tanpa URL (buat caption asli)
                     let caption = fullText.replace(urlRegex, '').trim();
 
                     if (foundUrls.length > 0) {
-                        let batchLinksData = [];
+                        // Cari link vdko.de atau aceimg (kalau gaada, ambil link pertama aja)
+                        let targetVidUrl = foundUrls.find(u => u.includes('vdko.de') || u.includes('aceimg') || u.includes('t.co')) || foundUrls[0];
+                        let cleanVid = targetVidUrl.replace(/["']/g, "").trim();
+                        
+                        if (appMode === 'mixer' && cleanVid.includes('aceimg.com/upload/')) {
+                            let id = cleanVid.split('?f=')[1]; 
+                            if(id) cleanVid = "cdnpro.vercel.app/a/" + id;
+                        }
+                        // Bersihin https:// depannya biar rapi
+                        cleanVid = cleanVid.replace(/^https?:\/\//i, '');
 
-                        foundUrls.forEach(u => {
-                            let cleanUrl = u.replace(/["']/g, "").trim();
-                            let myShopee = "";
+                        // Ambil Link Shopee atau Generate baru otomatis
+                        let myShopee = "";
+                        if (shopeeRaw.length > 0) {
+                            myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length].replace(/^https?:\/\//i, '');
+                            shopeeIndex++;
+                        } else {
+                            let r = Math.random().toString(36).substring(2, 8);
+                            myShopee = `vdko.lol/f/${r}`;
+                        }
 
-                            // SISTEM AUTO-PILOT VDKO.LOL
-                            if (shopeeRaw.length > 0) {
-                                myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
-                                shopeeIndex++;
-                            } else {
-                                // Kalau kotak Shopee kosong, otomatis bikin link vdko.lol acak
-                                let r = Math.random().toString(36).substring(2, 8);
-                                myShopee = `vdko.lol/f/${r}`;
-                            }
+                        // === BAGIAN INTI: ACAK POSISI ATAS-BAWAH ===
+                        let pair = [cleanVid, myShopee];
+                        pair.sort(() => Math.random() - 0.5); // Perintah sakti pengacak posisi
 
-                            if (appMode === 'mixer') {
-                                if (cleanUrl.includes('aceimg.com/upload/')) {
-                                    let id = cleanUrl.split('?f=')[1]; 
-                                    if(id) {
-                                        batchLinksData.push({ url: "cdnpro.vercel.app/a/" + id, type: "vid" }); 
-                                    }
-                                } else {
-                                    batchLinksData.push({ url: myShopee, type: "shop" });
-                                }
-                            } else {
-                                if (cleanUrl.includes('aceimg.com/upload/') || cleanUrl.includes('vdko.de')) {
-                                    batchLinksData.push({ url: cleanUrl, type: "original" });
-                                } else {
-                                    batchLinksData.push({ url: myShopee, type: "shop" });
-                                }
-                            }
-                        });
+                        // Rangkai teks akhirnya
+                        let plainTextArr = [];
+                        
+                        // Masukin caption bawaan (kalau ada)
+                        if (caption !== '') {
+                            plainTextArr.push(caption);
+                        }
+                        
+                        // Masukin link yang udah diacak posisinya dan dikasih emoji Folder
+                        plainTextArr.push('📁\n' + pair[0]);
+                        plainTextArr.push('📁\n' + pair[1]);
 
-                        if (batchLinksData.length > 0) {
-                            let plainTextArr = [];
-                            if (caption !== '') plainTextArr.push(caption);
+                        let racikanText = plainTextArr.join('\n'); 
+                        let encodedTweetText = encodeURIComponent(racikanText);
 
-                            batchLinksData.forEach((item, idx) => {
-                                let cleanDisplayUrl = item.url.replace(/^https?:\/\//i, '');
-                                plainTextArr.push(cleanDisplayUrl);
-                            });
-
-                            let racikanText = plainTextArr.join('\n'); 
-                            let encodedTweetText = encodeURIComponent(racikanText);
-
-                            if (!seenBatches.has(racikanText)) {
-                                seenBatches.add(racikanText);
-                                resultHTML += `
-                                <div class="result-day">
-                                    <h3>Batch ${dayCounter}</h3>
-                                    <label class="posted-toggle" title="Tandai sudah diposting">
-                                        <input type="checkbox" onchange="toggleDone(this)">
-                                    </label>
-                                    <div class="result-text">${racikanText}</div>
-                                    <div class="card-actions-bottom">
-                                        <button class="action-icon-only copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)" title="Copy">
-                                            <span class="material-symbols-rounded">content_copy</span>
-                                        </button>
-                                        <button class="action-icon-only share-btn" onclick="shareToX(this)" data-text="${encodedTweetText}" title="Share ke X">
-                                            <span class="material-symbols-rounded">share</span>
-                                        </button>
-                                    </div>
-                                </div>`;
-                                dayCounter++;
-                            }
+                        if (!seenBatches.has(racikanText)) {
+                            seenBatches.add(racikanText);
+                            resultHTML += `
+                            <div class="result-day">
+                                <h3>Batch ${dayCounter}</h3>
+                                <label class="posted-toggle" title="Tandai sudah diposting">
+                                    <input type="checkbox" onchange="toggleDone(this)">
+                                </label>
+                                <div class="result-text">${racikanText}</div>
+                                <div class="card-actions-bottom">
+                                    <button class="action-icon-only copy-btn" onclick="copyToClipboard(this, \`${racikanText}\`)" title="Copy">
+                                        <span class="material-symbols-rounded">content_copy</span>
+                                    </button>
+                                    <button class="action-icon-only share-btn" onclick="shareToX(this)" data-text="${encodedTweetText}" title="Share ke X">
+                                        <span class="material-symbols-rounded">share</span>
+                                    </button>
+                                </div>
+                            </div>`;
+                            dayCounter++;
                         }
                     }
                 } catch (e) { console.log("Failed to process: " + url); }
             }
 
             // ======================================================
-            // PROSES KOTAK 3 (GABUNG 2x2 DENGAN API TWITTER KEMBALI)
+            // PROSES KOTAK 3 (GABUNG 2x2) - IKUT DIROMBAK JUGA
             // ======================================================
             if (multiUrls.length > 0) {
                 let allCaptions = [];
                 let allVideoLinks = [];
 
-                // TAHAP 1: EKSTRAK DATA (Sedot dari Twitter pakai API)
                 for (let url of multiUrls) {
                     if (url.includes('x.com') || url.includes('twitter.com')) {
                         try {
@@ -1120,7 +1112,7 @@
                             
                             try {
                                 response = await fetch(apiUrl);
-                                if (!response.ok) throw new Error("Gagal jalur utama");
+                                if (!response.ok) throw new Error("Gagal");
                             } catch (err) {
                                 let proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
                                 response = await fetch(proxyUrl);
@@ -1133,18 +1125,16 @@
                             let urlRegex = /(https?:\/\/[^\s]+)/g;
                             let foundUrls = fullText.match(urlRegex) || [];
 
-                            // Ambil Caption
                             let captionText = fullText.replace(urlRegex, '').trim();
                             if (captionText !== '') allCaptions.push(captionText);
 
-                            // Saring URL
                             foundUrls.forEach(u => {
                                 let cleanUrl = u.replace(/["']/g, "").trim();
                                 if (!cleanUrl.includes('x.com') && !cleanUrl.includes('twitter.com') && !cleanUrl.includes('shopee.co.id') && !cleanUrl.includes('t.co')) {
                                     allVideoLinks.push(cleanUrl);
                                 }
                             });
-                        } catch (e) { console.log("Gagal proses link twitter di Kotak 3: " + url); }
+                        } catch (e) { console.log("Error Kotak 3: " + url); }
                     } else {
                         if (!url.includes('shopee.co.id')) {
                             allVideoLinks.push(url.replace(/["']/g, "").trim());
@@ -1152,31 +1142,31 @@
                     }
                 }
 
-                // TAHAP 2: PECAH JADI 2x2
                 let batchIndex = 0; 
                 for (let i = 0; i < allVideoLinks.length; i += 2) {
                     let chunk = allVideoLinks.slice(i, i + 2); 
                     let plainTextArr = [];
                     
-                    // Rotasi Judul/Caption
                     if (allCaptions.length > 0) {
-                        let currentCaption = allCaptions[batchIndex % allCaptions.length];
-                        plainTextArr.push(currentCaption);
+                        plainTextArr.push(allCaptions[batchIndex % allCaptions.length]);
                     }
 
                     chunk.forEach(vidUrl => {
-                        // Masukin Link Video
-                        plainTextArr.push(vidUrl.replace(/^https?:\/\//i, ''));
-                        
-                        // Masukin Link Shopee / Sistem Auto-Pilot vdko.lol
+                        let myShopee = "";
                         if (shopeeRaw.length > 0) {
-                            let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
-                            plainTextArr.push(myShopee.replace(/^https?:\/\//i, ''));
+                            myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
                             shopeeIndex++;
                         } else {
                             let r = Math.random().toString(36).substring(2, 8);
-                            plainTextArr.push(`vdko.lol/f/${r}`);
+                            myShopee = `vdko.lol/f/${r}`;
                         }
+
+                        // Acak posisi setiap pasangan video + shopee
+                        let pair = [vidUrl.replace(/^https?:\/\//i, ''), myShopee.replace(/^https?:\/\//i, '')];
+                        pair.sort(() => Math.random() - 0.5);
+                        
+                        plainTextArr.push('📁\n' + pair[0]);
+                        plainTextArr.push('📁\n' + pair[1]);
                     });
 
                     let racikanText = plainTextArr.join('\n');
