@@ -1,47 +1,123 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <script>
-        const fullPath = window.location.pathname;
-
-        // 1. KAMUS JEBAKAN SHOPEE
-        const shopeeLinks = {
-            'v1RuS9xTw': 'https://s.shopee.co.id/4ftzLEBzIC',
-            'x7BqP2mKz': 'https://s.shopee.co.id/9UzF6ArQDt',
-            'k9LwZ5cRy': 'https://s.shopee.co.id/2BCeMipabP',
-            'm4YtN8rPq': 'https://s.shopee.co.id/5VT6KryUik'
-        };
-
-        const parts = fullPath.split('/');
-        const cleanID = parts[parts.length - 1].replace('.mp4', '');
-
-        // 2. MESIN PENGECEK SUPER BINGUNG
-        if (shopeeLinks.hasOwnProperty(cleanID)) {
-            // Lempar ke Shopee
-            window.location.replace(shopeeLinks[cleanID]);
-            
-        } else if (fullPath.startsWith('/s/')) {
-            // Lempar ke Slicidrive
-            window.location.replace("https://cdn.slicidrive.com/" + cleanID + ".mp4");
-            
-        } else if (fullPath.startsWith('/a/')) {
-            // TEMBAK LANGSUNG KE GUDANG ACEIMG (Karena kita udah punya kunci gudangnya)
-            window.location.replace("https://aceimg.com/upload/?f=" + cleanID + ".mp4");
-            
-        } else if (fullPath.startsWith('/v/')) {
-            // Lempar ke Vdaq
-            window.location.replace("https://vdaq.de/e/" + cleanID);
-            
-        } else if (fullPath.startsWith('/q/')) {
-            // Lempar ke Qceimg
-            window.location.replace("https://cdn2.qceimg.com/" + cleanID + ".mp4");
-            
-        } else {
-            // Default nyasar
-            window.location.replace("https://aceimg.com/upload/?f=" + cleanID + ".mp4");
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VDKO TECH - Upgrade Your Setup</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f9ff;
+            color: #333;
         }
-    </script>
+        /* HEADER BIKIN MIRIP VIDEBUY */
+        .header {
+            background-color: #1a3673; 
+            color: white;
+            text-align: center;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        /* BAGIAN HERO (GRADASI BIRU) */
+        .hero {
+            background: linear-gradient(180deg, #d3e4fd 0%, #f5f9ff 100%);
+            text-align: center;
+            padding: 50px 20px 30px;
+        }
+        .hero h1 {
+            color: #1a3673;
+            font-size: 36px;
+            margin: 0 0 10px 0;
+            line-height: 1.2;
+        }
+        .hero p {
+            color: #4a5568;
+            font-size: 15px;
+            margin: 0;
+        }
+        /* KOTAK PRODUK */
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .card img {
+            width: 100%;
+            border-radius: 8px;
+            height: auto;
+            object-fit: cover;
+            border: 1px solid #f0f0f0;
+        }
+        .card h3 {
+            font-size: 16px;
+            color: #1a3673;
+            margin: 16px 0;
+            line-height: 1.4;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            background-color: #3b82f6; 
+            color: white;
+            text-align: center;
+            padding: 14px 0;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: background 0.2s;
+            box-sizing: border-box;
+        }
+        .btn:active {
+            background-color: #2563eb;
+        }
+    </style>
 </head>
-<body style="background: #000;"></body>
+<body>
+
+    <!-- JUDUL ATAS -->
+    <div class="header">
+        VDKO TECH
+    </div>
+
+    <!-- TULISAN TENGAH -->
+    <div class="hero">
+        <h1>Upgrade Your<br>Setup</h1>
+        <p>Top-tier productivity tools.</p>
+    </div>
+
+    <!-- DAFTAR BARANG -->
+    <div class="container">
+        
+        <!-- BARANG 1 -->
+        <div class="card">
+            <!-- Ganti tulisan LINK_GAMBAR_SHOPEE dengan link gambar lu (akhiri pakai .jpg/.png) -->
+            <img src="https://down-id.img.susercontent.com/file/id-11134207-7r98r-lsd8k8w4o9tvd5" alt="Keyboard Aula">
+            <h3>AULA F75 PRO 75% Compact Gasket Mount Keyboard</h3>
+            <!-- Ganti tulisan LINK_AFFILIATE_LU dengan link shopee asli lu -->
+            <a href="LINK_AFFILIATE_LU_DISINI" class="btn">Buy Product</a>
+        </div>
+
+        <!-- BARANG 2 -->
+        <div class="card">
+            <img src="https://down-id.img.susercontent.com/file/id-11134207-7r98o-lstt0u1d1q2h13" alt="Keyboard Mekanikal">
+            <h3>IUTU Mechanical Gaming Keyboard 82 Keys RGB</h3>
+            <a href="LINK_AFFILIATE_LU_DISINI" class="btn">Buy Product</a>
+        </div>
+        
+    </div>
+
+</body>
 </html>
