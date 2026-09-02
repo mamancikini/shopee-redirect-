@@ -596,7 +596,6 @@
         let lastActiveMainTab = 'home'; 
         let isHistoryOpen = false;
 
-        // FUNGSI JEDA WAKTU (DELAY ANTI TILANG API)
         const delay = ms => new Promise(res => setTimeout(res, ms));
 
         function toggleMode() {
@@ -891,8 +890,7 @@
         }
 
         // ========================================================
-        // MESIN GENERATOR UTAMA (EKSTRAK CAPTION & INTERLEAVE 3x3)
-        // DENGAN SISTEM MULTI-LINK ROUND ROBIN DARI KOTAK 1
+        // MESIN GENERATOR UTAMA DENGAN LINK MURNI (TANPA CDNPRO)
         // ========================================================
         async function generateAll() {
             let status = document.getElementById('status');
@@ -907,7 +905,6 @@
                 return;
             }
 
-            // AMBIL DATA DARI KOTAK 1 SEBAGAI GUDANG (MULTI-LINE)
             let shopeeRaw = sInput.value.split('\n').map(s => s.trim()).filter(s => s !== '');
             let rawTweetInput = tInput.value;
             let rawMultiInput = mInput.value;
@@ -933,7 +930,7 @@
             
             let resultHTML = '';
             let dayCounter = 1;
-            let shopeeIndex = 0; // Pointer buat milih link Tokopedia bergantian
+            let shopeeIndex = 0; 
 
             // ======================================================
             // PROSES KOTAK 2 (EKSTRAK CAPTION + 3x3)
@@ -960,37 +957,24 @@
                     let urlRegex = /(https?:\/\/[^\s]+)/g;
                     let foundUrls = fullText.match(urlRegex) || [];
 
-                    // 1. Ekstrak Caption Asli (Buang semua URL yang nempel di teks asli)
+                    // Ekstrak Caption
                     let caption = fullText.replace(urlRegex, '').trim();
                     caption = caption.replace(/\n{2,}/g, '\n'); 
 
-                    // 2. Kumpulin Link Video (Ambil yg aceimg/vdko/t.co aja)
-                    let videoLinks = foundUrls.filter(u => u.includes('aceimg') || u.includes('vdko.de') || u.includes('t.co') || u.includes('cdnpro'));
-                    
-                    // Batasi maksimal 3 video
+                    // Kumpulin Link Video
+                    let videoLinks = foundUrls.filter(u => u.includes('aceimg') || u.includes('t.co'));
                     videoLinks = videoLinks.slice(0, 3);
 
                     if (videoLinks.length > 0) {
                         let plainTextArr = [];
-                        
-                        // Masukin judul (caption) di paling atas
                         if (caption) plainTextArr.push(caption);
 
-                        // 3. Jahit secara selang-seling (Video -> Tokopedia -> Video -> Tokopedia)
                         for (let i = 0; i < videoLinks.length; i++) {
                             let cleanVid = videoLinks[i].replace(/["']/g, "").replace(/^https?:\/\//i, '').trim();
                             
-                            // Handling format khusus buat aceimg
-                            if (appMode === 'mixer' && cleanVid.includes('aceimg.com/upload/')) {
-                                let id = cleanVid.split('?f=')[1]; 
-                                if(id) cleanVid = "cdnpro.vercel.app/a/" + id;
-                            }
-
-                            // Ambil Link Tokopedia dari Gudang (Kotak 1) secara Round-Robin
                             let myAffiliate = shopeeRaw[shopeeIndex % shopeeRaw.length].replace(/^https?:\/\//i, '');
-                            shopeeIndex++; // Pindah ke link Tokopedia selanjutnya
+                            shopeeIndex++; 
 
-                            // Masukin secara bergantian
                             plainTextArr.push(cleanVid);
                             plainTextArr.push(myAffiliate);
                         }
@@ -1020,7 +1004,7 @@
             }
 
             // ======================================================
-            // PROSES KOTAK 3 (GABUNG 2x2 LAMA) DENGAN MULTI-LINK JUGA
+            // PROSES KOTAK 3 (GABUNG 2x2 LAMA)
             // ======================================================
             if (multiUrls.length > 0) {
                 let allVideoLinks = [];
@@ -1068,12 +1052,13 @@
                     let plainTextArr = [];
                     
                     chunk.forEach(vidUrl => {
-                        // Ambil Link Tokopedia secara Round-Robin
                         let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
                         shopeeIndex++;
 
-                        let pair = [vidUrl.replace(/^https?:\/\//i, ''), myShopee.replace(/^https?:\/\//i, '')];
-                        pair.sort(() => Math.random() - 0.5); // 2x2 tetep diacak posisinya
+                        let cleanVidUrl = vidUrl.replace(/^https?:\/\//i, '');
+
+                        let pair = [cleanVidUrl, myShopee.replace(/^https?:\/\//i, '')];
+                        pair.sort(() => Math.random() - 0.5); 
                         
                         plainTextArr.push(pair[0]);
                         plainTextArr.push(pair[1]);
