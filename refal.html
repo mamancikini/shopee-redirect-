@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Link AutoMixer</title>
+    <title>Link AutoMixer - Multi Affiliate 3x3</title>
     
     <!-- Import Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,7 +13,7 @@
 
     <style>
         :root {
-            /* Tema Putih (Light Theme) ala Ekosistem Google */
+            /* Tema Putih (Light Theme) */
             --md-bg: #ffffff;
             --md-surface: #f1f3f4; 
             --md-on-surface: #1f1f1f;
@@ -230,21 +230,6 @@
             transform: translateX(22px);
             background-color: var(--md-primary); 
         }
-
-        /* Tombol Auto vdko.lol */
-        .mini-btn {
-            font-size: 12px;
-            background: #d3e3fd;
-            color: #041e49;
-            border: none;
-            padding: 4px 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-family: 'Google Sans', 'Outfit', sans-serif;
-            transition: opacity 0.2s;
-        }
-        .mini-btn:active { opacity: 0.7; }
 
         /* FAB Save Button */
         button.save-btn {
@@ -542,22 +527,18 @@
             </div>
 
             <div class="box">
-                <!-- Label diupdate biar ada tombol sakti ✨ Auto vdko.lol -->
-                <label style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>Shopee Links</span>
-                    <button type="button" class="mini-btn" onclick="generateVdko()" title="Bikin link vdko.lol otomatis">✨ Auto vdko.lol</button>
-                </label>
-                <textarea id="inputShopee" placeholder="Tempel link Shopee / biarkan kosong buat otomatis pakai vdko.lol"></textarea>
+                <label>Gudang Link Tokopedia/TikTok (Multi-Lines)</label>
+                <textarea id="inputShopee" placeholder="Tempel berapapun mentahan link vt.tokopedia.com... di sini. Sistem akan muter panggil satu per satu."></textarea>
             </div>
 
             <div class="box">
-                <label>URLs (Standar / Replace)</label>
-                <textarea id="inputTweet" placeholder="Tempel link cuitan Twitter asupan di sini..."></textarea>
+                <label>URLs (Clone Caption + Interleave 3x3)</label>
+                <textarea id="inputTweet" placeholder="Tempel link cuitan Twitter target di sini... (Bot akan ambil Judul & Link Video dia)"></textarea>
             </div>
 
             <!-- KOTAK 3 -->
             <div class="box" style="border-bottom: none;">
-                <label style="color: var(--md-primary);">URLs (Gabung 2x2)</label>
+                <label style="color: var(--md-primary);">URLs (Gabung 2x2 Biasa)</label>
                 <textarea id="inputMultiTweet" placeholder="Tempel kumpulan link cuitan Twitter di sini..."></textarea>
             </div>
 
@@ -618,20 +599,6 @@
         // FUNGSI JEDA WAKTU (DELAY ANTI TILANG API)
         const delay = ms => new Promise(res => setTimeout(res, ms));
 
-        // FUNGSI BARU: Generate vdko.lol ke Kotak 1 dengan panjang 11 karakter (kembar dengan vdko.de)
-        function generateVdko() {
-            let links = [];
-            for(let i=0; i<50; i++) {
-                // Kombinasi dua acakan biar bisa dapat panjang persis 11 karakter
-                let r = (Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 6)).substring(0, 11);
-                links.push(`vdko.lol/f/${r}`);
-            }
-            let sInput = document.getElementById('inputShopee');
-            sInput.value = links.join('\n');
-            localStorage.setItem('draft_shopee', sInput.value); // Simpan otomatis
-            sInput.scrollTop = sInput.scrollHeight; // Auto scroll ke bawah
-        }
-
         function toggleMode() {
             let isChecked = document.getElementById('modeSwitch').checked;
             let statusDiv = document.getElementById('status');
@@ -639,8 +606,8 @@
             
             if (isChecked) {
                 appMode = 'replacer';
-                heroTitle.innerHTML = 'Clone Target dan<br>Ganti Link Shopee';
-                if(statusDiv) statusDiv.innerHTML = "Mode Aktif: Clone & Replace Shopee";
+                heroTitle.innerHTML = 'Clone Target dan<br>Ganti Link Affiliate';
+                if(statusDiv) statusDiv.innerHTML = "Mode Aktif: Clone Caption & Interleave";
             } else {
                 appMode = 'mixer';
                 heroTitle.innerHTML = 'Penyederhanaan dan<br>manajemen link Anda';
@@ -696,17 +663,9 @@
             }
         });
 
-        // ========================================================
         // MESIN SWIPE REAL-TIME
-        // ========================================================
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let dragStartX = 0;
-        let startTime = 0;
-        let isDraggingDrawer = false;
-        let isSwipingTab = false;
-        let isVerticalScroll = false;
-        let drawerWidth = 0;
+        let touchStartX = 0, touchStartY = 0, dragStartX = 0, startTime = 0;
+        let isDraggingDrawer = false, isSwipingTab = false, isVerticalScroll = false, drawerWidth = 0;
 
         document.addEventListener('touchstart', e => {
             touchStartX = e.touches[0].clientX;
@@ -737,20 +696,14 @@
                     isVerticalScroll = true; 
                 } else if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 8) {
                     if (isHistoryOpen) {
-                        if (diffX < 0) { 
-                            isDraggingDrawer = true; 
-                            dragStartX = currentX;
-                        }
+                        if (diffX < 0) { isDraggingDrawer = true; dragStartX = currentX; }
                     } else if (lastActiveMainTab === 'home') {
                         if (diffX > 0) {
-                            isDraggingDrawer = true;
-                            dragStartX = currentX;
+                            isDraggingDrawer = true; dragStartX = currentX;
                             document.getElementById('tab-history').style.pointerEvents = 'auto';
                             document.getElementById('historyContainer').style.transition = 'none';
                             document.getElementById('tab-history').style.transition = 'none';
-                        } else {
-                            isSwipingTab = true;
-                        }
+                        } else { isSwipingTab = true; }
                     } else if (lastActiveMainTab === 'result') {
                         isSwipingTab = true;
                     }
@@ -780,7 +733,6 @@
             let currentX = e.changedTouches[0].clientX;
             let diffX = currentX - touchStartX;
             let dragDiff = currentX - dragStartX;
-            
             let timeTaken = Date.now() - startTime;
             let velocityX = dragDiff / timeTaken;
 
@@ -790,55 +742,32 @@
                 
                 container.style.transition = 'transform 0.25s ease-out';
                 backdrop.style.transition = 'background-color 0.25s ease-out';
-                
                 container.style.transform = '';
                 backdrop.style.backgroundColor = '';
                 backdrop.style.pointerEvents = '';
                 
                 if (!isHistoryOpen) {
-                    if (dragDiff > drawerWidth * 0.25 || velocityX > 0.5) {
-                        toggleHistory(true);
-                    } else {
-                        toggleHistory(false);
-                    }
+                    if (dragDiff > drawerWidth * 0.25 || velocityX > 0.5) { toggleHistory(true); } else { toggleHistory(false); }
                 } else {
-                    if (dragDiff < -(drawerWidth * 0.25) || velocityX < -0.5) {
-                        toggleHistory(false);
-                    } else {
-                        toggleHistory(true);
-                    }
+                    if (dragDiff < -(drawerWidth * 0.25) || velocityX < -0.5) { toggleHistory(false); } else { toggleHistory(true); }
                 }
             } else if (isSwipingTab) {
-                if (diffX < -40 && lastActiveMainTab === 'home' && !isHistoryOpen) {
-                    switchTab('result'); 
-                } else if (diffX > 40 && lastActiveMainTab === 'result' && !isHistoryOpen) {
-                    switchTab('home'); 
-                }
+                if (diffX < -40 && lastActiveMainTab === 'home' && !isHistoryOpen) { switchTab('result'); } 
+                else if (diffX > 40 && lastActiveMainTab === 'result' && !isHistoryOpen) { switchTab('home'); }
             }
-            
-            touchStartX = 0;
-            touchStartY = 0;
-            isDraggingDrawer = false;
-            isSwipingTab = false;
-            isVerticalScroll = false;
+            touchStartX = 0; touchStartY = 0; isDraggingDrawer = false; isSwipingTab = false; isVerticalScroll = false;
         }, {passive: true});
 
         function toggleMenu(id, event) {
             event.stopPropagation(); 
-            
-            document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                if(menu.id !== `menu-${id}`) menu.style.display = 'none';
-            });
-            
+            document.querySelectorAll('.dropdown-menu').forEach(menu => { if(menu.id !== `menu-${id}`) menu.style.display = 'none'; });
             let menu = document.getElementById(`menu-${id}`);
             menu.style.display = menu.style.display === 'none' ? 'flex' : 'none';
         }
 
         document.addEventListener('click', function(e) {
             if(!e.target.closest('.history-actions')) {
-                document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                    menu.style.display = 'none';
-                });
+                document.querySelectorAll('.dropdown-menu').forEach(menu => { menu.style.display = 'none'; });
             }
         });
 
@@ -863,9 +792,7 @@
 
         let currentActiveResultHTML = '';
         let currentActiveItemsCount = 0;
-        let lastLengthShopee = 0;
-        let lastLengthTweet = 0;
-        let lastLengthMulti = 0;
+        let lastLengthShopee = 0, lastLengthTweet = 0, lastLengthMulti = 0;
         let currentActiveHistoryId = null;
 
         window.onload = function() {
@@ -901,8 +828,7 @@
             if (sInput) {
                 lastLengthShopee = sInput.value.length;
                 sInput.addEventListener('input', function() {
-                    let currentLength = this.value.length;
-                    if (currentLength - lastLengthShopee > 10) {
+                    if (this.value.length - lastLengthShopee > 10) {
                         if (!this.value.endsWith('\n')) this.value += '\n';
                         this.scrollTop = this.scrollHeight;
                     }
@@ -914,8 +840,7 @@
             if (tInput) {
                 lastLengthTweet = tInput.value.length;
                 tInput.addEventListener('input', function() {
-                    let currentLength = this.value.length;
-                    if (currentLength - lastLengthTweet > 10) {
+                    if (this.value.length - lastLengthTweet > 10) {
                         if (!this.value.endsWith('\n')) this.value += '\n';
                         this.scrollTop = this.scrollHeight;
                     }
@@ -927,8 +852,7 @@
             if (mInput) {
                 lastLengthMulti = mInput.value.length;
                 mInput.addEventListener('input', function() {
-                    let currentLength = this.value.length;
-                    if (currentLength - lastLengthMulti > 10) {
+                    if (this.value.length - lastLengthMulti > 10) {
                         if (!this.value.endsWith('\n')) this.value += '\n';
                         this.scrollTop = this.scrollHeight;
                     }
@@ -939,11 +863,8 @@
         };
 
         function toggleDone(checkbox) {
-            if (checkbox.checked) {
-                checkbox.setAttribute('checked', 'checked'); 
-            } else {
-                checkbox.removeAttribute('checked'); 
-            }
+            if (checkbox.checked) checkbox.setAttribute('checked', 'checked'); 
+            else checkbox.removeAttribute('checked'); 
 
             let outputContainer = document.getElementById('outputContainer');
             currentActiveResultHTML = outputContainer.innerHTML;
@@ -962,9 +883,7 @@
         function shareToX(btn) {
             let racikanText = decodeURIComponent(btn.getAttribute('data-text'));
             if (navigator.share) {
-                navigator.share({
-                    text: racikanText
-                }).catch((error) => console.log('Batal share:', error));
+                navigator.share({ text: racikanText }).catch((error) => console.log('Batal share:', error));
             } else {
                 let intentUrl = `intent:#Intent;action=android.intent.action.SEND;type=text/plain;S.android.intent.extra.TEXT=${btn.getAttribute('data-text')};end`;
                 window.location.href = intentUrl;
@@ -972,7 +891,8 @@
         }
 
         // ========================================================
-        // MESIN GENERATOR UTAMA (ANTI-DUPLIKAT DIMATIKAN & DITAMBAH JEDA API)
+        // MESIN GENERATOR UTAMA (EKSTRAK CAPTION & INTERLEAVE 3x3)
+        // DENGAN SISTEM MULTI-LINK ROUND ROBIN DARI KOTAK 1
         // ========================================================
         async function generateAll() {
             let status = document.getElementById('status');
@@ -987,6 +907,7 @@
                 return;
             }
 
+            // AMBIL DATA DARI KOTAK 1 SEBAGAI GUDANG (MULTI-LINE)
             let shopeeRaw = sInput.value.split('\n').map(s => s.trim()).filter(s => s !== '');
             let rawTweetInput = tInput.value;
             let rawMultiInput = mInput.value;
@@ -995,11 +916,16 @@
             let multiUrls = rawMultiInput.match(/(https?:\/\/[^\s]+)/g) || [];
 
             if (tweetUrls.length === 0 && multiUrls.length === 0) {
-                alert("Silakan isi Kotak 2 (URLs Standar) buat dapet asupan videonya bro.");
+                alert("Silakan isi Kotak 2 (URLs target) buat dapet asupan caption & videonya bro.");
                 return;
             }
 
-            status.innerHTML = "Lagi narik data bos, santai sambil ngopi... (Makin banyak link makin lama)";
+            if (shopeeRaw.length === 0) {
+                alert("Kotak 1 kosong bro! Isi dulu sama mentahan link vt.tokopedia.com lu.");
+                return;
+            }
+
+            status.innerHTML = "Lagi nyedot caption & video dari target... sabar...";
             outputDiv.innerHTML = '';
             saveBtn.style.display = 'none';
             currentActiveHistoryId = null; 
@@ -1007,12 +933,10 @@
             
             let resultHTML = '';
             let dayCounter = 1;
-            let shopeeIndex = 0;
-            
-            // Catatan: Variabel seenBatches dihapus biar bisa nampilin kembaran.
+            let shopeeIndex = 0; // Pointer buat milih link Tokopedia bergantian
 
             // ======================================================
-            // PROSES KOTAK 2 (URL STANDAR / REPLACER) - VERSI MURNI FOLDER
+            // PROSES KOTAK 2 (EKSTRAK CAPTION + 3x3)
             // ======================================================
             for (let url of tweetUrls) {
                 try {
@@ -1020,15 +944,11 @@
                     let response;
                     
                     try {
-                        // JEDA 300ms BIAR API NGGAK NGOS-NGOSAN DITILANG SERVER
                         await delay(300);
-                        
                         response = await fetch(apiUrl);
                         if (!response.ok) throw new Error("Gagal jalur utama");
                     } catch (err) {
-                        // JEDA JUGA KALAU LEWAT PROXY
                         await delay(300);
-                        
                         let proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
                         response = await fetch(proxyUrl);
                     }
@@ -1040,48 +960,47 @@
                     let urlRegex = /(https?:\/\/[^\s]+)/g;
                     let foundUrls = fullText.match(urlRegex) || [];
 
-                    if (foundUrls.length > 0) {
-                        // Cari link vdko.de atau aceimg (kalau gaada, ambil link pertama aja)
-                        let targetVidUrl = foundUrls.find(u => u.includes('vdko.de') || u.includes('aceimg') || u.includes('t.co')) || foundUrls[0];
-                        let cleanVid = targetVidUrl.replace(/["']/g, "").trim();
-                        
-                        if (appMode === 'mixer' && cleanVid.includes('aceimg.com/upload/')) {
-                            let id = cleanVid.split('?f=')[1]; 
-                            if(id) cleanVid = "cdnpro.vercel.app/a/" + id;
-                        }
-                        // Bersihin https:// depannya biar rapi
-                        cleanVid = cleanVid.replace(/^https?:\/\//i, '');
+                    // 1. Ekstrak Caption Asli (Buang semua URL yang nempel di teks asli)
+                    let caption = fullText.replace(urlRegex, '').trim();
+                    caption = caption.replace(/\n{2,}/g, '\n'); 
 
-                        // Ambil Link Shopee atau Generate baru otomatis
-                        let myShopee = "";
-                        if (shopeeRaw.length > 0) {
-                            myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length].replace(/^https?:\/\//i, '');
-                            shopeeIndex++;
-                        } else {
-                            // Generate otomatis 11 karakter (sama persis dengan vdko.de)
-                            let r = (Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 6)).substring(0, 11);
-                            myShopee = `vdko.lol/f/${r}`;
-                        }
+                    // 2. Kumpulin Link Video (Ambil yg aceimg/vdko/t.co aja)
+                    let videoLinks = foundUrls.filter(u => u.includes('aceimg') || u.includes('vdko.de') || u.includes('t.co') || u.includes('cdnpro'));
+                    
+                    // Batasi maksimal 3 video
+                    videoLinks = videoLinks.slice(0, 3);
 
-                        // === BAGIAN INTI: ACAK POSISI ATAS-BAWAH (Murni) ===
-                        let pair = [cleanVid, myShopee];
-                        pair.sort(() => Math.random() - 0.5); // Perintah sakti pengacak posisi
-
-                        // Rangkai teks akhirnya tanpa caption asli dari Twitter
+                    if (videoLinks.length > 0) {
                         let plainTextArr = [];
                         
-                        // Masukin link yang udah diacak posisinya dan dikasih emoji Folder murni
-                        plainTextArr.push('📁\n' + pair[0]);
-                        plainTextArr.push('📁\n' + pair[1]);
+                        // Masukin judul (caption) di paling atas
+                        if (caption) plainTextArr.push(caption);
+
+                        // 3. Jahit secara selang-seling (Video -> Tokopedia -> Video -> Tokopedia)
+                        for (let i = 0; i < videoLinks.length; i++) {
+                            let cleanVid = videoLinks[i].replace(/["']/g, "").replace(/^https?:\/\//i, '').trim();
+                            
+                            // Handling format khusus buat aceimg
+                            if (appMode === 'mixer' && cleanVid.includes('aceimg.com/upload/')) {
+                                let id = cleanVid.split('?f=')[1]; 
+                                if(id) cleanVid = "cdnpro.vercel.app/a/" + id;
+                            }
+
+                            // Ambil Link Tokopedia dari Gudang (Kotak 1) secara Round-Robin
+                            let myAffiliate = shopeeRaw[shopeeIndex % shopeeRaw.length].replace(/^https?:\/\//i, '');
+                            shopeeIndex++; // Pindah ke link Tokopedia selanjutnya
+
+                            // Masukin secara bergantian
+                            plainTextArr.push(cleanVid);
+                            plainTextArr.push(myAffiliate);
+                        }
 
                         let racikanText = plainTextArr.join('\n'); 
                         let encodedTweetText = encodeURIComponent(racikanText);
 
-                        // MESIN ANTI DUPLIKAT DIMATIKAN
-                        // Langsung hajar masukin ke hasil tanpa cek kembar
                         resultHTML += `
                         <div class="result-day">
-                            <h3>Batch ${dayCounter}</h3>
+                            <h3>Batch ${dayCounter} (Clone 3x3)</h3>
                             <label class="posted-toggle" title="Tandai sudah diposting">
                                 <input type="checkbox" onchange="toggleDone(this)">
                             </label>
@@ -1096,13 +1015,12 @@
                             </div>
                         </div>`;
                         dayCounter++;
-                        
                     }
                 } catch (e) { console.log("Failed to process: " + url); }
             }
 
             // ======================================================
-            // PROSES KOTAK 3 (GABUNG 2x2) - VERSI MURNI FOLDER JUGA
+            // PROSES KOTAK 3 (GABUNG 2x2 LAMA) DENGAN MULTI-LINK JUGA
             // ======================================================
             if (multiUrls.length > 0) {
                 let allVideoLinks = [];
@@ -1114,11 +1032,11 @@
                             let response;
                             
                             try {
-                                await delay(300); // JEDA 300ms
+                                await delay(300); 
                                 response = await fetch(apiUrl);
                                 if (!response.ok) throw new Error("Gagal");
                             } catch (err) {
-                                await delay(300); // JEDA 300ms
+                                await delay(300); 
                                 let proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
                                 response = await fetch(proxyUrl);
                             }
@@ -1150,28 +1068,20 @@
                     let plainTextArr = [];
                     
                     chunk.forEach(vidUrl => {
-                        let myShopee = "";
-                        if (shopeeRaw.length > 0) {
-                            myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
-                            shopeeIndex++;
-                        } else {
-                            // Generate otomatis 11 karakter
-                            let r = (Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 6)).substring(0, 11);
-                            myShopee = `vdko.lol/f/${r}`;
-                        }
+                        // Ambil Link Tokopedia secara Round-Robin
+                        let myShopee = shopeeRaw[shopeeIndex % shopeeRaw.length];
+                        shopeeIndex++;
 
-                        // Acak posisi setiap pasangan video + shopee
                         let pair = [vidUrl.replace(/^https?:\/\//i, ''), myShopee.replace(/^https?:\/\//i, '')];
-                        pair.sort(() => Math.random() - 0.5);
+                        pair.sort(() => Math.random() - 0.5); // 2x2 tetep diacak posisinya
                         
-                        plainTextArr.push('📁\n' + pair[0]);
-                        plainTextArr.push('📁\n' + pair[1]);
+                        plainTextArr.push(pair[0]);
+                        plainTextArr.push(pair[1]);
                     });
 
                     let racikanText = plainTextArr.join('\n');
                     let encodedTweetText = encodeURIComponent(racikanText);
 
-                    // MESIN ANTI DUPLIKAT DIMATIKAN
                     resultHTML += `
                     <div class="result-day">
                         <h3 style="color: var(--md-primary);">Batch ${dayCounter} (Gabung 2x2)</h3>
